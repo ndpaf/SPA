@@ -1,6 +1,6 @@
--- SPA-GLOBAL-IDIM-ENGLISH
+-- SPA-GLOBAL-IDM-INGLISHV2.19
 -- Complete English Edition
--- Original version: SPA-GLOBAL V2.18
+-- Original version: SPA-GLOBAL V2.19
 
 -- Internal keys remain unchanged; only their visible labels are localized.
 SPA_ENGLISH_LABELS = {
@@ -12,10 +12,12 @@ SPA_ENGLISH_LABELS = {
 	["CONTACTO"] = "CONTACT", ["ALCANCE"] = "REAR-END", ["LATERAL"] = "SIDE CONTACT",
 	["FRONTAL"] = "HEAD-ON", ["FUERTE"] = "SEVERE", ["MODERADO"] = "MODERATE",
 	["LEVE"] = "MINOR", ["MURO"] = "WALL",
+	["PERMITIDO"] = "PERMITTED", ["SIN PERMISO"] = "WITHOUT PERMISSION",
+	["ACTIVADO"] = "ACTIVATED", ["EXCESO"] = "SPEEDING",
 }
 
 -- ╔══════════════════════════════════════════════════════════════════╗
--- ║  SPA-GLOBAL-IDIM-ENGLISH · QUALIFYING · WAYPOINTS · TRACK LIMITS ║
+-- ║  SPA-GLOBAL-IDM-INGLISHV2.19 · DRS / OT / PIT LIMITER      ║
 -- ║  1) Professional loading screen (White, Black, Red)             ║
 -- ║  2) Right-side timing tower with position-change animations    ║
 -- ║  3) Qualifying mode: configurable time-based rankings          ║
@@ -106,7 +108,7 @@ function SPA_PerfMark(moduleName, startedAt, extra)
 	local now = tick()
 	if elapsed >= (SPA_PERF.spikeMs or 5) and now - (SPA_PERF.lastSpike[moduleName] or 0) >= 1 then
 		SPA_PERF.lastSpike[moduleName] = now
-		warn(("[SPA-GLOBAL-IDIM-ENGLISH PERF SPIKE] module=%s duration=%.2fms%s"):format(moduleName, elapsed, extra and (" " .. tostring(extra)) or ""))
+		warn(("[SPA-GLOBAL-IDM-INGLISHV2.19 PERF SPIKE] module=%s duration=%.2fms%s"):format(moduleName, elapsed, extra and (" " .. tostring(extra)) or ""))
 	end
 	if now - (SPA_PERF.lastLog or 0) >= 10 then
 		SPA_PERF.lastLog = now
@@ -114,7 +116,7 @@ function SPA_PerfMark(moduleName, startedAt, extra)
 		for name, d in pairs(SPA_PERF.samples) do
 			parts[#parts + 1] = ("%s=%.2fms"):format(name, d.last or 0)
 		end
-		warn("[SPA-GLOBAL-IDIM-ENGLISH PERF] " .. table.concat(parts, " "))
+		warn("[SPA-GLOBAL-IDM-INGLISHV2.19 PERF] " .. table.concat(parts, " "))
 	end
 end
 local notifiedPlayers         = {}
@@ -209,7 +211,7 @@ local function warnHudError(stage, player, err)
 	HUD_DIAGNOSTICS.errors += 1
 	if not hudWarningAt[key] or now - hudWarningAt[key] >= 5 then
 		hudWarningAt[key] = now
-		warn(("[SPA-GLOBAL-IDIM-ENGLISH HUD] stage=%s uid=%s name=%s error=%s"):format(tostring(stage), tostring(uid), tostring(name), message))
+		warn(("[SPA-GLOBAL-IDM-INGLISHV2.19 HUD] stage=%s uid=%s name=%s error=%s"):format(tostring(stage), tostring(uid), tostring(name), message))
 	end
 end
 
@@ -630,10 +632,10 @@ local lapSphere      = createSphereTrigger("LapTrigger",      LAP_LINE_CFRAME)
 function _spaLapRuntimeState(reason)
 	local cf = lapWall and lapWall.CFrame
 	if not cf then
-		warn(("[SPA-GLOBAL-IDIM-ENGLISH LAP STATE] reason=%s state=%s detect=%s wall=missing"):format(tostring(reason), tostring(RACE_STATE), tostring(DETECT_LAPS)))
+		warn(("[SPA-GLOBAL-IDM-INGLISHV2.19 LAP STATE] reason=%s state=%s detect=%s wall=missing"):format(tostring(reason), tostring(RACE_STATE), tostring(DETECT_LAPS)))
 		return
 	end
-	warn(("[SPA-GLOBAL-IDIM-ENGLISH LAP STATE] reason=%s state=%s detect=%s wallPos=%s look=%s up=%s"):format(
+	warn(("[SPA-GLOBAL-IDM-INGLISHV2.19 LAP STATE] reason=%s state=%s detect=%s wallPos=%s look=%s up=%s"):format(
 		tostring(reason), tostring(RACE_STATE), tostring(DETECT_LAPS), tostring(cf.Position), tostring(cf.LookVector), tostring(cf.UpVector)))
 end
 
@@ -699,7 +701,7 @@ logoText = Instance.new("TextLabel")
 logoText.Size = UDim2.new(1,0,0,50)
 logoText.Position = UDim2.new(0,0,0,40)
 logoText.BackgroundTransparency = 1
-logoText.Text = "SPA-GLOBAL-IDIM-ENGLISH"
+logoText.Text = "SPA-GLOBAL-IDM-INGLISHV2.19"
 logoText.TextColor3 = Color3.fromRGB(255, 255, 255)
 logoText.Font = Enum.Font.GothamBlack
 logoText.TextSize = 48
@@ -855,7 +857,7 @@ towerConfig = {
 	posY        = 0,
 	offsetY     = 12,
 	headerColor = C_RED,
-	titleText   = "SPA-GLOBAL-IDIM-ENGLISH",
+	titleText   = "SPA-GLOBAL-IDM-INGLISHV2.19",
 	visible     = true,
 	hudMasterVisible = true,  -- [SPAV4] Master HUD visibility (Q key), without a new local
 }
@@ -1228,7 +1230,7 @@ titleTxt = Instance.new("TextLabel")
 titleTxt.Size = UDim2.new(0.7,0,1,0)
 titleTxt.Position = UDim2.new(0,14,0,0)
 titleTxt.BackgroundTransparency = 1
-titleTxt.Text = "SPA-GLOBAL-IDIM-ENGLISH  —  RACE CONTROL"
+titleTxt.Text = "SPA-GLOBAL-IDM-INGLISHV2.19  —  RACE CONTROL"
 titleTxt.Font = Enum.Font.GothamBlack
 titleTxt.TextColor3 = C_WHITE
 titleTxt.TextSize = 14
@@ -1512,7 +1514,7 @@ local function setupRaceControlUI()
 	header.BorderSizePixel = 0; header.Parent = frame
 	local title = Instance.new("TextLabel")
 	title.Size = UDim2.new(0.55, 0, 0, 20); title.Position = UDim2.new(0, 10, 0, 3)
-	title.BackgroundTransparency = 1; title.Text = "SPA-GLOBAL-IDIM-ENGLISH"
+	title.BackgroundTransparency = 1; title.Text = "SPA-GLOBAL-IDM-INGLISHV2.19"
 	title.Font = Enum.Font.GothamBlack; title.TextSize = 12; title.TextColor3 = C_WHITE
 	title.TextXAlignment = Enum.TextXAlignment.Left; title.Parent = header
 	local status = Instance.new("TextLabel")
@@ -3745,7 +3747,7 @@ end
 
 function SPA_AudioRetry:Log(uid, message)
 	if ENABLE_NITRO_DEBUG then
-		warn(("[SPA-GLOBAL-IDIM-ENGLISH AUDIO] uid=%s %s"):format(tostring(uid), message))
+		warn(("[SPA-GLOBAL-IDM-INGLISHV2.19 AUDIO] uid=%s %s"):format(tostring(uid), message))
 	end
 end
 
@@ -4046,6 +4048,7 @@ function SPA_LapsControl:Set(uid, value, batch)
 	if not Players:GetPlayerByUserId(uid) or type(value) ~= "number" or value ~= value or math.abs(value) == math.huge then return end
 	if not lapData[uid] then lapData[uid] = { lapsMade = 0, lastLapTouch = 0 } end
 	lapData[uid].lapsMade = mclamp(mfloor(value), 0, MAX_LAPS)
+	if SPA_RaceModes then SPA_RaceModes:Clear(uid); SPA_RaceModes.leaderLap = 0; SPA_RaceModes.leaderUid = nil end
 	HUD_LAST_SIGNATURE = nil; HUD_RANK_CACHE.signature = nil
 	if not batch then
 		self:Refresh()
@@ -4140,6 +4143,479 @@ function SPA_LapsControl:Init()
 	self.initialized = true
 end
 
+-- V2.19: DRS / OT / pits. Evaluation shares HB-NITRO; no new connections.
+DRS_ENABLED = true
+DRS_START_LAP = 3
+DRS_GAP_SECONDS = 1.0
+DRS_SPEED_BONUS = 10
+DRS_DETECTION_WIDTH = 80
+DRS_DETECTION_HEIGHT = 30
+DRS_DETECTION_DEPTH = 200
+DRS_PENALTY_ENABLED = true
+DRS_CHAT_ENABLED = true
+DRS_ZONES_VISIBLE = true
+OT_ENABLED = true
+OT_SPEED_BONUS = 2 -- Informational: the logic always uses the literal 2.
+OT_GAP_SECONDS = 1.0
+OT_DETECTION_ZONE = nil
+OT_DETECTION_WIDTH = 80
+OT_DETECTION_HEIGHT = 30
+OT_DETECTION_DEPTH = 20
+OT_ZONES_VISIBLE = true
+PIT_LIMITER_ENABLED = true
+PIT_SPEED_PENALTY = -30
+DRS_STATE = {}
+OT_STATE = {}
+SPA_DRS = { zones = {}, initialized = false, nextId = 0 }
+SPA_OT = { initialized = false }
+SPA_PitLimiter = { states = {}, initialized = false }
+SPA_RaceModes = { traces = {}, drivers = {}, ahead = {}, speedChecks = {}, leaderLap = 0, leaderUid = nil }
+
+function SPA_RaceModes:Clear(uid)
+	DRS_STATE[uid] = nil; OT_STATE[uid] = nil; SPA_PitLimiter.states[uid] = nil
+	self.traces[uid] = nil; self.drivers[uid] = nil; self.ahead[uid] = nil
+	self.speedChecks[uid] = nil
+	for follower, ahead in pairs(self.ahead) do if ahead == uid then self.ahead[follower] = nil end end
+end
+
+function SPA_RaceModes:Reset()
+	table.clear(DRS_STATE); table.clear(OT_STATE); table.clear(SPA_PitLimiter.states)
+	table.clear(self.traces); table.clear(self.drivers); table.clear(self.ahead)
+	table.clear(self.speedChecks)
+	self.leaderLap = 0; self.leaderUid = nil
+end
+
+function SPA_RaceModes:NewState()
+	return { insideDetection = false, insideZone = false, permitted = false, active = false,
+		lastPermission = false, lap = 0, lastNotice = 0, notices = {} }
+end
+
+function SPA_RaceModes:Eligible(uid)
+	local st = PlayerState and PlayerState[uid]
+	return st and st.inVehicle and st.seat and st.seat.Parent
+		and not FIA_EXCLUDED[uid] and not DSQ_DRIVERS[uid]
+end
+
+function SPA_RaceModes:RefreshZone(zone)
+	if not zone or not zone.part or not zone.part.Parent then return false end
+	zone.cf = zone.part.CFrame; zone.size = zone.part.Size
+	return true
+end
+
+function SPA_RaceModes:Inside(zone, position)
+	if not zone or not position or not zone.part.Parent then return false end
+	local p = zone.cf:PointToObjectSpace(position)
+	return math.abs(p.X) <= zone.size.X / 2 and math.abs(p.Y) <= zone.size.Y / 2 and math.abs(p.Z) <= zone.size.Z / 2
+end
+
+function SPA_RaceModes:Cross(zone, previous, position)
+	if not previous or not position or not zone or not zone.part.Parent then return nil end
+	local a, b = zone.cf:PointToObjectSpace(previous), zone.cf:PointToObjectSpace(position)
+	if (a.Z >= 0) == (b.Z >= 0) or math.abs(a.Z - b.Z) < 1e-6 then return nil end
+	local alpha = a.Z / (a.Z - b.Z)
+	local p = a + (b - a) * alpha
+	if math.abs(p.X) <= zone.size.X / 2 and math.abs(p.Y) <= zone.size.Y / 2 then return alpha end
+	return nil
+end
+
+function SPA_DRS:Resize(resetState)
+	for _, zone in ipairs(self.zones) do
+		if zone.part.Parent then
+			zone.part.Size = Vector3.new(DRS_DETECTION_WIDTH, DRS_DETECTION_HEIGHT, zone.kind == "DETECTION" and DRS_DETECTION_DEPTH or 4)
+			zone.part.Transparency = DRS_ZONES_VISIBLE and 0.65 or 1
+			SPA_RaceModes:RefreshZone(zone)
+		end
+	end
+	if resetState ~= false then table.clear(DRS_STATE) end
+end
+
+function SPA_DRS:Create(kind, cf)
+	assert(kind == "START" or kind == "END" or kind == "DETECTION", "Invalid DRS zone type")
+	local index = 1
+	for _, zone in ipairs(self.zones) do if zone.kind == kind then index = math.max(index, zone.index + 1) end end
+	self.nextId += 1
+	local part = Instance.new("Part")
+	part.Name = "SPA_DRS_" .. kind .. "_" .. tostring(self.nextId)
+	part.Anchored = true; part.CanCollide = false; part.CanTouch = false; part.CanQuery = false
+	part.Material = Enum.Material.Neon
+	part.Color = kind == "END" and C_RED or (kind == "START" and C_GREEN or C_YELLOW)
+	part.CFrame = cf
+	part.Parent = Workspace
+	table.insert(self.zones, { part = part, cf = cf, kind = kind, index = index, id = self.nextId })
+	self:Resize()
+	showNotification("DRS zone " .. kind .. " #" .. tostring(index) .. " created", C_GREEN, "🏁", 5)
+end
+
+function SPA_DRS:RemoveLast()
+	local zone = table.remove(self.zones)
+	if zone then zone.part:Destroy(); zone.part = nil end
+	table.clear(DRS_STATE)
+end
+
+function SPA_DRS:RemoveAll()
+	while #self.zones > 0 do self:RemoveLast() end
+	self.nextId = 0
+	table.clear(DRS_STATE)
+end
+
+function SPA_OT:Remove()
+	if OT_DETECTION_ZONE then OT_DETECTION_ZONE.part:Destroy(); OT_DETECTION_ZONE = nil end
+	table.clear(OT_STATE)
+end
+
+function SPA_OT:Resize(resetState)
+	if not OT_DETECTION_ZONE then return end
+	local part = OT_DETECTION_ZONE.part
+	if not part.Parent then self:Remove(); return end
+	part.Size = Vector3.new(OT_DETECTION_WIDTH, OT_DETECTION_HEIGHT, OT_DETECTION_DEPTH)
+	part.Transparency = OT_ZONES_VISIBLE and 0.65 or 1
+	SPA_RaceModes:RefreshZone(OT_DETECTION_ZONE)
+	if resetState ~= false then table.clear(OT_STATE) end
+end
+
+function SPA_OT:Create(cf)
+	self:Remove()
+	local part = Instance.new("Part")
+	part.Name = "SPA_OT_DETECTION"; part.CFrame = cf
+	part.Anchored = true; part.CanCollide = false; part.CanTouch = false; part.CanQuery = false
+	part.Material = Enum.Material.Neon; part.Color = C_BLUE; part.Parent = Workspace
+	OT_DETECTION_ZONE = { part = part, cf = cf, id = "OT" }
+	self:Resize()
+	showNotification("OT zone created: start and end of each lap", C_GREEN, "🏁", 5)
+end
+
+function SPA_RaceModes:Capture(now)
+	if not (SPA_DRS.initialized and SPA_OT.initialized and SPA_PitLimiter.initialized) then return end
+	if self.session ~= RACE_STATE then self:Reset(); self.session = RACE_STATE end
+	-- Refresh references and geometry once per cycle, not once per driver.
+	for i = #SPA_DRS.zones, 1, -1 do
+		if not self:RefreshZone(SPA_DRS.zones[i]) then
+			table.remove(SPA_DRS.zones, i); table.clear(DRS_STATE)
+		end
+	end
+	if OT_DETECTION_ZONE and not self:RefreshZone(OT_DETECTION_ZONE) then SPA_OT:Remove() end
+	table.clear(self.ahead)
+	local previousUid
+	for _, uid in ipairs(CURRENT_STANDINGS_ORDER) do
+		if self:Eligible(uid) then self.ahead[uid] = previousUid; previousUid = uid end
+	end
+	for uid in pairs(self.traces) do if not self:Eligible(uid) then self:Clear(uid) end end
+	for uid, st in pairs(PlayerState) do
+		if not self:Eligible(uid) then continue end
+		local trace = self.traces[uid]
+		if not trace or trace.seat ~= st.seat or trace.character ~= st.character then
+			self:Clear(uid)
+			trace = { seat = st.seat, character = st.character, samples = {} }; self.traces[uid] = trace
+		end
+		local samples = trace.samples
+		local last = samples[#samples]
+		local position = st.seat.Position
+		local velocity = st.seat.AssemblyLinearVelocity
+		-- Respawns, long pauses and teleports do not form detection segments.
+		if last and (now - last.time > 0.65 or (position - last.position).Magnitude > math.max(40, velocity.Magnitude * (now - last.time) * 2 + 10)) then
+			table.clear(samples); DRS_STATE[uid] = nil; OT_STATE[uid] = nil
+			last = nil
+		end
+		trace.previous = last and last.position or nil
+		table.insert(samples, { position = position, time = now, lap = lapData[uid] and lapData[uid].lapsMade or 0 })
+		if #samples > 96 then table.remove(samples, 1) end
+	end
+	-- Clear may invalidate followers; rebuild after joins/leaves to avoid relying on pairs() order.
+	table.clear(self.ahead); previousUid = nil
+	for _, uid in ipairs(CURRENT_STANDINGS_ORDER) do
+		if self:Eligible(uid) then self.ahead[uid] = previousUid; previousUid = uid end
+	end
+end
+
+function SPA_RaceModes:Gap(uid, position, now)
+	local ahead = self.ahead[uid]
+	local trace, own = ahead and self.traces[ahead], self.traces[uid]
+	if not trace or not own or not self:Eligible(ahead) then return nil end
+	local ld, ref = lapData[uid], lapData[ahead]
+	-- Do not interpret a one-lap deficit as one second or use a stale finish-line time.
+	if not ld or not ref or ld.lapsMade ~= ref.lapsMade then return nil end
+	local movement = own.previous and (position - own.previous)
+	if not movement or movement.Magnitude < 0.25 then return nil end
+	local direction = movement.Unit
+	-- Time gap at the same point on the track: interpolate when the car ahead crossed
+	-- the follower's perpendicular plane; do not divide straight-line distance by speed.
+	for i = #trace.samples, 2, -1 do
+		local a, b = trace.samples[i-1], trace.samples[i]
+		if now - a.time > 12 then break end
+		if b.time > now or b.lap ~= ld.lapsMade or a.lap ~= b.lap then continue end
+		local path = b.position - a.position
+		local length = path.Magnitude
+		if length < 0.25 or path.Unit:Dot(direction) < 0.75 then continue end
+		local da, db = (a.position-position):Dot(direction), (b.position-position):Dot(direction)
+		if da <= 0 and db >= 0 and db - da > 1e-6 then
+			local alpha = -da / (db - da)
+			local hit = a.position + path * alpha
+			-- Allow adjacent lanes, but reject a nearby separate track section or a different elevation.
+			if (hit-position).Magnitude <= 12 and math.abs(hit.Y-position.Y) <= 5 then
+				local gap = now - (a.time + (b.time-a.time)*alpha)
+				if gap >= 0 and gap <= 12 then return gap, ahead end
+			end
+		end
+	end
+	return nil
+end
+
+function SPA_RaceModes:Configured(st, vc)
+	-- The old fallback caches MaxSpeed; read the live property without scanning.
+	if vc and not vc.speedLimitValue and st.seat:IsA("VehicleSeat") then return st.seat.MaxSpeed end
+	return getPlayerSpeedLimit(st.seat, vc)
+end
+
+function SPA_RaceModes:Emit(mode, uid, state, event, now, bad, reason)
+	local key = event
+	if now - (state.notices[key] or -math.huge) < (bad and 10 or 2) then return end
+	state.notices[key] = now; state.lastNotice = now
+	local driver = self.drivers[uid]
+	local st = PlayerState[uid]
+	if not driver or not st then return end
+	local title = mode == "PIT" and "PIT LANE SPEEDING" or (mode .. " " .. (SPA_ENGLISH_LABELS[event] or event))
+	local bonus = mode == "DRS" and DRS_SPEED_BONUS or (mode == "OT" and 2 or PIT_SPEED_PENALTY)
+	local name = getDisplayName(st.player)
+	local detail = ("UID=%s | lap=%d | actual=%.2f | configured=%.2f | base=%.2f | bonus=%.2f / %.2f | permitted=%s | active=%s | GAP=%s | zone=%s | %s"):format(
+		tostring(uid), state.lap, driver.actual, driver.configured, driver.base, driver.configured-driver.base, bonus,
+		tostring(state.permitted), tostring(state.active), state.gap and sformat("%.3f",state.gap) or "NO DATA",
+		tostring(state.zone or "OUTSIDE"), reason or title)
+	SPA_RaceControl:AddEvent(mode .. "_" .. event, {
+		category = bad and "INCIDENTES" or "CARRERA", severity = bad and "WARN" or "INFO",
+		uid = uid, name = name, lap = state.lap, title = title, description = name .. " — " .. title,
+		detail = detail, reason = reason or title, speed = driver.actual, configuredSpeed = driver.configured,
+		baseSpeed = driver.base, detectedBonus = driver.configured-driver.base, permittedBonus = bonus,
+		permitted = state.permitted, active = state.active, gap = state.gap, zone = state.zone, mode = mode,
+	})
+	if ENABLE_CHAT_EVENTS and (mode ~= "DRS" or DRS_CHAT_ENABLED) then announceRaceEvent(name .. " — " .. title) end
+	if bad then
+		-- proposeSanction retains manual approval, deduplication and existing logs.
+		if mode ~= "DRS" or DRS_PENALTY_ENABLED then
+			proposeSanction(uid, title, detail)
+		else
+			VIOLATIONS_LOG = VIOLATIONS_LOG or {}
+			table.insert(VIOLATIONS_LOG, 1, { type = title, uid = uid, name = name, detail = detail, time = os.date("%H:%M:%S") })
+			if #VIOLATIONS_LOG > 200 then table.remove(VIOLATIONS_LOG) end
+			if buildViolationsLogList then buildViolationsLogList() end
+			showNotification(name .. " — " .. title, C_RED, "⚠", 10)
+		end
+	end
+end
+
+function SPA_RaceModes:Permission(mode, uid, state, value, now)
+	state.lastPermission = state.permitted
+	state.permitted = value == true
+	if not state.permitted then state.active = false end
+	if state.permitted and not state.lastPermission then self:Emit(mode, uid, state, "PERMITIDO", now, false) end
+end
+
+function SPA_DRS:Step(uid, position, previous, now, blocked)
+	local state = DRS_STATE[uid]
+	if not state then state = SPA_RaceModes:NewState(); DRS_STATE[uid] = state end
+	state.lap = (lapData[uid] and lapData[uid].lapsMade or 0) + 1
+	state.insideDetection = false; state.detectionZone = nil
+	local gates, hasEnd = {}, {}
+	for _, zone in ipairs(self.zones) do
+		if zone.kind == "DETECTION" then
+			if SPA_RaceModes:Inside(zone,position) then state.insideDetection = true; state.detectionZone = zone.id end
+		else
+			if zone.kind == "END" then hasEnd[zone.index] = true end
+			local alpha = SPA_RaceModes:Cross(zone, previous, position)
+			if alpha then table.insert(gates, { zone = zone, alpha = alpha }) end
+		end
+	end
+	table.sort(gates, function(a,b) return a.alpha < b.alpha end)
+	for _, hit in ipairs(gates) do
+		if hit.zone.kind == "START" then state.zone = hit.zone.index
+		elseif state.zone == hit.zone.index then state.zone = nil end
+	end
+	if state.zone and not hasEnd[state.zone] then state.zone = nil end
+	state.gap, state.ahead = SPA_RaceModes:Gap(uid,position,now)
+	SPA_RaceModes:Permission("DRS",uid,state, DRS_ENABLED and not blocked and RACE_STATE == "RACE"
+		and state.lap >= DRS_START_LAP and state.insideDetection and state.gap ~= nil and state.gap <= DRS_GAP_SECONDS, now)
+	return state
+end
+
+function SPA_OT:Step(uid, position, previous, now, blocked)
+	local state = OT_STATE[uid]
+	if not state then state = SPA_RaceModes:NewState(); OT_STATE[uid] = state end
+	local completed = lapData[uid] and lapData[uid].lapsMade or 0
+	state.lap = completed + 1
+	local inside = SPA_RaceModes:Inside(OT_DETECTION_ZONE, position)
+	local crossing = SPA_RaceModes:Cross(OT_DETECTION_ZONE,previous,position)
+	-- Without a previous sample, do not authorize cars that spawned inside the zone.
+	local entry = previous and not state.insideZone and (inside or crossing ~= nil)
+	state.insideZone = inside
+	-- This single zone defines the cycle, even when LAP detection is disabled.
+	-- Requiring a prior exit and the existing crossing debounce prevents continuous rearming.
+	if entry and (not state.cycleAt or now-state.cycleAt >= DEBOUNCE_TIME) then
+		state.active = false; state.cycleLap = completed; state.zone = "OT"
+		state.cycleAt = now; state.cycle = (state.cycle or 0) + 1
+		state.gap, state.ahead = SPA_RaceModes:Gap(uid,position,now)
+		SPA_RaceModes:Permission("OT",uid,state, OT_ENABLED and not blocked and RACE_STATE == "RACE"
+			and state.gap ~= nil and state.gap <= OT_GAP_SECONDS, now)
+	end
+	if not OT_ENABLED or blocked or RACE_STATE ~= "RACE" or not OT_DETECTION_ZONE then
+		SPA_RaceModes:Permission("OT",uid,state,false,now)
+		if not OT_ENABLED or not OT_DETECTION_ZONE or RACE_STATE ~= "RACE" then
+			state.cycleLap = nil; state.cycleAt = nil; state.zone = nil
+		end
+	end
+	return state
+end
+
+function SPA_RaceModes:CheckUse(mode, uid, state, selected, allowed, bonus, now)
+	local driver = self.drivers[uid]
+	local delta = driver.configured - driver.base
+	local exact = math.abs(delta-bonus) < 0.051
+	local bad = selected and (not allowed or not exact or driver.actual > driver.base+bonus+0.75)
+	-- Require persistence: do not flag a single network or measurement spike.
+	if bad then
+		state.badSince = state.badSince or now
+		if not state.violation and now-state.badSince >= 0.45 then
+			state.violation = true; state.active = false
+			self:Emit(mode,uid,state,"SIN PERMISO",now,true,
+				not allowed and "Use without permission or outside the allowed zone/lap" or (not exact and "Speed increase differs from the authorized bonus" or "Actual speed exceeds the authorized bonus"))
+		end
+	else
+		state.badSince = nil; state.violation = false
+	end
+	local active = selected and allowed and exact and not bad and driver.actual > driver.base+0.5
+	if active and not state.active then state.active = true; self:Emit(mode,uid,state,"ACTIVADO",now,false) end
+	state.active = active
+end
+
+function SPA_PitLimiter:Step(uid, inPit, now)
+	local state = self.states[uid]
+	if not state then state = SPA_RaceModes:NewState(); self.states[uid] = state end
+	state.lap = (lapData[uid] and lapData[uid].lapsMade or 0)+1
+	state.zone = inPit and "PIT IN / PIT OUT" or nil
+	local driver = SPA_RaceModes.drivers[uid]
+	local expected = math.max(0,driver.base + math.min(0,PIT_SPEED_PENALTY))
+	state.expected = expected
+	local bad = PIT_LIMITER_ENABLED and inPit and (RACE_STATE == "RACE" or RACE_STATE == "QUALY")
+		and (driver.configured > expected+0.051 or driver.actual > expected+0.75)
+	if bad then
+		state.badSince = state.badSince or now
+		if not state.violation and now-state.badSince >= 0.45 then
+			state.violation = true
+			SPA_RaceModes:Emit("PIT",uid,state,"EXCESO",now,true,("Pit lane limit %.2f; required reduction %.2f"):format(expected,PIT_SPEED_PENALTY))
+		end
+	else
+		state.badSince = nil; state.violation = false
+	end
+	state.active = inPit and PIT_LIMITER_ENABLED
+end
+
+function SPA_RaceModes:Step(uid, st, vc, now)
+	if not (SPA_DRS.initialized and SPA_OT.initialized and SPA_PitLimiter.initialized) then return end
+	if not self:Eligible(uid) then self:Clear(uid); return end
+	local configured = self:Configured(st,vc)
+	local cd = customPlayerData[uid]
+	local operatorLimit = (cd and cd.speedLimit) or SPEED_LIMIT
+	local inPit = pitData[uid] and pitData[uid].status == "En Boxes" or false
+	local driver = self.drivers[uid]
+	if not driver or driver.seat ~= st.seat then
+		-- Do not learn an already-active bonus or the reduced pit lane limit as the baseline.
+		driver = { seat = st.seat, base = operatorLimit, operatorLimit = operatorLimit }
+		if not inPit and configured > 0 and configured <= operatorLimit then driver.base = configured end
+		self.drivers[uid] = driver
+	elseif driver.operatorLimit ~= operatorLimit then
+		driver.base = operatorLimit; driver.operatorLimit = operatorLimit
+	end
+	driver.configured = configured
+	driver.actual = getVehicleSpeed(st.seat) * 0.28 * 3.6 * CAL_FACTOR + CAL_OFFSET
+	local trace = self.traces[uid]
+	local previous = trace and trace.previous
+	local blocked = inPit or ENABLE_VSC
+	local drs = SPA_DRS:Step(uid,st.seat.Position,previous,now,blocked)
+	local ot = SPA_OT:Step(uid,st.seat.Position,previous,now,blocked)
+	local delta = configured-driver.base
+	local increased = delta > 0.051 or driver.actual > driver.base+0.75
+	local drsContext = DRS_ENABLED and #SPA_DRS.zones > 0
+	local otContext = OT_ENABLED and OT_DETECTION_ZONE ~= nil
+	-- Independent modes: do not stack +2 and DRS. +2 belongs to OT when configured.
+	local selectOT = otContext and increased and (math.abs(delta-2)<0.051 or (not (drsContext and drs.zone) and ot.cycleLap ~= nil))
+	local selectDRS = drsContext and increased and not selectOT
+	self:CheckUse("DRS",uid,drs,selectDRS and not inPit and RACE_STATE == "RACE",
+		drs.permitted and drs.zone ~= nil and not blocked, DRS_SPEED_BONUS,now)
+	self:CheckUse("OT",uid,ot,selectOT and not inPit and RACE_STATE == "RACE",
+		ot.permitted and ot.cycleLap ~= nil and not blocked,2,now)
+	SPA_PitLimiter:Step(uid,inPit,now)
+end
+
+function SPA_RaceModes:SpeedAllowance(uid)
+	-- The original detector runs more frequently: never exempt a stale permission.
+	if RACE_STATE ~= "RACE" or ENABLE_VSC or (pitData[uid] and pitData[uid].status == "En Boxes") then return 0 end
+	local st, driver = PlayerState[uid], self.drivers[uid]
+	if not st or not driver or st.seat ~= driver.seat then return 0 end
+	local drs, ot = DRS_STATE[uid], OT_STATE[uid]
+	local configured = self:Configured(st,VehicleCache[uid])
+	local delta = configured-driver.base
+	if OT_ENABLED and OT_DETECTION_ZONE and ot and ot.permitted and ot.cycleLap and math.abs(delta-2)<0.051 then return 2 end
+	if DRS_ENABLED and drs and drs.permitted and drs.zone and drs.lap >= DRS_START_LAP and math.abs(delta-DRS_SPEED_BONUS)<0.051 then
+		for _, zone in ipairs(SPA_DRS.zones) do
+			if zone.kind == "DETECTION" and self:Inside(zone,st.seat.Position) then return DRS_SPEED_BONUS end
+		end
+	end
+	return 0
+end
+
+function SPA_RaceModes:OnLap(uid, lap)
+	if FIA_EXCLUDED[uid] or DSQ_DRIVERS[uid] or lap <= self.leaderLap then return end
+	-- The first crossing of each lap sets the reference; subsequent crossings do not post.
+	self.leaderLap = lap; self.leaderUid = uid
+	local pl = Players:GetPlayerByUserId(uid)
+	if not pl then return end
+	local total = RACE_STATE == "QUALY" and QUALY_LAPS or MAX_LAPS
+	local remaining = math.max(0,total-lap)
+	if ENABLE_CHAT_EVENTS then
+		announceRaceEvent(("%s — %s — LAP %d/%d — %d remaining"):format(
+			remaining == 0 and "🏁 LAPS COMPLETED" or "🏁 FIRST ACROSS",getDisplayName(pl),lap,total,remaining))
+	end
+end
+
+function SPA_RaceModes:GenericSpeedViolation(uid, configured, limit, now)
+	if configured <= limit then self.speedChecks[uid] = nil; return false end
+	if not ((DRS_ENABLED and #SPA_DRS.zones > 0) or (OT_ENABLED and OT_DETECTION_ZONE)) then return true end
+	-- HB-SPEED (0.06 s) may run before permission is updated by HB-NITRO
+	-- (0.15 s). A two-sample grace period prevents false warnings when activating +10/+2.
+	self.speedChecks[uid] = self.speedChecks[uid] or now
+	return now - self.speedChecks[uid] >= 0.3
+end
+
+function SPA_RaceModes:BuildConfig(toggle, adjust, wp, action)
+	makeSectionHeader(configScroll,"🏁  DRS — ACTIVE DETECTION",120)
+	toggle(configScroll,"Enable DRS",function() return DRS_ENABLED end,function(v) DRS_ENABLED=v; table.clear(DRS_STATE) end,121)
+	adjust(configScroll,"DRS starting lap",function() return DRS_START_LAP end,function(v) DRS_START_LAP=v; table.clear(DRS_STATE) end,1,1,999,nil,122)
+	adjust(configScroll,"DRS GAP (s)",function() return DRS_GAP_SECONDS end,function(v) DRS_GAP_SECONDS=math.round(v*10)/10 end,0.1,0.1,10,nil,123)
+	adjust(configScroll,"DRS bonus",function() return DRS_SPEED_BONUS end,function(v) DRS_SPEED_BONUS=v end,1,1,100,nil,124)
+	toggle(configScroll,"DRS penalties",function() return DRS_PENALTY_ENABLED end,function(v) DRS_PENALTY_ENABLED=v end,125)
+	toggle(configScroll,"DRS announcements",function() return DRS_CHAT_ENABLED end,function(v) DRS_CHAT_ENABLED=v end,126)
+	toggle(configScroll,"Show DRS zones",function() return DRS_ZONES_VISIBLE end,function(v) DRS_ZONES_VISIBLE=v; SPA_DRS:Resize(false) end,127)
+	adjust(configScroll,"DRS width",function() return DRS_DETECTION_WIDTH end,function(v) DRS_DETECTION_WIDTH=v; SPA_DRS:Resize() end,10,10,1000,nil,128)
+	adjust(configScroll,"DRS height",function() return DRS_DETECTION_HEIGHT end,function(v) DRS_DETECTION_HEIGHT=v; SPA_DRS:Resize() end,5,5,500,nil,129)
+	adjust(configScroll,"Detection depth (extend to END)",function() return DRS_DETECTION_DEPTH end,function(v) DRS_DETECTION_DEPTH=v; SPA_DRS:Resize() end,50,10,10000,nil,130)
+	wp(configScroll,"+ DRS START",function(cf) SPA_DRS:Create("START",cf) end,131)
+	wp(configScroll,"+ DRS END",function(cf) SPA_DRS:Create("END",cf) end,132)
+	wp(configScroll,"+ DRS DETECTION",function(cf) SPA_DRS:Create("DETECTION",cf) end,133)
+	action(configScroll,"DELETE LAST DRS ZONE",C_DARKRED,function() SPA_DRS:RemoveLast() end,134)
+	action(configScroll,"DELETE ALL DRS ZONES",C_DARKRED,function() SPA_DRS:RemoveAll() end,135)
+	makeSectionHeader(configScroll,"🏁  OT — FIXED +2 BONUS",140)
+	toggle(configScroll,"Enable OT",function() return OT_ENABLED end,function(v) OT_ENABLED=v; table.clear(OT_STATE) end,141)
+	adjust(configScroll,"OT GAP (s)",function() return OT_GAP_SECONDS end,function(v) OT_GAP_SECONDS=math.round(v*10)/10 end,0.1,0.1,10,nil,142)
+	toggle(configScroll,"Show OT zone",function() return OT_ZONES_VISIBLE end,function(v) OT_ZONES_VISIBLE=v; SPA_OT:Resize(false) end,143)
+	adjust(configScroll,"OT width",function() return OT_DETECTION_WIDTH end,function(v) OT_DETECTION_WIDTH=v; SPA_OT:Resize() end,10,10,1000,nil,144)
+	adjust(configScroll,"OT height",function() return OT_DETECTION_HEIGHT end,function(v) OT_DETECTION_HEIGHT=v; SPA_OT:Resize() end,5,5,500,nil,145)
+	adjust(configScroll,"OT depth",function() return OT_DETECTION_DEPTH end,function(v) OT_DETECTION_DEPTH=v; SPA_OT:Resize() end,5,5,500,nil,146)
+	wp(configScroll,"+ CREATE OT ZONE",function(cf) SPA_OT:Create(cf) end,147)
+	action(configScroll,"DELETE OT ZONE",C_DARKRED,function() SPA_OT:Remove() end,148)
+	makeSectionHeader(configScroll,"🚦  PIT SPEED LIMITER",150)
+	toggle(configScroll,"Pit lane speed monitoring",function() return PIT_LIMITER_ENABLED end,function(v) PIT_LIMITER_ENABLED=v; table.clear(SPA_PitLimiter.states) end,151)
+	adjust(configScroll,"Pit lane speed reduction",function() return PIT_SPEED_PENALTY end,function(v) PIT_SPEED_PENALTY=v; table.clear(SPA_PitLimiter.states) end,1,-500,0,nil,152)
+	self.configBuilt = true
+end
+
 function _spaInitStage(stage, fn, dependencies)
 	if not SPA_INIT then SPA_INIT = { stages = {}, failed = {}, criticalFailed = false, ready = false } end
 	if SPA_INIT.stages[stage] then return SPA_INIT.stages[stage] == "OK" end
@@ -4147,7 +4623,7 @@ function _spaInitStage(stage, fn, dependencies)
 		if SPA_INIT.stages[dependency] ~= "OK" then
 			SPA_INIT.stages[stage] = "BLOCKED"; SPA_INIT.criticalFailed = true
 			SPA_INIT.failed[stage] = "failed dependency: " .. dependency
-			warn(("[SPA-GLOBAL-IDIM-ENGLISH INIT ERROR] stage=%s %s"):format(stage, SPA_INIT.failed[stage]))
+			warn(("[SPA-GLOBAL-IDM-INGLISHV2.19 INIT ERROR] stage=%s %s"):format(stage, SPA_INIT.failed[stage]))
 			return false
 		end
 	end
@@ -4155,19 +4631,19 @@ function _spaInitStage(stage, fn, dependencies)
 		SPA_INIT.stages[stage] = "MISSING"
 		SPA_INIT.criticalFailed = true
 		SPA_INIT.failed[stage] = "function unavailable"
-		warn(("[SPA-GLOBAL-IDIM-ENGLISH INIT ERROR] stage=%s function unavailable"):format(tostring(stage)))
+		warn(("[SPA-GLOBAL-IDM-INGLISHV2.19 INIT ERROR] stage=%s function unavailable"):format(tostring(stage)))
 		return false
 	end
 	local ok, err = xpcall(fn, debug.traceback)
 	if ok then
 		SPA_INIT.stages[stage] = "OK"
-		print(("[SPA-GLOBAL-IDIM-ENGLISH INIT] %s OK"):format(tostring(stage)))
+		print(("[SPA-GLOBAL-IDM-INGLISHV2.19 INIT] %s OK"):format(tostring(stage)))
 	else
 		SPA_INIT.stages[stage] = "ERROR"
 		SPA_INIT.failed[stage] = tostring(err)
 		SPA_INIT.criticalFailed = true
-		warn(("[SPA-GLOBAL-IDIM-ENGLISH INIT ERROR] stage=%s error=%s"):format(tostring(stage), tostring(err):match("^[^\n]+") or tostring(err)))
-		warn(("[SPA-GLOBAL-IDIM-ENGLISH INIT TRACE] stage=%s traceback=\n%s"):format(tostring(stage), tostring(err)))
+		warn(("[SPA-GLOBAL-IDM-INGLISHV2.19 INIT ERROR] stage=%s error=%s"):format(tostring(stage), tostring(err):match("^[^\n]+") or tostring(err)))
+		warn(("[SPA-GLOBAL-IDM-INGLISHV2.19 INIT TRACE] stage=%s traceback=\n%s"):format(tostring(stage), tostring(err)))
 	end
 	return ok
 end
@@ -4258,6 +4734,8 @@ function _setupUI2()  -- [SPAV4] Global: frees registers in the main scope
 		local bc=Instance.new("UICorner"); bc.CornerRadius=UDim.new(0,3); bc.Parent=btn
 		btn.MouseButton1Click:Connect(onAction)
 	end
+
+	SPA_RaceModes:BuildConfig(mkConfigToggleRow, mkConfigAdjustRow, mkConfigWPRow, mkConfigActionRow)
 
 	local function rebuildWall(wp, cf, width, height, thickness)
 		if not wp then return end
@@ -4486,6 +4964,7 @@ function _setupUI2()  -- [SPAV4] Global: frees registers in the main scope
 	-- ── SETTINGS: Reset ────────────────────────────────────────
 	makeSectionHeader(configScroll, "🔄  RESET", 50)
 	mkConfigActionRow(configScroll, "RESET LAPS (all)", C_DARKRED, function()
+		SPA_RaceModes:Reset()
 		lapData={}
 		for _,pl in ipairs(Players:GetPlayers()) do ensurePlayerData(pl) end
 		for uid, cached in pairs(vueltasRowCache) do
@@ -4510,6 +4989,7 @@ function _setupUI2()  -- [SPAV4] Global: frees registers in the main scope
 		end
 	end, 52)
 		mkConfigActionRow(configScroll, "RESET PIT STOPS (all)", C_DARKRED, function()
+		table.clear(SPA_PitLimiter.states)
 		pitData={}
 		for _,pl in ipairs(Players:GetPlayers()) do ensurePlayerData(pl) end
 		for uid, row in pairs(boxesRowCache) do
@@ -5005,6 +5485,7 @@ function _setupUI2()  -- [SPAV4] Global: frees registers in the main scope
 	SPA_UI2_lastSeenInPitIn  = {}
 	SPA_UI2_lastSeenInPitOut = {}
 	resetSessionMarkers = function()
+		SPA_RaceModes:Reset()
 		previousLapPositions = {}; SPA_UI2_lapStateLogAt = {}; SPA_UI2_lastSeenInPitIn = {}; SPA_UI2_lastSeenInPitOut = {}; lastSeenInCC = {}; ccDebounce = {}
 	end
 
@@ -5148,6 +5629,7 @@ function _setupUI2()  -- [SPAV4] Global: frees registers in the main scope
 	end
 
 	local function cleanupVehicleCache(uid, vc)
+		SPA_RaceModes:Clear(uid)
 		if not vc or vc.cleaned then return end
 		vc.cleaned = true
 		SPA_NoClip:Clear(uid, vc)
@@ -5178,7 +5660,7 @@ function _setupUI2()  -- [SPAV4] Global: frees registers in the main scope
 	end
 
 	local function nitroDebug(message)
-		if ENABLE_NITRO_DEBUG then warn("[SPA-GLOBAL-IDIM-ENGLISH NITRO DEBUG] " .. tostring(message)) end
+		if ENABLE_NITRO_DEBUG then warn("[SPA-GLOBAL-IDM-INGLISHV2.19 NITRO DEBUG] " .. tostring(message)) end
 	end
 
 	local function refreshNitrousCache(vc, uid, logBuild)
@@ -5267,7 +5749,7 @@ function _setupUI2()  -- [SPAV4] Global: frees registers in the main scope
 			if not groundEffectState[uid] then
 				groundEffectState[uid] = { vehicleId = vc.seatId, value = illegal }
 				local pl = Players:GetPlayerByUserId(uid)
-				warn(("[SPA-GLOBAL-IDIM-ENGLISH GROUND EFFECT] %s uid=%s FreeLength=%.4f SpringConstraints=%d"):format(pl and pl.Name or tostring(uid), tostring(uid), illegal, analyzed))
+				warn(("[SPA-GLOBAL-IDM-INGLISHV2.19 GROUND EFFECT] %s uid=%s FreeLength=%.4f SpringConstraints=%d"):format(pl and pl.Name or tostring(uid), tostring(uid), illegal, analyzed))
 				if proposeSanction then
 					proposeSanction(uid, "GROUND EFFECT DETECTED", ("Illegal suspension detected: FreeLength <= 1.6999 | Detected FreeLength: %.4f | SpringConstraints checked: %d"):format(illegal, analyzed), "DSQ")
 				end
@@ -5287,6 +5769,7 @@ function _setupUI2()  -- [SPAV4] Global: frees registers in the main scope
 		SPA_UI2_tNitro += dt
 		if SPA_UI2_tNitro < 0.15 then return end
 		SPA_UI2_tNitro = 0
+		SPA_RaceModes:Capture(tick())
 		for uid, st in pairs(PlayerState) do
 			if st.inVehicle and st.seat and st.seat.Parent then
 				local seatId = st.seat:GetFullName()
@@ -5298,7 +5781,7 @@ function _setupUI2()  -- [SPAV4] Global: frees registers in the main scope
 					if ok2 then
 						vc = built; VehicleCache[uid] = vc
 					elseif ENABLE_NITRO_DEBUG then
-						warn(("[SPA-GLOBAL-IDIM-ENGLISH NITRO DEBUG] uid=%s buildVehicleCache error=%s"):format(tostring(uid), tostring(built)))
+						warn(("[SPA-GLOBAL-IDM-INGLISHV2.19 NITRO DEBUG] uid=%s buildVehicleCache error=%s"):format(tostring(uid), tostring(built)))
 					end
 				end
 				if vc then
@@ -5308,6 +5791,7 @@ function _setupUI2()  -- [SPAV4] Global: frees registers in the main scope
 						checkGroundEffect(uid, st, vc, now)
 					end
 					SPA_NoClip:Step(uid, st, vc, now)
+					SPA_RaceModes:Step(uid, st, vc, now)
 				end
 				if vc then
 					if vc.nitrousCacheInvalid or (vc.nitrousEmitter and not vc.nitrousEmitter.Parent) or (vc.nitrousPoint and not vc.nitrousPoint.Parent) then
@@ -5363,9 +5847,9 @@ function _setupUI2()  -- [SPAV4] Global: frees registers in the main scope
 				local speedLbl = tag:FindFirstChild("SpeedText")
 				if speedLbl then
 					local cdS    = customPlayerData[uid]
-					local effLim = (cdS and cdS.speedLimit) or SPEED_LIMIT
+					local effLim = ((cdS and cdS.speedLimit) or SPEED_LIMIT) + SPA_RaceModes:SpeedAllowance(uid)
 					-- Actual instantaneous speed and the configured limit are displayed separately.
-					local maxSpd = getPlayerSpeedLimit(seat, VehicleCache[uid])
+					local maxSpd = SPA_RaceModes:Configured(st, VehicleCache[uid])
 					local currentKmh = toSpeedDisplay(getVehicleSpeed(seat))
 					if SHOW_HEAD_SPEED then
 						speedLbl.Text      = sformat("SPEED %d km/h  |  LIMIT %.1f km/h", currentKmh, maxSpd)
@@ -5378,7 +5862,7 @@ function _setupUI2()  -- [SPAV4] Global: frees registers in the main scope
 						speedLbl.Text = ""; speedLbl.Visible = false
 					end
 					-- One alert when the car has an illegal MaxSpeed
-					if maxSpd > effLim then
+					if SPA_RaceModes:GenericSpeedViolation(uid, maxSpd, effLim, tick()) then
 						if not SPA_UI2_alertedPlayers[uid] then
 							SPA_UI2_alertedPlayers[uid] = true
 							local last = notifiedPlayers[uid]
@@ -5510,7 +5994,7 @@ function _setupUI2()  -- [SPAV4] Global: frees registers in the main scope
 							SPA_UI2_lapStateLogAt[uid] = now
 							local localPos = lapWall.CFrame:PointToObjectSpace(pos)
 							local stPlayer = st.player
-							warn(("[SPA-GLOBAL-IDIM-ENGLISH LAP STATE] uid=%s name=%s source=SEAT position=%s localZ=%.3f raceState=%s detect=%s"):format(tostring(uid), stPlayer and stPlayer.Name or "-", tostring(pos), localPos.Z, tostring(RACE_STATE), tostring(DETECT_LAPS)))
+							warn(("[SPA-GLOBAL-IDM-INGLISHV2.19 LAP STATE] uid=%s name=%s source=SEAT position=%s localZ=%.3f raceState=%s detect=%s"):format(tostring(uid), stPlayer and stPlayer.Name or "-", tostring(pos), localPos.Z, tostring(RACE_STATE), tostring(DETECT_LAPS)))
 						end
 					end
 				end
@@ -5545,13 +6029,13 @@ function _setupUI2()  -- [SPAV4] Global: frees registers in the main scope
 						local sameSeat = sample.source ~= "SEAT" or (previousSample and previousSample.seat == sample.seat) or false
 						if prevPos and sameSource and sameSeat then crossed, crossInfo = crossedLapSegment(prevPos, pos) end
 						if crossInfo then
-							warn(("[SPA-GLOBAL-IDIM-ENGLISH LAP DEBUG] uid=%s name=%s source=%s prevZ=%.3f currentZ=%.3f hitX=%.3f hitY=%.3f valid=%s"):format(tostring(uid), getDisplayName(pl), tostring(sample.source), crossInfo.prevZ or 0, crossInfo.currentZ or 0, crossInfo.hitX or 0, crossInfo.hitY or 0, tostring(crossInfo.valid == true)))
+							warn(("[SPA-GLOBAL-IDM-INGLISHV2.19 LAP DEBUG] uid=%s name=%s source=%s prevZ=%.3f currentZ=%.3f hitX=%.3f hitY=%.3f valid=%s"):format(tostring(uid), getDisplayName(pl), tostring(sample.source), crossInfo.prevZ or 0, crossInfo.currentZ or 0, crossInfo.hitX or 0, crossInfo.hitY or 0, tostring(crossInfo.valid == true)))
 						end
 						if crossInfo and not crossed then
-							warn(("[SPA-GLOBAL-IDIM-ENGLISH LAP DEBUG] uid=%s reason=INVALID_GATE"):format(tostring(uid)))
+							warn(("[SPA-GLOBAL-IDM-INGLISHV2.19 LAP DEBUG] uid=%s reason=INVALID_GATE"):format(tostring(uid)))
 						end
 						if crossed and FIA_EXCLUDED[uid] then
-							warn(("[SPA-GLOBAL-IDIM-ENGLISH LAP DEBUG] uid=%s reason=FIA_EXCLUDED"):format(tostring(uid)))
+							warn(("[SPA-GLOBAL-IDM-INGLISHV2.19 LAP DEBUG] uid=%s reason=FIA_EXCLUDED"):format(tostring(uid)))
 						elseif crossed then
 							local now = tick()
 							local hasRegisteredLap = (ld.lapsMade or 0) > 0 and (ld.lastLapTouch or 0) > 0
@@ -5565,13 +6049,7 @@ function _setupUI2()  -- [SPAV4] Global: frees registers in the main scope
 									lap = ld.lapsMade, title = "🏁 LAP " .. tostring(ld.lapsMade),
 									description = getDisplayName(pl) .. " completed the lap",
 								})
-								if ENABLE_CHAT_EVENTS and announceRaceEvent then
-									if RACE_STATE == "QUALY" then
-										announceRaceEvent(buildQualyChatMessage())
-									else
-										announceRaceEvent(buildRaceChatMessage())
-									end
-								end
+								SPA_RaceModes:OnLap(uid, ld.lapsMade)
 									if fld.currentLapStarted and fld.lastStartTime then
 										local lapTime = now - fld.lastStartTime
 										if not fld.bestTime or lapTime < fld.bestTime then
@@ -5600,12 +6078,12 @@ function _setupUI2()  -- [SPAV4] Global: frees registers in the main scope
 									end
 									fld.lastStartTime    = now
 									fld.currentLapStarted= true
-										warn(("[SPA-GLOBAL-IDIM-ENGLISH LAP] uid=%s name=%s source=%s cross=segment lap=%d"):format(tostring(uid), getDisplayName(pl), tostring(sample.source), ld.lapsMade or 0))
+										warn(("[SPA-GLOBAL-IDM-INGLISHV2.19 LAP] uid=%s name=%s source=%s cross=segment lap=%d"):format(tostring(uid), getDisplayName(pl), tostring(sample.source), ld.lapsMade or 0))
 								else
-									warn(("[SPA-GLOBAL-IDIM-ENGLISH LAP DEBUG] uid=%s reason=QUALY_LIMIT"):format(tostring(uid)))
+									warn(("[SPA-GLOBAL-IDM-INGLISHV2.19 LAP DEBUG] uid=%s reason=QUALY_LIMIT"):format(tostring(uid)))
 								end
 							else
-								warn(("[SPA-GLOBAL-IDIM-ENGLISH LAP DEBUG] uid=%s reason=DEBOUNCE"):format(tostring(uid)))
+								warn(("[SPA-GLOBAL-IDM-INGLISHV2.19 LAP DEBUG] uid=%s reason=DEBOUNCE"):format(tostring(uid)))
 							end
 						end
 					end
@@ -5985,7 +6463,7 @@ function _setupUI2()  -- [SPAV4] Global: frees registers in the main scope
 	mkConfigActionRow(configScroll, "🟡  ENABLE / DISABLE VSC", Color3.fromRGB(150,120,0), toggleVSC, 97)
 
 	makeSectionHeader(configScroll, "💬  CHAT ANNOUNCEMENTS", 98)
-	mkConfigToggleRow(configScroll, "Announce positions, fastest laps and penalties in chat",
+	mkConfigToggleRow(configScroll, "Announce events, fastest laps and penalties in chat",
 		function() return ENABLE_CHAT_EVENTS end,
 		function(v) ENABLE_CHAT_EVENTS = v end, 99)
 
@@ -6010,7 +6488,7 @@ function _setupUI2()  -- [SPAV4] Global: frees registers in the main scope
 
 	local function buildPostRaceReport()
 		local lines = {}
-		table.insert(lines, "🏁 POST-RACE REPORT — SPA-GLOBAL-IDIM-ENGLISH — Administrator CGF1")
+		table.insert(lines, "🏁 POST-RACE REPORT — SPA-GLOBAL-IDM-INGLISHV2.19 — Administrator CGF1")
 		table.insert(lines, os.date("%d/%m/%Y %H:%M"))
 		table.insert(lines, "")
 		-- [QUALY REPORT FIX] The official source is the current session or its frozen snapshot.
@@ -6190,7 +6668,7 @@ function _setupUI2()  -- [SPAV4] Global: frees registers in the main scope
 		if #text > 3900 then text = text:sub(1, 3900) .. "\n…(truncated; see the rest in the panel)" end
 		local payload = HttpService:JSONEncode({
 			embeds = {{
-				title = "🏁 Post-Race Report — SPA-GLOBAL-IDIM-ENGLISH — Administrator CGF1",
+				title = "🏁 Post-Race Report — SPA-GLOBAL-IDM-INGLISHV2.19 — Administrator CGF1",
 				description = text,
 				color = 15158332,
 			}}
@@ -6218,7 +6696,7 @@ function _setupUI2()  -- [SPAV4] Global: frees registers in the main scope
 				showNotification("📤 Report sent to Discord", Color3.fromRGB(0,150,90), "📤", 10)
 			else
 				showNotification("❌ Discord did not accept the report", C_RED, "❌", 10)
-				warn("[SPA-GLOBAL-IDIM-ENGLISH] Webhook error:", err or ("Unaccepted HTTP status: " .. tostring(statusCode)))
+				warn("[SPA-GLOBAL-IDM-INGLISHV2.19] Webhook error:", err or ("Unaccepted HTTP status: " .. tostring(statusCode)))
 			end
 		end)
 	end
@@ -6247,7 +6725,7 @@ function _setupUI2()  -- [SPAV4] Global: frees registers in the main scope
 		local rows = {}
 		for uid, d in pairs(SEASON_STANDINGS) do table.insert(rows, d) end
 		tsort(rows, function(a,b) return a.points > b.points end)
-		local lines = { "🏆 CHAMPIONSHIP — SPA-GLOBAL-IDIM-ENGLISH — Administrator CGF1", os.date("%d/%m/%Y"), "" }
+		local lines = { "🏆 CHAMPIONSHIP — SPA-GLOBAL-IDM-INGLISHV2.19 — Administrator CGF1", os.date("%d/%m/%Y"), "" }
 		for i, d in ipairs(rows) do
 			table.insert(lines, i..". "..d.name.." — "..d.points.." pts")
 		end
@@ -6362,26 +6840,11 @@ function _setupUI2()  -- [SPAV4] Global: frees registers in the main scope
 	end
 
 	function buildQualyChatMessage()
-		local standings = _buildCurrentQualyChatStandings()
-		local lines = { "🏆 Current standings:" }
-		for i, entry in ipairs(standings) do
-			local timeTxt = entry.bestTime and fmtTime(entry.bestTime) or "NO TIME"
-			table.insert(lines, ("P%d %s time: %s"):format(i, getDisplayName(entry.player), timeTxt))
-		end
-		return table.concat(lines, "\n")
+		return RACE_STATE == "QUALY" and ("🏆 QUALIFYING STARTED — " .. tostring(QUALY_LAPS) .. " laps") or "🏁 QUALIFYING FINISHED"
 	end
 
 	function buildRaceChatMessage()
-		local lines = { "🏁 Current positions:" }
-		local publicPos = 0
-		for _, uid in ipairs(CURRENT_STANDINGS_ORDER) do
-			local pl = Players:GetPlayerByUserId(uid)
-			if pl and not FIA_EXCLUDED[uid] and not DSQ_DRIVERS[uid] then
-				publicPos += 1
-				table.insert(lines, ("P%d %s"):format(publicPos, getDisplayName(pl)))
-			end
-		end
-		return table.concat(lines, "\n")
+		return ("🏁 RACE — LAP %d/%d"):format(SPA_RaceModes.leaderLap, MAX_LAPS)
 	end
 
 	function announceRaceEvent(msg)
@@ -6570,6 +7033,7 @@ function _setupUI2()  -- [SPAV4] Global: frees registers in the main scope
 
 	Players.PlayerRemoving:Connect(function(pl)
 		local uid = pl.UserId
+		SPA_RaceModes:Clear(uid)
 		lapData[uid]=nil; pitData[uid]=nil; fastLapData[uid]=nil
 		lastSpeeds[uid]=nil; notifiedPlayers[uid]=nil
 		if PlayerState and PlayerState[uid] then
@@ -6605,6 +7069,19 @@ function _setupUI2()  -- [SPAV4] Global: frees registers in the main scope
 	_spaLapRuntimeState("INIT")
 end
 SPA_INIT.ui2Ok = _spaInitStage("UI2", _setupUI2, { "UI1" })
+SPA_INIT.drsOk = _spaInitStage("DRS", function()
+	assert(PlayerState and VehicleCache and SPA_RaceModes.configBuilt and type(proposeSanction) == "function" and type(announceRaceEvent) == "function", "DRS dependencies unavailable")
+	SPA_DRS.initialized = true
+end, { "UI2" })
+SPA_INIT.otOk = _spaInitStage("OT", function()
+	assert(SPA_RaceModes.configBuilt and type(SPA_OT.Step) == "function", "OT dependencies unavailable")
+	OT_SPEED_BONUS = 2
+	SPA_OT.initialized = true
+end, { "UI2", "DRS" })
+SPA_INIT.pitLimiterOk = _spaInitStage("PIT_LIMITER", function()
+	assert(pitData and type(SPA_PitLimiter.Step) == "function" and type(proposeSanction) == "function", "Pit lane dependencies unavailable")
+	SPA_PitLimiter.initialized = true
+end, { "UI2", "DRS", "OT" })
 SPA_INIT.audioOk = _spaInitStage("AUDIO RETRY", function()
 	assert(type(SPA_AudioRetry.Step) == "function" and VehicleCache, "audio/cache unavailable")
 	SPA_AudioRetry.initialized = true
@@ -6678,7 +7155,7 @@ function _setupCCUI()  -- [SPAV4] Global: frees registers in the main scope
 	titleTxt.Size = UDim2.new(0.75, 0, 1, 0)
 	titleTxt.Position = UDim2.new(0, 14, 0, 0)
 	titleTxt.BackgroundTransparency = 1
-	titleTxt.Text = "SPA-GLOBAL-IDIM-ENGLISH — TRACK LIMITS"
+	titleTxt.Text = "SPA-GLOBAL-IDM-INGLISHV2.19 — TRACK LIMITS"
 	titleTxt.Font = Enum.Font.GothamBlack
 	titleTxt.TextColor3 = CCWPCOLOR
 	titleTxt.TextSize = 13
@@ -7289,11 +7766,11 @@ SPA_INIT.tiresOk = _spaInitStage("TIRES", _setupTireSystem, { "UI2" })
 
 -- ███ Apply the iOS Glassmorphism interface to ALL GUIs ███████
 SPA_INIT.glassOk = _spaInitStage("GLASS_APPLY", Glass and Glass.apply, { "UI1", "UI2", "CC_UI", "TIRES", "LAPS CONTROL" })
-SPA_INIT.ready = SPA_INIT.ui1Ok and SPA_INIT.ui2Ok and SPA_INIT.collisionOk and SPA_INIT.analysisOk and SPA_INIT.replayOk and SPA_INIT.ccUiOk and SPA_INIT.tiresOk and SPA_INIT.glassOk and SPA_INIT.audioOk and SPA_INIT.noclipOk and SPA_INIT.lapsControlOk and not SPA_INIT.criticalFailed
+SPA_INIT.ready = SPA_INIT.ui1Ok and SPA_INIT.ui2Ok and SPA_INIT.collisionOk and SPA_INIT.analysisOk and SPA_INIT.replayOk and SPA_INIT.ccUiOk and SPA_INIT.tiresOk and SPA_INIT.glassOk and SPA_INIT.audioOk and SPA_INIT.noclipOk and SPA_INIT.lapsControlOk and SPA_INIT.drsOk and SPA_INIT.otOk and SPA_INIT.pitLimiterOk and not SPA_INIT.criticalFailed
 if SPA_INIT.ready then
-	print("✅ SPA-GLOBAL-IDIM-ENGLISH — RACE CONTROL SYSTEM (Unified)")
+	print("✅ SPA-GLOBAL-IDM-INGLISHV2.19 — RACE CONTROL SYSTEM (Unified)")
 	print("🏁 Native track limits monitoring integrated without memory leaks")
-	print("🍏 SPA-GLOBAL-IDIM-ENGLISH — iOS Glassmorphism interface applied (frosted glass + blur)")
+	print("🍏 SPA-GLOBAL-IDM-INGLISHV2.19 — iOS Glassmorphism interface applied (frosted glass + blur)")
 else
-	warn("[SPA-GLOBAL-IDIM-ENGLISH INIT INCOMPLETE] SPA-GLOBAL-IDIM-ENGLISH was not marked as ready; check the failed stages.")
+	warn("[SPA-GLOBAL-IDM-INGLISHV2.19 INIT INCOMPLETE] SPA-GLOBAL-IDM-INGLISHV2.19 was not marked as ready; check the failed stages.")
 end
