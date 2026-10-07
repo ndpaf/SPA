@@ -1,23 +1,173 @@
--- SPA-GLOBAL-IDM-INGLISHV2.19
--- Complete English Edition
--- Original version: SPA-GLOBAL V2.19
-
--- Internal keys remain unchanged; only their visible labels are localized.
+-- SPA-GLOBAL V2.22.5
+-- V2.22.4: Brookhaven Drift calibrated from PhysicalWheel friction values.
+-- Stable multi-wheel reactive detection; RAW is never displayed as a Drift level.
+-- KNOWN LIMITATION: physical 2.0 is shared by Drift 1.4/1.5; no verified secondary signal.
+-- FIA COLLABORATIVE RACE CONTROL · ONE RACE. ONE CONTROL ROOM.
+-- TRACK TIMING & MOBILE CONTROL HOTFIX · V2.22.1
+-- Presentation-only labels. Internal keys and user-provided content stay unchanged.
 SPA_ENGLISH_LABELS = {
-	["VUELTAS"] = "LAPS", ["BOXES"] = "PITS", ["FAST LAPS"] = "FASTEST LAPS",
-	["CONFIG"] = "SETTINGS", ["CHOQUES"] = "COLLISIONS", ["ANÁLISIS"] = "ANALYSIS",
-	["LLANTAS"] = "TIRES", ["SANCIONES"] = "PENALTIES", ["CARRERA"] = "RACE",
-	["TODOS"] = "ALL", ["INCIDENTES"] = "INCIDENTS", ["QUALY"] = "QUALIFYING",
-	["WP CC"] = "WAYPOINTS", ["REGISTROS CC"] = "TRACK LIMITS LOG", ["CONFIG CC"] = "SETTINGS",
-	["CONTACTO"] = "CONTACT", ["ALCANCE"] = "REAR-END", ["LATERAL"] = "SIDE CONTACT",
-	["FRONTAL"] = "HEAD-ON", ["FUERTE"] = "SEVERE", ["MODERADO"] = "MODERATE",
-	["LEVE"] = "MINOR", ["MURO"] = "WALL",
-	["PERMITIDO"] = "PERMITTED", ["SIN PERMISO"] = "WITHOUT PERMISSION",
-	["ACTIVADO"] = "ACTIVATED", ["EXCESO"] = "SPEEDING",
+	["Choques leves acumulados"] = "Accumulated minor collisions",
+	["Nivel 1"] = "Level 1",
+	["Nivel 2"] = "Level 2",
+	["Nivel 3"] = "Level 3",
+	["Nivel 4"] = "Level 4",
+	["Nivel 0"] = "Level 0",
+	["Sin lím"] = "No limit",
+	["BLANDA"] = "SOFT",
+	["SUPER BLANDA"] = "SUPERSOFT",
+	["INTERMEDIA"] = "INTERMEDIATE",
+	["MEDIA"] = "MEDIUM",
+	["DURA"] = "HARD",
+	["NoClip detectado"] = "NoClip detected",
+	["Max Vueltas"] = "Max laps",
+	["Max Boxes"] = "Max pit stops",
+	["Activar Modo Qualy"] = "Enable qualifying mode",
+	["Vueltas Qualy"] = "Qualifying laps",
+	["↺  RESETEAR TIEMPOS QUALY"] = "↺  RESET QUALIFYING TIMES",
+	["Detección Vueltas"] = "Lap detection",
+	["Detección Boxes"] = "Pit detection",
+	["Solo Vehículos"] = "Vehicles only",
+	["Mostrar Waypoints"] = "Show waypoints",
+	["LAP – Ancho (studs)"] = "LAP – Width (studs)",
+	["LAP – Alto (studs)"] = "LAP – Height (studs)",
+	["LAP – Grosor (studs)"] = "LAP – Thickness (studs)",
+	["PIT IN – Ancho (studs)"] = "PIT IN – Width (studs)",
+	["PIT IN – Alto (studs)"] = "PIT IN – Height (studs)",
+	["PIT IN – Grosor (studs)"] = "PIT IN – Thickness (studs)",
+	["PIT OUT – Ancho (studs)"] = "PIT OUT – Width (studs)",
+	["PIT OUT – Alto (studs)"] = "PIT OUT – Height (studs)",
+	["PIT OUT – Grosor (studs)"] = "PIT OUT – Thickness (studs)",
+	["Radio Checkpoint"] = "Checkpoint radius",
+	["Posición Meta/Vuelta"] = "Start/finish line position",
+	["Posición Entrada Boxes"] = "Pit entry position",
+	["Posición Salida Boxes"] = "Pit exit position",
+	["Mostrar nombre sobre cabeza"] = "Show overhead name",
+	["Mostrar velocidad sobre cabeza"] = "Show overhead speed",
+	["RESETEAR VUELTAS (todos)"] = "RESET LAPS (all)",
+	["RESETEAR FAST LAPS (todos)"] = "RESET FASTEST LAPS (all)",
+	["RESETEAR BOXES (todos)"] = "RESET PIT STOPS (all)",
+	["OCULTAR HUD (Q)"] = "HIDE HUD (Q)",
+	["Mostrar Torre"] = "Show tower",
+	["↺  RESETEAR POSICIÓN TORRE"] = "↺  RESET TOWER POSITION",
+	["EFECTO SUELO DETECTADO"] = "GROUND EFFECT DETECTED",
+	["Uso de Boost"] = "Boost use",
+	["Exceso de Speed"] = "Excessive speed setting",
+	["Corner cuts acumulados"] = "Accumulated track limits infringements",
+	["Posible ventaja por corte"] = "Possible advantage from cutting the track",
+	["Activar choques + repeticiones (CPU+)"] = "Enable collisions + replays (CPU+)",
+	["🧹  LIMPIAR RECURSOS NO ESENCIALES"] = "🧹  CLEAR NONESSENTIAL RESOURCES",
+	["Mostrar gap en vez de vuelta"] = "Show gap instead of lap",
+	["Gap al líder (OFF = gap al de adelante)"] = "Gap to leader (OFF = interval to car ahead)",
+	["Corner cuts antes de sanción"] = "Track limits infringements before a penalty",
+	["Choques leves antes de sanción"] = "Minor collisions before a penalty",
+	["Gap (s) para marcar ventaja por corte"] = "Gap (s) to flag a possible track-cutting advantage",
+	["Segundos de penalización al confirmar"] = "Penalty seconds upon confirmation",
+	["🟡  ACTIVAR / DESACTIVAR VSC"] = "🟡  ENABLE / DISABLE VSC",
+	["📋  GENERAR INFORME POST-CARRERA"] = "📋  GENERATE POST-RACE REPORT",
+	["📤  ENVIAR INFORME A DISCORD"] = "📤  SEND REPORT TO DISCORD",
+	["➕  SUMAR ESTA CARRERA A LA TEMPORADA"] = "➕  ADD THIS RACE TO THE SEASON",
+	["📋  GENERAR REPORTE DE TEMPORADA"] = "📋  GENERATE SEASON REPORT",
+	["Mostrar notificaciones"] = "Show notifications",
+	["Activar DRS"] = "Enable DRS",
+	["Vuelta inicial DRS"] = "DRS starting lap",
+	["GAP DRS (s)"] = "DRS GAP (s)",
+	["Bonus DRS"] = "DRS bonus",
+	["Sanciones DRS"] = "DRS penalties",
+	["Anuncios DRS"] = "DRS announcements",
+	["Zonas DRS visibles"] = "Show DRS zones",
+	["DRS ancho"] = "DRS width",
+	["DRS altura"] = "DRS height",
+	["Detección hasta END: fondo"] = "Detection depth (extend to END)",
+	["ELIMINAR ÚLTIMA ZONA DRS"] = "DELETE LAST DRS ZONE",
+	["ELIMINAR TODAS LAS ZONAS DRS"] = "DELETE ALL DRS ZONES",
+	["Activar OT"] = "Enable OT",
+	["GAP OT (s)"] = "OT GAP (s)",
+	["Zona OT visible"] = "Show OT zone",
+	["OT ancho"] = "OT width",
+	["OT altura"] = "OT height",
+	["OT fondo"] = "OT depth",
+	["+ CREAR ZONA OT"] = "+ CREATE OT ZONE",
+	["ELIMINAR ZONA OT"] = "DELETE OT ZONE",
+	["Control de velocidad en boxes"] = "Pit lane speed monitoring",
+	["Reducción en boxes"] = "Pit lane speed reduction",
+	["Anunciar eventos, vueltas rápidas y sanciones en el chat"] = "Announce events, fastest laps and penalties in chat",
+	["VUELTAS"] = "LAPS",
+	["BOXES"] = "PITS",
+	["FAST LAPS"] = "FASTEST LAPS",
+	["CONFIG"] = "SETTINGS",
+	["CHOQUES"] = "COLLISIONS",
+	["ANÁLISIS"] = "ANALYSIS",
+	["LLANTAS"] = "TIRES",
+	["SANCIONES"] = "PENALTIES",
+	["CARRERA"] = "RACE",
+	["TODOS"] = "ALL",
+	["INCIDENTES"] = "INCIDENTS",
+	["QUALY"] = "QUALIFYING",
+	["WP CC"] = "WAYPOINTS",
+	["REGISTROS CC"] = "TRACK LIMITS LOG",
+	["CONFIG CC"] = "SETTINGS",
+	["CONTACTO"] = "CONTACT",
+	["ALCANCE"] = "REAR-END",
+	["LATERAL"] = "SIDE CONTACT",
+	["FRONTAL"] = "HEAD-ON",
+	["FUERTE"] = "SEVERE",
+	["MODERADO"] = "MODERATE",
+	["LEVE"] = "MINOR",
+	["MURO"] = "WALL",
+	["PERMITIDO"] = "PERMITTED",
+	["SIN PERMISO"] = "WITHOUT PERMISSION",
+	["ACTIVADO"] = "ACTIVATED",
+	["EXCESO"] = "SPEEDING",
+	["En Pista"] = "On Track",
+	["En Boxes"] = "In Pits",
+	["VELOCIDAD"] = "SPEED",
+	["VUELO"] = "AIRBORNE",
+	["SOSPECHOSO"] = "SUSPICIOUS",
+	["ALERTA"] = "ALERT",
+	["Carrera"] = "Race",
+	["Clasificación"] = "Qualifying",
+	["Circuitos y Waypoints"] = "Tracks and Waypoints",
+	["Telemetría"] = "Telemetry",
+	["Neumáticos"] = "Tires",
+	["Replay / Análisis"] = "Replay / Analysis",
+	["Configuración"] = "Settings",
+	["Recorrido completo"] = "Full walkthrough",
+	["BLANCO"] = "WHITE",
+	["ROJO"] = "RED",
+	["AZUL"] = "BLUE",
+	["VERDE"] = "GREEN",
+	["AMARILLO"] = "YELLOW",
+	["NARANJA"] = "ORANGE",
+	["MORADO"] = "PURPLE",
+	["ROSA"] = "PINK",
+	["GRIS"] = "GRAY",
+	["EXCESO DE VELOCIDAD EN BOXES"] = "PIT LANE SPEEDING",
+	["DRS PERMITIDO"] = "DRS PERMITTED",
+	["DRS SIN PERMISO"] = "DRS WITHOUT PERMISSION",
+	["DRS ACTIVADO"] = "DRS ACTIVATED",
+	["DRS EXCESO"] = "DRS SPEEDING",
+	["OT PERMITIDO"] = "OT PERMITTED",
+	["OT SIN PERMISO"] = "OT WITHOUT PERMISSION",
+	["OT ACTIVADO"] = "OT ACTIVATED",
+	["OT EXCESO"] = "OT SPEEDING",
+	["PIT PERMITIDO"] = "PIT PERMITTED",
+	["PIT SIN PERMISO"] = "PIT WITHOUT PERMISSION",
+	["PIT ACTIVADO"] = "PIT ACTIVATED",
+	["PIT EXCESO"] = "PIT SPEEDING",
 }
+function SPA_EnglishLabel(value)
+	return SPA_ENGLISH_LABELS[value] or value
+end
+
+SPA_V222 = { version = "2.22.5" }
+SPA_V221 = { version = "2.22.5", connect = {}, services = {} }
+-- Public HTTPS endpoint; leave blank to keep SPA offline. Never put secrets here.
+SPA_CONNECT_BASE_URL = SPA_CONNECT_BASE_URL or ""
+-- CONTROL CENTER / TUTORIAL MODE / SPA TRACK SYSTEM
+SPA_V220 = { controls = {}, configRefresh = {}, stages = {}, loadingDone = false }
 
 -- ╔══════════════════════════════════════════════════════════════════╗
--- ║  SPA-GLOBAL-IDM-INGLISHV2.19 · DRS / OT / PIT LIMITER      ║
+-- ║  SPA-GLOBAL V2.20 · DRS / OT / PIT LIMITER                    ║
 -- ║  1) Professional loading screen (White, Black, Red)             ║
 -- ║  2) Right-side timing tower with position-change animations    ║
 -- ║  3) Qualifying mode: configurable time-based rankings          ║
@@ -108,7 +258,7 @@ function SPA_PerfMark(moduleName, startedAt, extra)
 	local now = tick()
 	if elapsed >= (SPA_PERF.spikeMs or 5) and now - (SPA_PERF.lastSpike[moduleName] or 0) >= 1 then
 		SPA_PERF.lastSpike[moduleName] = now
-		warn(("[SPA-GLOBAL-IDM-INGLISHV2.19 PERF SPIKE] module=%s duration=%.2fms%s"):format(moduleName, elapsed, extra and (" " .. tostring(extra)) or ""))
+		warn(("[SPA PERF SPIKE] module=%s duration=%.2fms%s"):format(moduleName, elapsed, extra and (" " .. tostring(extra)) or ""))
 	end
 	if now - (SPA_PERF.lastLog or 0) >= 10 then
 		SPA_PERF.lastLog = now
@@ -116,7 +266,7 @@ function SPA_PerfMark(moduleName, startedAt, extra)
 		for name, d in pairs(SPA_PERF.samples) do
 			parts[#parts + 1] = ("%s=%.2fms"):format(name, d.last or 0)
 		end
-		warn("[SPA-GLOBAL-IDM-INGLISHV2.19 PERF] " .. table.concat(parts, " "))
+		warn("[SPA PERF] " .. table.concat(parts, " "))
 	end
 end
 local notifiedPlayers         = {}
@@ -211,7 +361,7 @@ local function warnHudError(stage, player, err)
 	HUD_DIAGNOSTICS.errors += 1
 	if not hudWarningAt[key] or now - hudWarningAt[key] >= 5 then
 		hudWarningAt[key] = now
-		warn(("[SPA-GLOBAL-IDM-INGLISHV2.19 HUD] stage=%s uid=%s name=%s error=%s"):format(tostring(stage), tostring(uid), tostring(name), message))
+		warn(("[SPA HUD] etapa=%s uid=%s nombre=%s error=%s"):format(tostring(stage), tostring(uid), tostring(name), message))
 	end
 end
 
@@ -526,13 +676,15 @@ local NOTIF_ENABLED = true
 local function showNotification(text, bgColor, icon, yOffset)
 	if not NOTIF_ENABLED then return end
 	local gui = Instance.new("ScreenGui")
+	gui.Name="SPA_NOTIFICATION"
 	gui.ResetOnSpawn = false
 	gui.DisplayOrder = 200
 	gui.Parent = playerGui
 
 	local frame = Instance.new("Frame")
-	frame.Size = UDim2.new(0, 420, 0, 48)
-	frame.Position = UDim2.new(0.5, -210, 0, yOffset or 20)
+	frame.Size = UDim2.new(0, math.min(420,Camera.ViewportSize.X-24), 0, 60)
+	frame.AnchorPoint=Vector2.new(0.5,0)
+	frame.Position = UDim2.new(0.5, 0, 0, yOffset or 20)
 	frame.BackgroundColor3 = C_BG
 	frame.BorderSizePixel = 0
 	frame.BackgroundTransparency = 0.1
@@ -569,17 +721,17 @@ local function showNotification(text, bgColor, icon, yOffset)
 	lbl.Text = text
 	lbl.Parent = frame
 
-	frame.Position = UDim2.new(0.5, -210, 0, (yOffset or 20) - 30)
+	frame.Position = UDim2.new(0.5, 0, 0, (yOffset or 20) - 30)
 	frame.BackgroundTransparency = 1
 	local tweenIn = TweenService:Create(frame, TweenInfo.new(0.3, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
-		Position = UDim2.new(0.5, -210, 0, yOffset or 20),
+		Position = UDim2.new(0.5, 0, 0, yOffset or 20),
 		BackgroundTransparency = 0.1
 	})
 	tweenIn:Play()
 
 	task.delay(NOTIFICATION_DURATION - 0.4, function()
 		local tweenOut = TweenService:Create(frame, TweenInfo.new(0.4, Enum.EasingStyle.Quart, Enum.EasingDirection.In), {
-			Position = UDim2.new(0.5, -210, 0, (yOffset or 20) - 20),
+			Position = UDim2.new(0.5, 0, 0, (yOffset or 20) - 20),
 			BackgroundTransparency = 1
 		})
 		tweenOut:Play()
@@ -629,13 +781,165 @@ local pitEntrySphere = createSphereTrigger("PitEntryTrigger", PIT_ENTRY_CFRAME)
 local pitExitSphere  = createSphereTrigger("PitExitTrigger",  PIT_EXIT_CFRAME)
 local lapSphere      = createSphereTrigger("LapTrigger",      LAP_LINE_CFRAME)
 
+-- V2.22.1 TIMING CORE: shared registration, frame-swept gates; no HTTP.
+SPA_Timing = { gates={}, states={}, traces={}, last={}, best={}, overall={}, mode="LEGACY" }
+function GetWaypointPlacementCFrame(source)
+	local root=player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+	source=source or (root and root.CFrame)
+	assert(source,"Operator position unavailable")
+	local look=source.LookVector; local flat=Vector3.new(look.X,0,look.Z)
+	if flat.Magnitude<0.001 then
+		local fallback=root and root.CFrame.LookVector or Vector3.new(0,0,-1)
+		flat=Vector3.new(fallback.X,0,fallback.Z)
+		if flat.Magnitude<0.001 then flat=Vector3.new(0,0,-1) end
+	end
+	-- Placement +90 is relative to the horizontal operator heading.
+	-- Legacy walls add their own +90 mesh-axis transform (X is the long axis).
+	-- Direct DRS/OT frames undo that placement offset once at their adapter.
+	return CFrame.lookAt(source.Position,source.Position+flat.Unit)*CFrame.Angles(0,math.rad(90),0)
+end
+function SPA_Timing:Mode()
+	local n=0; for i=1,3 do local p=self.gates[i]; if p and p.Parent then n+=1 end end
+	return n==3 and "SECTORS" or (n==0 and "LEGACY" or "INCOMPLETE")
+end
+function SPA_Timing:Reset(uid,clearResults)
+	if uid then
+		self.states[uid]=nil; self.traces[uid]=nil
+		if fastLapData[uid] then fastLapData[uid].currentLapStarted=false; fastLapData[uid].lastStartTime=nil end
+		if clearResults then self.last[uid]=nil; self.best[uid]=nil end
+	else
+		self.states={}; self.traces={}
+		for _,f in pairs(fastLapData) do f.currentLapStarted=false; f.lastStartTime=nil end
+		if clearResults then self.last={}; self.best={}; self.overall={} end
+	end
+end
+function SPA_Timing:SetGate(index,cf)
+	assert(RACE_STATE~="RACE" and RACE_STATE~="QUALY","End the active session before editing timing gates")
+	assert(index>=1 and index<=3,"Invalid sector")
+	local old=self.gates[index]
+	local p=cf and createWall("SPA_SECTOR_"..index,C_BLUE,cf,Vector3.new(wpCfg.LAP.width,wpCfg.LAP.height,wpCfg.LAP.thickness)) or nil
+	self.gates[index]=p; if old then old:Destroy() end
+	self:Reset(nil,true)
+end
+function SPA_Timing:Cross(part,a,b,detection)
+	if not part or not part.Parent then return nil end
+	local x,y=part.CFrame:PointToObjectSpace(a),part.CFrame:PointToObjectSpace(b)
+	if (x.Z>=0)==(y.Z>=0) or math.abs(x.Z-y.Z)<1e-8 then return nil end
+	local alpha=x.Z/(x.Z-y.Z); local hit=x+(y-x)*alpha
+	local tol=detection and detection.detectionTolerance or 0
+	local width=detection and detection.detectionWidth or part.Size.X
+	local height=detection and detection.detectionHeight or part.Size.Y
+	if math.abs(hit.X)<=width/2+tol and math.abs(hit.Y)<=height/2+tol then return alpha end
+end
+function SPA_Timing:Record(pl,now,lapTime)
+	ensurePlayerData(pl); local uid=pl.UserId; local ld,fld=lapData[uid],fastLapData[uid]
+	if RACE_STATE=="QUALY" and ld.lapsMade>=QUALY_LAPS then return false end
+	ld.lapsMade=math.min(ld.lapsMade+1,MAX_LAPS); ld.lastLapTouch=now
+	SPA_RaceControl:AddEvent("LAP",{category=RACE_STATE=="QUALY" and "QUALY" or "CARRERA",severity="INFO",uid=uid,name=getDisplayName(pl),lap=ld.lapsMade,title="🏁 LAP "..ld.lapsMade,description=getDisplayName(pl).." completed the lap"})
+	SPA_RaceModes:OnLap(uid,ld.lapsMade)
+	if lapTime and lapTime>0 then
+		fld.lastTime=lapTime
+		if not fld.bestTime or lapTime<fld.bestTime then
+			fld.bestTime=lapTime
+			if QUALY_MODE and RACE_STATE=="QUALY" then QUALY_BEST_TIMES[uid]=lapTime; QUALY_FIA_STATUS[uid]=FIA_EXCLUDED[uid]==true; QUALY_NAMES[uid]=getDisplayName(pl) end
+			SPA_RaceControl:AddEvent("FASTEST_LAP",{category=RACE_STATE=="QUALY" and "QUALY" or "CARRERA",severity="INFO",uid=uid,name=getDisplayName(pl),bestTime=fmtTime(lapTime),title="🟣 FASTEST LAP",description=getDisplayName(pl).." — "..fmtTime(lapTime)})
+		end
+		local best=RACE_STATE=="QUALY" and QUALY_GLOBAL_FASTEST or RACE_GLOBAL_FASTEST
+		if lapTime<best.time then
+			best.time=lapTime; best.uid=uid; best.name=getDisplayName(pl)
+			if RACE_STATE=="RACE" then GLOBAL_FASTEST_LAP=RACE_GLOBAL_FASTEST end
+			if ENABLE_CHAT_EVENTS and announceRaceEvent then announceRaceEvent(("🟣 FASTEST LAP — %s %s"):format(getDisplayName(pl),fmtTime(lapTime))) end
+		end
+	end
+	fld.lastStartTime=now; fld.currentLapStarted=true
+	HUD_LAST_SIGNATURE=nil; HUD_RANK_CACHE.signature=nil
+	return true
+end
+function SPA_Timing:Hit(pl,gate,at)
+	local uid=pl.UserId; ensurePlayerData(pl)
+	local s=self.states[uid] or {stage="WAITING_META",touches={}}; self.states[uid]=s
+	if s.touches[gate] and at-s.touches[gate]<DEBOUNCE_TIME then return end
+	s.touches[gate]=at
+	if gate==0 then
+		if self.mode~="SECTORS" then
+			local f=fastLapData[uid]
+			self:Record(pl,at,f.currentLapStarted and f.lastStartTime and at-f.lastStartTime or nil)
+		elseif s.stage=="WAITING_FINISH" then
+			local full=at-s.lapStart; local final=at-s.sector3At
+			local sum=s.sector1Time+s.sector2Time+s.sector3Time+final
+			if final>0 and full>DEBOUNCE_TIME and math.abs(sum-full)<0.00001 and self:Record(pl,at,full) then
+				local result={s.sector1Time,s.sector2Time,s.sector3Time,finalSplit=final,lapTime=full,name=getDisplayName(pl)}
+				self.last[uid]=result; self.best[uid]=self.best[uid] or {}
+				for i=1,3 do
+					self.best[uid][i]=math.min(self.best[uid][i] or math.huge,result[i])
+					if not self.overall[i] or result[i]<self.overall[i].time then self.overall[i]={time=result[i],uid=uid,name=getDisplayName(pl)} end
+				end
+				SPA_RaceControl:AddEvent("LAP_SECTORS",{category=RACE_STATE=="QUALY" and "QUALY" or "CARRERA",uid=uid,name=getDisplayName(pl),title="LAP COMPLETE",description=("S1 %.3f · S2 %.3f · S3 %.3f · LAP %s"):format(result[1],result[2],result[3],fmtTime(full)),detail=("FINAL META SPLIT %.3f"):format(final)})
+			end
+		elseif s.stage~="WAITING_META" then
+			SPA_RaceControl:AddEvent("INVALID_LAP",{category="INCIDENTES",uid=uid,title="INVALID SECTOR SEQUENCE",description=getDisplayName(pl).." · missing/out-of-order sector"})
+		end
+		self.states[uid]={stage="WAITING_S1",lapStart=at,touches=s.touches}
+		fastLapData[uid].lastStartTime=at; fastLapData[uid].currentLapStarted=true
+	elseif self.mode=="SECTORS" and s.stage~="WAITING_META" then
+		if s.stage~="WAITING_S"..gate then s.stage="INVALID"; return end
+		local previous=gate==1 and s.lapStart or s["sector"..(gate-1).."At"]
+		if not previous or at<=previous then s.stage="INVALID"; return end
+		s["sector"..gate.."At"]=at; s["sector"..gate.."Time"]=at-previous
+		s.stage=gate==3 and "WAITING_FINISH" or "WAITING_S"..(gate+1)
+	end
+end
+function SPA_Timing:Sample(pl,part,character,now)
+	local uid=pl.UserId; local pos=part.Position; local prior=self.traces[uid]
+	local velocity=part.AssemblyLinearVelocity.Magnitude
+	local current={part=part,character=character,pos=pos,at=now,velocity=velocity}
+	if prior and prior.part==part and prior.character==character then
+		local dt=now-prior.at
+		local maxDistance=math.max(20,((prior.velocity or velocity)+velocity)*0.5*math.max(dt,0)*2.5+8)
+		if dt<=0 or dt>1 or (pos-prior.pos).Magnitude>maxDistance then self:Reset(uid)
+		else
+			local hits={}
+			for gate=0,(self.mode=="SECTORS" and 3 or 0) do
+				local p=gate==0 and lapWall or self.gates[gate]
+				local alpha=self:Cross(p,prior.pos,pos,gate==0 and wpCfg.LAP or nil)
+				if alpha then table.insert(hits,{gate=gate,at=prior.at+dt*alpha}) end
+			end
+			table.sort(hits,function(a,b) if a.at==b.at then return a.gate<b.gate end; return a.at<b.at end)
+			for _,hit in ipairs(hits) do self:Hit(pl,hit.gate,hit.at) end
+		end
+	elseif prior then self:Reset(uid) end
+	self.traces[uid]=current
+end
+function SPA_Timing:Update(now)
+	local mode=self:Mode()
+	if self.mode~=mode or self.session~=RACE_STATE then
+		self:Reset(nil,RACE_STATE=="RACE" or RACE_STATE=="QUALY"); self.mode=mode; self.session=RACE_STATE
+	end
+	if not DETECT_LAPS or (RACE_STATE~="RACE" and RACE_STATE~="QUALY") then
+		if next(self.traces) then self:Reset() end; return
+	end
+	for uid,st in pairs(PlayerState or {}) do
+		local hum=st.humanoid
+		local part=hum and hum.SeatPart or st.root
+		if st.player and st.player.Character==st.character and hum and hum.Health>0 and part and part.Parent and not FIA_EXCLUDED[uid] and not DSQ_DRIVERS[uid] then
+			self:Sample(st.player,part,st.character,now)
+		else self:Reset(uid) end
+	end
+end
+function SPA_Timing:Report()
+	local lines={"— BEST VALID SECTORS —"}
+	for i=1,3 do local b=self.overall[i]; table.insert(lines,"S"..i.."  "..(b and (b.name.." · "..string.format("%.3f",b.time)) or "—")) end
+	return table.concat(lines,"\n")
+end
+-- END V2.22.1 TIMING CORE
+
 function _spaLapRuntimeState(reason)
 	local cf = lapWall and lapWall.CFrame
 	if not cf then
-		warn(("[SPA-GLOBAL-IDM-INGLISHV2.19 LAP STATE] reason=%s state=%s detect=%s wall=missing"):format(tostring(reason), tostring(RACE_STATE), tostring(DETECT_LAPS)))
+		warn(("[SPA LAP STATE] reason=%s state=%s detect=%s wall=missing"):format(tostring(reason), tostring(RACE_STATE), tostring(DETECT_LAPS)))
 		return
 	end
-	warn(("[SPA-GLOBAL-IDM-INGLISHV2.19 LAP STATE] reason=%s state=%s detect=%s wallPos=%s look=%s up=%s"):format(
+	warn(("[SPA LAP STATE] reason=%s state=%s detect=%s wallPos=%s look=%s up=%s"):format(
 		tostring(reason), tostring(RACE_STATE), tostring(DETECT_LAPS), tostring(cf.Position), tostring(cf.LookVector), tostring(cf.UpVector)))
 end
 
@@ -644,6 +948,7 @@ local function applyWPVisibility()
 	if lapWall    then lapWall.Transparency    = t end
 	if pitInWall  then pitInWall.Transparency  = t end
 	if pitOutWall then pitOutWall.Transparency = t end
+	for _,p in pairs(SPA_Timing.gates) do if p.Parent then p.Transparency=t end end
 end
 
 -- Track limits wall functions
@@ -685,8 +990,10 @@ loadBg.BorderSizePixel = 0
 loadBg.Parent = loadGui
 
 centerContainer = Instance.new("Frame")
-centerContainer.Size = UDim2.new(0, 420, 0, 210)
-centerContainer.Position = UDim2.new(0.5, -210, 0.5, -105)
+centerContainer.Size = UDim2.new(0.92, 0, 0, 210)
+centerContainer.AnchorPoint=Vector2.new(0.5,0.5)
+centerContainer.Position = UDim2.fromScale(0.5,0.5)
+Instance.new("UISizeConstraint",centerContainer).MaxSize=Vector2.new(420,210)
 centerContainer.BackgroundColor3 = C_BG2
 centerContainer.BackgroundTransparency = 0.16
 centerContainer.BorderSizePixel = 0
@@ -701,11 +1008,11 @@ logoText = Instance.new("TextLabel")
 logoText.Size = UDim2.new(1,0,0,50)
 logoText.Position = UDim2.new(0,0,0,40)
 logoText.BackgroundTransparency = 1
-logoText.Text = "SPA-GLOBAL-IDM-INGLISHV2.19"
+logoText.Text = "SPA-GLOBAL V2.22.5"
+logoText.TextScaled = true
 logoText.TextColor3 = Color3.fromRGB(255, 255, 255)
 logoText.Font = Enum.Font.GothamBlack
 logoText.TextSize = 48
-logoText.TextScaled = true -- Fit the full edition name without changing the panel dimensions.
 logoText.Parent = centerContainer
 
 subText = Instance.new("TextLabel")
@@ -762,6 +1069,8 @@ task.spawn(function()
 	TweenService:Create(barFill, TweenInfo.new(0.4), {BackgroundTransparency=1}):Play()
 	task.wait(0.6)
 	loadGui:Destroy()
+	SPA_V220.loadingDone = true
+	if SPA_ControlCenter and SPA_ControlCenter.initialized then SPA_ControlCenter:Open() end
 end)
 
 -- ─── MAIN HUD PANEL ─────────────────────────────────────────
@@ -857,17 +1166,23 @@ towerConfig = {
 	posY        = 0,
 	offsetY     = 12,
 	headerColor = C_RED,
-	titleText   = "SPA-GLOBAL-IDM-INGLISHV2.19",
+	titleText   = "SPA GLOBAL",
 	visible     = true,
 	hudMasterVisible = true,  -- [SPAV4] Master HUD visibility (Q key), without a new local
 }
 
-towerContainer = Instance.new("Frame")
+towerContainer = Instance.new("ScrollingFrame")
+towerContainer.CanvasSize=UDim2.new()
+towerContainer.ScrollingDirection=Enum.ScrollingDirection.Y
+towerContainer.ScrollBarThickness=6
+towerContainer.ScrollBarImageColor3=C_RED
+towerContainer.BorderSizePixel=0
+towerContainer.Active=true
 towerContainer.Name = "TowerContainer"
 towerContainer.Size = UDim2.new(0, TOWER_WIDTH, 0, 30)
 towerContainer.Position = UDim2.new(towerConfig.posX, towerConfig.offsetX, towerConfig.posY, towerConfig.offsetY)
 towerContainer.BackgroundTransparency = 1
-towerContainer.ClipsDescendants = false
+towerContainer.ClipsDescendants = true
 towerContainer.Visible = towerConfig.visible
 towerContainer.ZIndex = 2  -- [SPAV4] Rows and names ABOVE the white background (towerBgBottom)
 towerContainer.Parent = towerGui
@@ -913,6 +1228,13 @@ RunService.Heartbeat:Connect(function()
 	local topPos = UDim2.new(towerConfig.posX, towerConfig.offsetX, towerConfig.posY, towerConfig.offsetY - 46)
 	local bottomH = math.max(0, contentH + 2)
 	local bottomPos = UDim2.new(towerConfig.posX, towerConfig.offsetX, towerConfig.posY, towerConfig.offsetY - 2)
+	if SPA_Mobile then
+		tw=towerContainer.Size.X.Offset
+		local p=towerContainer.Position
+		topPos=UDim2.new(p.X.Scale,p.X.Offset,p.Y.Scale,p.Y.Offset-46)
+		bottomPos=UDim2.new(p.X.Scale,p.X.Offset,p.Y.Scale,p.Y.Offset-2)
+		bottomH=math.min(bottomH,towerContainer.Size.Y.Offset+2)
+	end
 	local topVisible = towerConfig.visible and towerConfig.hudMasterVisible
 	local bottomVisible = topVisible and bottomH > 0
 	if _towerBgState.tw ~= tw or _towerBgState.topPos ~= topPos then
@@ -1230,7 +1552,7 @@ titleTxt = Instance.new("TextLabel")
 titleTxt.Size = UDim2.new(0.7,0,1,0)
 titleTxt.Position = UDim2.new(0,14,0,0)
 titleTxt.BackgroundTransparency = 1
-titleTxt.Text = "SPA-GLOBAL-IDM-INGLISHV2.19  —  RACE CONTROL"
+titleTxt.Text = "SPA-GLOBAL V2.22.5  —  RACE CONTROL"
 titleTxt.Font = Enum.Font.GothamBlack
 titleTxt.TextColor3 = C_WHITE
 titleTxt.TextSize = 14
@@ -1514,7 +1836,7 @@ local function setupRaceControlUI()
 	header.BorderSizePixel = 0; header.Parent = frame
 	local title = Instance.new("TextLabel")
 	title.Size = UDim2.new(0.55, 0, 0, 20); title.Position = UDim2.new(0, 10, 0, 3)
-	title.BackgroundTransparency = 1; title.Text = "SPA-GLOBAL-IDM-INGLISHV2.19"
+	title.BackgroundTransparency = 1; title.Text = "ADMINISTRATOR CGF1 — RACE CONTROL"
 	title.Font = Enum.Font.GothamBlack; title.TextSize = 12; title.TextColor3 = C_WHITE
 	title.TextXAlignment = Enum.TextXAlignment.Left; title.Parent = header
 	local status = Instance.new("TextLabel")
@@ -1550,13 +1872,14 @@ local function setupRaceControlUI()
 	detail.Position = UDim2.new(0.07, 0, 0.16, 0); detail.BackgroundColor3 = C_BG2
 	detail.BorderSizePixel = 0; detail.Visible = false; detail.ZIndex = 20; detail.Parent = frame
 	Instance.new("UICorner", detail).CornerRadius = UDim.new(0, 6)
+	local detailScroll=createScrollingList(detail); detailScroll.Position=UDim2.fromOffset(8,8); detailScroll.Size=UDim2.new(1,-16,1,-62); detailScroll.ZIndex=21
 	local detailText = Instance.new("TextLabel")
 	detailText.Size = UDim2.new(1, -16, 1, -42); detailText.Position = UDim2.new(0, 8, 0, 8)
 	detailText.BackgroundTransparency = 1; detailText.TextWrapped = true; detailText.TextYAlignment = Enum.TextYAlignment.Top
 	detailText.Font = Enum.Font.Gotham; detailText.TextSize = 12; detailText.TextColor3 = C_WHITE
-	detailText.TextXAlignment = Enum.TextXAlignment.Left; detailText.ZIndex = 21; detailText.Parent = detail
+	detailText.TextXAlignment = Enum.TextXAlignment.Left; detailText.ZIndex = 21; detailText.Size=UDim2.new(1,-12,0,180); detailText.AutomaticSize=Enum.AutomaticSize.Y; detailText.Parent = detailScroll
 	local closeDetail = Instance.new("TextButton")
-	closeDetail.Size = UDim2.new(0, 86, 0, 26); closeDetail.Position = UDim2.new(1, -94, 1, -32)
+	closeDetail.Size = UDim2.new(0, 110, 0, 44); closeDetail.Position = UDim2.new(1, -118, 1, -50)
 	closeDetail.BackgroundColor3 = C_RED; closeDetail.Text = "CLOSE"; closeDetail.Font = Enum.Font.GothamBold
 	closeDetail.TextSize = 11; closeDetail.TextColor3 = C_WHITE; closeDetail.BorderSizePixel = 0; closeDetail.ZIndex = 21; closeDetail.Parent = detail
 	closeDetail.MouseButton1Click:Connect(function() detail.Visible = false end)
@@ -1594,7 +1917,7 @@ local function setupRaceControlUI()
 			if event.limit then table.insert(lines, "Limit: " .. tostring(event.limit) .. " km/h") end
 			if event.bestTime then table.insert(lines, "Best time: " .. tostring(event.bestTime)) end
 			if event.type == "BOOST" then table.insert(lines, "Infringement: Boost use") end
-			if event.reason then table.insert(lines, "Reason: " .. tostring(event.reason)) end
+			if event.reason then table.insert(lines, "Reason: " .. tostring(SPA_EnglishLabel(event.reason))) end
 			if event.detail then table.insert(lines, "Details: " .. tostring(event.detail)) end
 			detailText.Text = table.concat(lines, "\n"); detail.Visible = true
 		end)
@@ -1732,6 +2055,7 @@ local function makeVueltasRow(parent, order, pos, p)
 	end
 
 	makeResetBtn("↺ LAPS", C_DARKRED, function()
+		SPA_Timing:Reset(uid,true)
 		lapData[uid] = {lapsMade=0, lastLapTouch=0}
 		fastLapData[uid] = {bestTime=nil, lastStartTime=nil, currentLapStarted=false}
 		if vueltasRowCache[uid] then
@@ -1743,6 +2067,7 @@ local function makeVueltasRow(parent, order, pos, p)
 		end
 	end)
 	makeResetBtn("↺ PIT STOPS", Color3.fromRGB(80,40,0), function()
+		if SPA_PitsControl and not SPA_PitsControl:CanEdit() then return end
 		pitData[uid] = {status="En Pista", pitStopsMade=0, lastPitTouch=0}
 		if boxesRowCache[uid] then
 			local rightLbl = boxesRowRefs[uid] and boxesRowRefs[uid].rightLbl
@@ -1770,6 +2095,52 @@ local function makeVueltasRow(parent, order, pos, p)
 	lapCountLbl.Name = "LapCount"
 	vueltasRowCache[uid] = {topRow = topRow, btnRow = btnRow, posLbl = posLbl, nameLbl = nameLbl, lapLbl = lapCountLbl}
 end
+
+-- V2.22.1 ONBOARD CORE: one ordered roster for keyboard, menu and touch.
+SPA_Onboard = { drivers={}, current=nil, departing={}, active=false }
+function SPA_Onboard:Valid(pl)
+	local char=pl and pl.Character
+	local hum=char and char:FindFirstChildOfClass("Humanoid")
+	return pl and pl~=player and pl.Parent and not self.departing[pl.UserId] and not FIA_EXCLUDED[pl.UserId] and not DSQ_DRIVERS[pl.UserId]
+		and char and char:FindFirstChild("HumanoidRootPart") and hum and hum.Health>0
+end
+function SPA_Onboard:Refresh()
+	self.drivers=Players:GetPlayers()
+	table.sort(self.drivers,function(a,b) return a.UserId<b.UserId end)
+end
+function SPA_Onboard:Switch(direction)
+	if not self.active then return end
+	local n=#self.drivers; local at=direction>0 and 0 or 1
+	for i,pl in ipairs(self.drivers) do if pl==self.current then at=i; break end end
+	for step=1,n do
+		local index=((at-1+direction*step)%n)+1; local pl=self.drivers[index]
+		if self:Valid(pl) then self.setDriver(pl,index); return end
+	end
+	self.stop()
+end
+function SPA_Onboard:Paint()
+	if not self.touch then return end
+	self.touch.Visible=self.active and UserInputService.TouchEnabled
+	local pos=nil; for i,uid in ipairs(CURRENT_STANDINGS_ORDER) do if self.current and uid==self.current.UserId then pos=i; break end end
+	self.touchLabel.Text=self.current and ((pos and ("P"..pos.." · ") or "")..getDisplayName(self.current)) or "NO DRIVER"
+end
+function SPA_Onboard:BuildTouch()
+	local row=Instance.new("Frame"); row.Name="SPA_OnboardTouch"; row.Size=UDim2.new(0.92,0,0,60)
+	row.AnchorPoint=Vector2.new(0.5,0.5); row.Position=UDim2.fromScale(0.5,0.62); row.BackgroundTransparency=1; row.Visible=false; row.Parent=mainGui
+	local limit=Instance.new("UISizeConstraint"); limit.MaxSize=Vector2.new(500,60); limit.Parent=row
+	self.touch=row
+	local label=Instance.new("TextLabel"); label.Size=UDim2.new(1,-136,1,0); label.Position=UDim2.fromOffset(68,0)
+	label.BackgroundColor3=C_BG; label.BackgroundTransparency=0.2; label.TextColor3=C_WHITE; label.TextWrapped=true; label.TextSize=14; label.Font=Enum.Font.GothamBold; label.Parent=row; self.touchLabel=label
+	for i,direction in ipairs({-1,1}) do
+		local b=Instance.new("TextButton"); b.Name=direction<0 and "PreviousDriver" or "NextDriver"
+		b.Size=UDim2.fromOffset(60,60); b.Position=UDim2.new(i-1,i==1 and 0 or -60,0,0)
+		b.BackgroundColor3=C_BG2; b.BackgroundTransparency=0.15; b.Text=direction<0 and "◀" or "▶"; b.TextColor3=C_WHITE; b.Font=Enum.Font.GothamBlack; b.TextSize=26; b.AutoButtonColor=true; b.Parent=row
+		Instance.new("UICorner",b).CornerRadius=UDim.new(0,10)
+		b.Activated:Connect(function() self:Switch(direction) end)
+	end
+	UserInputService:GetPropertyChangedSignal("TouchEnabled"):Connect(function() self:Paint() end)
+end
+-- END V2.22.1 ONBOARD CORE
 
 -- ─── SCROLL / PANEL VARIABLES ───────────────────────────────
 vueltasScroll   = nil
@@ -1835,16 +2206,16 @@ function _setupUI1()  -- [SPAV4] Global: frees registers in the main scope
 	end)
 
 	local COLOR_PALETTE = {
-		{name="WHITE",   color=Color3.fromRGB(255,255,255)},
-		{name="RED",     color=Color3.fromRGB(230,0,0)},
-		{name="BLUE",     color=Color3.fromRGB(0,120,255)},
-		{name="GREEN",    color=Color3.fromRGB(0,210,90)},
-		{name="YELLOW", color=Color3.fromRGB(255,200,0)},
-		{name="ORANGE",  color=Color3.fromRGB(255,130,0)},
-		{name="PURPLE",   color=Color3.fromRGB(160,0,220)},
+		{name="BLANCO",   color=Color3.fromRGB(255,255,255)},
+		{name="ROJO",     color=Color3.fromRGB(230,0,0)},
+		{name="AZUL",     color=Color3.fromRGB(0,120,255)},
+		{name="VERDE",    color=Color3.fromRGB(0,210,90)},
+		{name="AMARILLO", color=Color3.fromRGB(255,200,0)},
+		{name="NARANJA",  color=Color3.fromRGB(255,130,0)},
+		{name="MORADO",   color=Color3.fromRGB(160,0,220)},
 		{name="CYAN",     color=Color3.fromRGB(0,220,220)},
-		{name="PINK",     color=Color3.fromRGB(255,80,180)},
-		{name="GRAY",     color=Color3.fromRGB(160,160,170)},
+		{name="ROSA",     color=Color3.fromRGB(255,80,180)},
+		{name="GRIS",     color=Color3.fromRGB(160,160,170)},
 	}
 
 	local function buildNameConfigRows()
@@ -1900,7 +2271,7 @@ function _setupUI1()  -- [SPAV4] Global: frees registers in the main scope
 			colorBtn.Size = UDim2.new(0.38,-8,0,24)
 			colorBtn.Position = UDim2.new(0.58,4,0,20)
 			colorBtn.BackgroundColor3 = COLOR_PALETTE[colorIdx].color
-			colorBtn.Text = COLOR_PALETTE[colorIdx].name
+			colorBtn.Text = SPA_EnglishLabel(COLOR_PALETTE[colorIdx].name)
 			colorBtn.Font = Enum.Font.GothamBold
 			colorBtn.TextColor3 = Color3.fromRGB(0,0,0)
 			colorBtn.TextSize = 10
@@ -1917,7 +2288,7 @@ function _setupUI1()  -- [SPAV4] Global: frees registers in the main scope
 				colorIdx = colorIdx % #COLOR_PALETTE + 1
 				local opt = COLOR_PALETTE[colorIdx]
 				colorBtn.BackgroundColor3 = opt.color
-				colorBtn.Text = opt.name
+				colorBtn.Text = SPA_EnglishLabel(opt.name)
 				if not customPlayerData[uid] then customPlayerData[uid] = {name="", color=C_WHITE, imageId=""} end
 				customPlayerData[uid].color = opt.color
 				nameBox.TextColor3 = opt.color
@@ -2013,11 +2384,11 @@ function _setupUI1()  -- [SPAV4] Global: frees registers in the main scope
 			local trbBtn=Instance.new("TextButton"); trbBtn.Size=UDim2.new(0.60,0,0,18); trbBtn.Position=UDim2.new(0.36,2,0,102)
 			trbBtn.BackgroundColor3=Color3.fromRGB(30,30,45); trbBtn.BorderSizePixel=0
 			trbBtn.Font=Enum.Font.GothamBold; trbBtn.TextColor3=C_ORANGE; trbBtn.TextSize=10
-			trbBtn.Text=SPA_Telemetry.TURBO_CYCLE[trbIdx]; trbBtn.Parent=row
+			trbBtn.Text=SPA_EnglishLabel(SPA_Telemetry.TURBO_CYCLE[trbIdx]); trbBtn.Parent=row
 			Instance.new("UICorner",trbBtn).CornerRadius=UDim.new(0,3)
 			trbBtn.MouseButton1Click:Connect(function()
 				trbIdx=trbIdx%#SPA_Telemetry.TURBO_CYCLE+1
-				trbBtn.Text=SPA_Telemetry.TURBO_CYCLE[trbIdx]
+				trbBtn.Text=SPA_EnglishLabel(SPA_Telemetry.TURBO_CYCLE[trbIdx])
 				if not customPlayerData[uid] then customPlayerData[uid]={name="",color=C_WHITE,imageId=""} end
 				customPlayerData[uid].maxTurbo=trbIdx==1 and nil or SPA_Telemetry.TURBO_CYCLE[trbIdx]
 			end)
@@ -2032,11 +2403,11 @@ function _setupUI1()  -- [SPAV4] Global: frees registers in the main scope
 			local spBtn=Instance.new("TextButton"); spBtn.Size=UDim2.new(0.60,0,0,18); spBtn.Position=UDim2.new(0.36,2,0,124)
 			spBtn.BackgroundColor3=Color3.fromRGB(30,30,45); spBtn.BorderSizePixel=0
 			spBtn.Font=Enum.Font.GothamBold; spBtn.TextColor3=C_GREEN; spBtn.TextSize=10
-			spBtn.Text=SPA_Telemetry.SUSP_CYCLE[spIdx]; spBtn.Parent=row
+			spBtn.Text=SPA_EnglishLabel(SPA_Telemetry.SUSP_CYCLE[spIdx]); spBtn.Parent=row
 			Instance.new("UICorner",spBtn).CornerRadius=UDim.new(0,3)
 			spBtn.MouseButton1Click:Connect(function()
 				spIdx=spIdx%#SPA_Telemetry.SUSP_CYCLE+1
-				spBtn.Text=SPA_Telemetry.SUSP_CYCLE[spIdx]
+				spBtn.Text=SPA_EnglishLabel(SPA_Telemetry.SUSP_CYCLE[spIdx])
 				if not customPlayerData[uid] then customPlayerData[uid]={name="",color=C_WHITE,imageId=""} end
 				customPlayerData[uid].maxSusp=spIdx==1 and nil or SPA_Telemetry.SUSP_CYCLE[spIdx]
 			end)
@@ -2047,11 +2418,17 @@ function _setupUI1()  -- [SPAV4] Global: frees registers in the main scope
 			drfBox.Font=Enum.Font.GothamBold; drfBox.TextColor3=C_YELLOW; drfBox.TextSize=10
 			local _cdD=customPlayerData[uid]
 			drfBox.Text=(_cdD and _cdD.maxDrift) and tostring(_cdD.maxDrift) or ""
-			drfBox.PlaceholderText="e.g. 2.5"; drfBox.ClearTextOnFocus=false
+			drfBox.PlaceholderText="e.g. 1.0"; drfBox.ClearTextOnFocus=false
 			drfBox.TextXAlignment=Enum.TextXAlignment.Left; drfBox.Parent=row
 			Instance.new("UICorner",drfBox).CornerRadius=UDim.new(0,3)
 			drfBox.FocusLost:Connect(function()
-				local n=tonumber(drfBox.Text)
+				local valid,n=_telValidateDriftLimit(drfBox.Text)
+				if not valid then
+					local previous=customPlayerData[uid] and customPlayerData[uid].maxDrift
+					drfBox.Text=previous and tostring(previous) or ""
+					showNotification("MAX DRIFT: 0.1–1.5 · blank = unlimited",C_RED,"💨",20)
+					return
+				end
 				if not customPlayerData[uid] then customPlayerData[uid]={name="",color=C_WHITE,imageId=""} end
 				customPlayerData[uid].maxDrift=n; drfBox.Text=n and tostring(n) or ""
 			end)
@@ -2239,7 +2616,7 @@ function _setupUI1()  -- [SPAV4] Global: frees registers in the main scope
 	end
 
 	local function spectatePlayerFunc(plr, index)
-		if not plr or plr == player then return end
+		if not SPA_Onboard:Valid(plr) then return end
 		if not isSpectating then
 			isSpectating = true
 			originalCameraType    = Camera.CameraType
@@ -2247,7 +2624,7 @@ function _setupUI1()  -- [SPAV4] Global: frees registers in the main scope
 
 			spectRenderConnection = RunService.RenderStepped:Connect(function()
 				if not (isSpectating and targetSpectPlayer) then return end
-				if not targetSpectPlayer.Parent then stopSpectatingFunc(); return end
+				if not SPA_Onboard:Valid(targetSpectPlayer) then SPA_Onboard:Switch(1); return end
 				local char = targetSpectPlayer.Character
 				if not char then stopSpectatingFunc(); return end
 				local rootPart = char:FindFirstChild("HumanoidRootPart")
@@ -2286,6 +2663,7 @@ function _setupUI1()  -- [SPAV4] Global: frees registers in the main scope
 
 		spectHUD.Text    = "📹 TRACKING: " .. plr.Name
 		spectHUD.Visible = true
+		SPA_Onboard.current=plr; SPA_Onboard.active=true; SPA_Onboard:Paint()
 
 		for _, btn in ipairs(onboardScroll:GetChildren()) do
 			if btn:IsA("TextButton") and btn.Name:match("^OB_") then
@@ -2316,41 +2694,22 @@ function _setupUI1()  -- [SPAV4] Global: frees registers in the main scope
 			end)
 		end
 		spectHUD.Visible = false
+		SPA_Onboard.active=false; SPA_Onboard.current=nil; SPA_Onboard:Paint()
 		for _, btn in ipairs(onboardScroll:GetChildren()) do
 			if btn:IsA("TextButton") and btn.Name:match("^OB_") then btn.BackgroundColor3 = C_BG2 end
 		end
 	end
 
-	local function cycleSpectateTarget(direction)
-		if not isSpectating then return end
-		local valid = {}
-		for _, candidate in ipairs(Players:GetPlayers()) do
-			if candidate ~= player and candidate.Parent then tinsert(valid, candidate) end
-		end
-		if #valid == 0 then
-			stopSpectatingFunc()
-			return
-		end
-
-		local currentIndex = nil
-		if targetSpectPlayer then
-			for i, candidate in ipairs(valid) do
-				if candidate == targetSpectPlayer or candidate.UserId == targetSpectPlayer.UserId then
-					currentIndex = i
-					break
-				end
-			end
-		end
-		local baseIndex = currentIndex or mclamp(spectCurrentIndex or 1, 1, #valid)
-		local nextIndex = ((baseIndex - 1 + direction) % #valid) + 1
-		spectatePlayerFunc(valid[nextIndex], nextIndex)
-	end
+	SPA_Onboard.setDriver=spectatePlayerFunc; SPA_Onboard.stop=stopSpectatingFunc
+	SPA_Onboard:Refresh(); SPA_Onboard:BuildTouch()
+	local function cycleSpectateTarget(direction) SPA_Onboard:Switch(direction) end
 
 	local function buildOnboardList()
 		for _, c in ipairs(onboardScroll:GetChildren()) do
 			if c:IsA("TextButton") or c:IsA("TextLabel") or c:IsA("Frame") then c:Destroy() end
 		end
 		makeSectionHeader(onboardScroll, "📹  TRACKING CAMERA", 0)
+		if SPA_Timing.panel then SPA_Timing:AddOnboardShortcut() end
 		local others = {}
 		for _, plr in ipairs(Players:GetPlayers()) do
 			if plr ~= player then tinsert(others, plr) end
@@ -2440,10 +2799,11 @@ function _setupUI1()  -- [SPAV4] Global: frees registers in the main scope
 	end
 
 	buildOnboardList()
-	Players.PlayerAdded:Connect(function()   task.wait(1); buildOnboardList() end)
+	Players.PlayerAdded:Connect(function() SPA_Onboard:Refresh(); task.wait(1); buildOnboardList() end)
 	Players.PlayerRemoving:Connect(function(pl)
-		if targetSpectPlayer == pl then stopSpectatingFunc() end
-		buildOnboardList()
+		SPA_Onboard.departing[pl.UserId]=true
+		if targetSpectPlayer==pl then SPA_Onboard:Switch(1) end
+		task.defer(function() SPA_Onboard:Refresh(); buildOnboardList(); SPA_Onboard.departing[pl.UserId]=nil end)
 	end)
 	UserInputService.InputBegan:Connect(function(input, gameProcessedEvent)
 		if gameProcessedEvent or not isSpectating then return end
@@ -2594,7 +2954,7 @@ function _setupCollisionDetection()
 					for _, uidX in ipairs({uid1, uid2}) do
 						CRASH_LEVE_COUNT[uidX] = (CRASH_LEVE_COUNT[uidX] or 0) + 1
 						if CRASH_LEVE_COUNT[uidX] == PENALTY_CONFIG.crashLeves then
-							proposeSanction(uidX, "Accumulated minor collisions",
+							proposeSanction(uidX, "Choques leves acumulados",
 								("%d minor collisions (limit: %d)"):format(CRASH_LEVE_COUNT[uidX], PENALTY_CONFIG.crashLeves))
 						end
 					end
@@ -2621,7 +2981,7 @@ function _setupCollisionDetection()
 					CRASH_LEVE_COUNT = CRASH_LEVE_COUNT or {}
 					CRASH_LEVE_COUNT[uid1] = (CRASH_LEVE_COUNT[uid1] or 0) + 1
 					if CRASH_LEVE_COUNT[uid1] == PENALTY_CONFIG.crashLeves then
-						proposeSanction(uid1, "Accumulated minor collisions",
+						proposeSanction(uid1, "Choques leves acumulados",
 							("%d minor collisions (limit: %d)"):format(CRASH_LEVE_COUNT[uid1], PENALTY_CONFIG.crashLeves))
 					end
 				end
@@ -2927,16 +3287,26 @@ end
 -- Globals → 0 new top-level locals.
 -- ════════════════════════════════════════════════════════════════
 SPA_Telemetry = {
-	SUSP_LEVELS  = {{1.7,"Level 1"},{2.5,"Level 2"},{2.0,"Level 3"},{3.0,"Level 4"}},
-	TURBO_LEVELS = {{11.3,"Level 0"},{27.9,"Level 1"},{44.5,"Level 2"},{61.1,"Level 3"}},
-	TURBO_CYCLE  = {"No limit","Level 0","Level 1","Level 2","Level 3"},
-	SUSP_CYCLE   = {"No limit","Level 1","Level 2","Level 3","Level 4"},
-	TURBO_IDX    = {["Level 0"]=1,["Level 1"]=2,["Level 2"]=3,["Level 3"]=4},
-	SUSP_IDX     = {["Level 1"]=1,["Level 2"]=2,["Level 3"]=3,["Level 4"]=4},
+	DRIFT_EPSILON = 0.01,
+	DRIFT_SETTLE_TIME = 0.10,
+	DRIFT_UNKNOWN_HOLD = 0.15,
+	DRIFT_PHYSICAL_TO_SPA = {
+		{physical=0.15,spa=0.1}, {physical=0.30,spa=0.2}, {physical=0.45,spa=0.3},
+		{physical=0.60,spa=0.4}, {physical=0.75,spa=0.5}, {physical=0.90,spa=0.6},
+		{physical=1.05,spa=0.7}, {physical=1.20,spa=0.8}, {physical=1.35,spa=0.9},
+		{physical=1.50,spa=1.0}, {physical=1.65,spa=1.1}, {physical=1.80,spa=1.2},
+		{physical=1.95,spa=1.3}, {physical=2.00,minimum=1.4,maximum=1.5},
+	},
+	SUSP_LEVELS  = {{1.7,"Nivel 1"},{2.5,"Nivel 2"},{2.0,"Nivel 3"},{3.0,"Nivel 4"}},
+	TURBO_LEVELS = {{11.3,"Nivel 0"},{27.9,"Nivel 1"},{44.5,"Nivel 2"},{61.1,"Nivel 3"}},
+	TURBO_CYCLE  = {"Sin lím","Nivel 0","Nivel 1","Nivel 2","Nivel 3"},
+	SUSP_CYCLE   = {"Sin lím","Nivel 1","Nivel 2","Nivel 3","Nivel 4"},
+	TURBO_IDX    = {["Nivel 0"]=1,["Nivel 1"]=2,["Nivel 2"]=3,["Nivel 3"]=4},
+	SUSP_IDX     = {["Nivel 1"]=1,["Nivel 2"]=2,["Nivel 3"]=3,["Nivel 4"]=4},
 	alerts       = {},
-	-- [DRIFT FIX] latestDrift[uid] = latest friction detected through real-time signals.
-	-- Updated ONLY when a tire changes CustomPhysicalProperties (reactive event),
-	-- avoiding static scans reading 0.6 or 1.5 depending on the physics frame.
+	-- RAW physical friction selected by initial consensus or the latest settled wheel event.
+	-- Wheel changes are reactive; contradictory transitions are briefly coalesced.
+	-- No remapped/display value is ever stored in latestDrift.
 	latestDrift  = {},
 	suspCache    = {},
 	turboCache   = {},
@@ -2963,11 +3333,42 @@ function _telGetRootModel(seat)
 	return nearest or seat
 end
 
-function _telFormatDrift(v)
-	if not v then return "N/A" end
-	local s = mfloor(v * 10 + 0.5) / 10
-	if s <= 0 then return "0" end
-	return sformat("%.1f", s)
+-- PhysicalWheel calibration supplied for V2.22.4. Never round RAW before matching.
+function _telPhysicalToDrift(raw)
+	if type(raw) ~= "number" or raw ~= raw or mabs(raw) == math.huge then return nil,"UNKNOWN" end
+	local best, distance = nil, math.huge
+	for _,entry in ipairs(SPA_Telemetry.DRIFT_PHYSICAL_TO_SPA) do
+		local delta=mabs(raw-entry.physical)
+		if delta<=SPA_Telemetry.DRIFT_EPSILON and delta<distance then best=entry; distance=delta end
+	end
+	if not best then return nil,"UNKNOWN" end
+	if best.spa then return best.spa,"RESOLVED",best.spa,best.spa,best.physical end
+	-- No verified secondary vehicle signal is available in this project.
+	-- Names/attributes/remotes alone are not evidence of the visible 1.4/1.5 setting.
+	return nil,"AMBIGUOUS_MAX",best.minimum,best.maximum,best.physical
+end
+
+-- Receives a resolved SPA value, never PhysicalWheel RAW.
+function _telFormatDrift(value,status)
+	if status=="AMBIGUOUS_MAX" then return "1.4/1.5" end
+	if type(value)~="number" or value~=value or mabs(value)==math.huge then return "N/A" end
+	return sformat("%.1f",value)
+end
+
+function _telValidateDriftLimit(text)
+	if type(text)~="string" then return false end
+	if text:match("^%s*$") then return true,nil end
+	local value=tonumber(text)
+	if not value or value~=value or value<0.1 or value>1.5 then return false end
+	return true,value
+end
+
+function _telDriftExceeds(lower,upper,limit)
+	if type(limit)~="number" or limit~=limit or limit<0.1 or limit>1.5 then return false,"INVALID_LIMIT" end
+	if not lower or not upper then return false,"UNKNOWN" end
+	if lower>limit then return true,"VIOLATION" end
+	if upper>limit then return false,"AMBIGUOUS" end
+	return false,"WITHIN_LIMIT"
 end
 
 function _telGetTurbo(seat)
@@ -3000,91 +3401,149 @@ function _telGetTurbo(seat)
 	return "N/A"
 end
 
-function _telGetDrift(seat, uid)
-	-- [DRIFT FIX] Query the reactive value first (real-time event).
-	-- This value changes only when the tire ACTUALLY changes its friction,
-	-- eliminating the 0.6 <-> 1.5 oscillation caused by per-frame static scans.
-	if uid and SPA_Telemetry.latestDrift[uid] ~= nil then
-		return _telFormatDrift(SPA_Telemetry.latestDrift[uid])
-	end
-	-- Fallback: static scan (before the first event or when UID is unavailable)
-	local root = _telGetRootModel(seat)
-	if not root then return "N/A" end
-	local best, maxDev, found = 1.0, -1, false
-	for _, part in ipairs(root:GetDescendants()) do
-		if part:IsA("BasePart") and part.Name:lower():find("physicalwheel") then
-			local ok, cpp = pcall(function() return part.CustomPhysicalProperties end)
-			if ok and cpp then
-				local ok2, f = pcall(function() return cpp.Friction end)
-				if ok2 then
-					found = true
-					local dev = mabs(f - 1.0)
-					if dev > maxDev then maxDev = dev; best = f end
-				end
-			end
-		end
-	end
-	return found and _telFormatDrift(best) or "N/A"
+-- Read-only reactive Drift: one initial scan, then wheel/property lifecycle signals.
+function _telReadDriftFriction(part)
+	local ok,raw=pcall(function()
+		local properties=part.CustomPhysicalProperties
+		return properties and properties.Friction
+	end)
+	if ok and type(raw)=="number" and raw==raw and mabs(raw)~=math.huge then return raw end
+	return nil
 end
 
--- [DRIFT FIX] Connect reactive friction signals for a vehicle.
--- Disconnect the UID's previous connections before creating new ones.
-local function _telWatchDrift(uid, seat)
-	-- Clean up previous connections
-	local prevConns = SPA_Telemetry.driftConns[uid]
-	if prevConns then
-		for _, c in ipairs(prevConns) do pcall(function() c:Disconnect() end) end
+function _telDriftCancelTimer(state)
+	if state.timer then pcall(task.cancel,state.timer); state.timer=nil end
+end
+
+function _telDriftRefresh(state)
+	if SPA_Telemetry.driftConns[state.key]~=state then return end
+	local groups,total,largest={},0,nil
+	local rawMin,rawMax=math.huge,-math.huge
+	for _,wheel in pairs(state.wheels) do
+		total+=1
+		local raw=wheel.raw
+		if raw then rawMin=math.min(rawMin,raw); rawMax=math.max(rawMax,raw) end
+		local _,_,_,_,physical=_telPhysicalToDrift(raw)
+		if physical then
+			local group=groups[physical]
+			if not group then group={count=0,raw=raw}; groups[physical]=group end
+			group.count+=1; group.raw=math.min(group.raw,raw) -- actual observation, not an average
+			if not largest or group.count>largest.count then largest=group end
+		end
 	end
-	SPA_Telemetry.driftConns[uid] = {}
-	SPA_Telemetry.latestDrift[uid] = nil  -- Reset upon entering a new vehicle
+	local recent=state.lastChanged and state.wheels[state.lastChanged]
+	local _,_,_,_,recentPhysical=_telPhysicalToDrift(recent and recent.raw)
+	local consensus=largest and largest.count==total
+	local chosen=consensus and largest.raw or nil
+	if recentPhysical then chosen=recent.raw
+	elseif not chosen and largest and largest.count>total/2 then chosen=largest.raw end
 
-	local root = _telGetRootModel(seat)
-	if not root then return end
-	local initialBest, initialDev = nil, -1
-
-	for _, part in ipairs(root:GetDescendants()) do
-		if part:IsA("BasePart") and part.Name:lower():find("physicalwheel") then
-			local cacheKey = tostring(part) .. "_fr"
-			local initFr = 1.0
-			local ok, cpp = pcall(function() return part.CustomPhysicalProperties end)
-			if ok and cpp then
-				local ok2, f = pcall(function() return cpp.Friction end)
-				if ok2 then initFr = f; local dev = mabs(f - 1.0); if dev > initialDev then initialDev = dev; initialBest = f end end
-			end
-			local frCache = initFr
-			local sigOk, conn = pcall(function()
-				return part:GetPropertyChangedSignal("CustomPhysicalProperties"):Connect(function()
-					local newFr = frCache
-					local ok3, cpp2 = pcall(function() return part.CustomPhysicalProperties end)
-					if ok3 and cpp2 then
-						local ok4, f2 = pcall(function() return cpp2.Friction end)
-						if ok4 then newFr = f2 end
-					end
-					if mabs(newFr - frCache) > 0.001 then
-						frCache = newFr
-						-- [DRIFT FIX v2] Follow EXACTLY the most recently changed value,
-						-- as in the reference script. Do not keep the largest deviation,
-						-- which could leave 1.5 stuck after the value dropped to 0.6.
-						SPA_Telemetry.latestDrift[uid] = newFr
-					end
+	if total==0 then
+		_telDriftCancelTimer(state); state.pendingSince=nil; state.pending=false; state.stableRaw=nil
+		SPA_Telemetry.latestDrift[state.key]=nil
+		return
+	end
+	if not consensus then
+		-- Contradictory updates coalesce for 100 ms. Unknowns retain the previous
+		-- same-vehicle display for at most 150 ms, without issuing stale alerts.
+		state.pendingSince=state.pendingSince or tick()
+		local delay=chosen and SPA_Telemetry.DRIFT_SETTLE_TIME or SPA_Telemetry.DRIFT_UNKNOWN_HOLD
+		local remaining=delay-(tick()-state.pendingSince)
+		if remaining>0.000001 then
+			state.pending=true
+			if not state.timer then
+				state.timer=task.delay(remaining,function()
+					state.timer=nil
+					if SPA_Telemetry.driftConns[state.key]==state then _telDriftRefresh(state) end
 				end)
-			end)
-			if sigOk and conn then
-				table.insert(SPA_Telemetry.driftConns[uid], conn)
 			end
+			return
 		end
 	end
-	if initialBest ~= nil then SPA_Telemetry.latestDrift[uid] = initialBest end
+	_telDriftCancelTimer(state); state.pendingSince=nil; state.pending=false
+	-- An unknown but uniform RAW is retained as RAW; the matcher still returns N/A.
+	if not chosen and rawMin~=math.huge and rawMax-rawMin<=SPA_Telemetry.DRIFT_EPSILON then chosen=rawMin end
+	SPA_Telemetry.latestDrift[state.key]=chosen
+	local _,status=_telPhysicalToDrift(chosen)
+	state.stableRaw=status~="UNKNOWN" and chosen or nil
 end
 
--- [DRIFT FIX] Disconnect and clear everything when leaving the vehicle
 local function _telStopDrift(uid)
-	local conns = SPA_Telemetry.driftConns[uid]
-	if conns then
-		for _, c in ipairs(conns) do pcall(function() c:Disconnect() end) end
+	local state=SPA_Telemetry.driftConns[uid]
+	SPA_Telemetry.driftConns[uid]=nil; SPA_Telemetry.latestDrift[uid]=nil
+	if not state then return end
+	_telDriftCancelTimer(state)
+	for _,connection in ipairs(state) do connection:Disconnect() end
+	for _,wheel in pairs(state.wheels) do
+		for _,connection in ipairs(wheel.connections) do connection:Disconnect() end
 	end
-	SPA_Telemetry.driftConns[uid] = nil
-	SPA_Telemetry.latestDrift[uid] = nil
+	state.wheels={}; state.lastChanged=nil; state.stableRaw=nil; state.seatRef[1]=nil
+end
+
+local function _telWatchDrift(uid,seat)
+	_telStopDrift(uid)
+	local state={key=uid,seatRef=setmetatable({seat},{__mode="v"}),wheels={}}
+	SPA_Telemetry.driftConns[uid]=state
+	local root=_telGetRootModel(seat)
+	if not root then return end
+	local function remove(part)
+		local wheel=state.wheels[part]
+		if not wheel then return end
+		for _,connection in ipairs(wheel.connections) do connection:Disconnect() end
+		state.wheels[part]=nil
+		if state.lastChanged==part then state.lastChanged=nil end
+		_telDriftRefresh(state)
+	end
+	local function attach(part)
+		if state.wheels[part] or not part:IsA("BasePart") or not part.Name:lower():find("physicalwheel",1,true) then return end
+		local wheel={raw=_telReadDriftFriction(part),connections={}}
+		state.wheels[part]=wheel
+		table.insert(wheel.connections,part:GetPropertyChangedSignal("CustomPhysicalProperties"):Connect(function()
+			if SPA_Telemetry.driftConns[uid]~=state or state.wheels[part]~=wheel then return end
+			local previous=wheel.raw; local raw=_telReadDriftFriction(part); wheel.raw=raw
+			local _,oldStatus,_,_,oldMatch=_telPhysicalToDrift(previous)
+			local _,newStatus,_,_,newMatch=_telPhysicalToDrift(raw)
+			if oldMatch~=newMatch or oldStatus~=newStatus or (raw and previous and mabs(raw-previous)>0.001) then
+				state.lastChanged=part
+				_telDriftRefresh(state)
+			end
+		end))
+		table.insert(wheel.connections,part.Destroying:Connect(function() remove(part) end))
+	end
+	-- Subscribe before the initial scan, including initially empty/recreated Wheels folders.
+	table.insert(state,root.DescendantAdded:Connect(function(part)
+		if SPA_Telemetry.driftConns[uid]~=state then return end
+		attach(part); if state.wheels[part] then _telDriftRefresh(state) end
+	end))
+	table.insert(state,root.DescendantRemoving:Connect(remove))
+	local function stop() if SPA_Telemetry.driftConns[uid]==state then _telStopDrift(uid) end end
+	table.insert(state,root.Destroying:Connect(stop))
+	table.insert(state,seat.Destroying:Connect(stop))
+	table.insert(state,seat.AncestryChanged:Connect(function()
+		if seat~=root and not seat:IsDescendantOf(root) then stop() end
+	end))
+	table.insert(state,root.AncestryChanged:Connect(function()
+		if not root:IsDescendantOf(Workspace) then stop() end
+	end))
+	for _,part in ipairs(root:GetDescendants()) do attach(part) end
+	_telDriftRefresh(state)
+end
+
+function _telGetDrift(seat,uid)
+	if not seat or not seat.Parent then
+		if uid then _telStopDrift(uid) end
+		return "N/A",nil,nil,"UNKNOWN"
+	end
+	-- UID-less callers share a seat-keyed watcher: no repeated fallback scans.
+	local key=uid or seat
+	local state=SPA_Telemetry.driftConns[key]
+	if not state or state.seatRef[1]~=seat then
+		_telWatchDrift(key,seat); state=SPA_Telemetry.driftConns[key]
+	end
+	local raw=state.pending and state.stableRaw or SPA_Telemetry.latestDrift[key]
+	local value,status,lower,upper=_telPhysicalToDrift(raw)
+	if state.pending then return _telFormatDrift(value,status),nil,nil,"TRANSITION" end
+	return _telFormatDrift(value,status),lower,upper,status
 end
 
 function _telGetSusp(seat)
@@ -3125,12 +3584,12 @@ end
 -- ════════════════════════════════════════════════════════════════
 SPA_Tires = {
 	COMPOUNDS = {
-		["11262113208"] = { name = "SOFT",      icon = "🔴", color = Color3.fromRGB(230, 30,  30)  },
+		["11262113208"] = { name = "BLANDA",      icon = "🔴", color = Color3.fromRGB(230, 30,  30)  },
 		["11262228611"] = { name = "FULL WET",     icon = "🔵", color = Color3.fromRGB(10,  100, 255) },
-		["11262205570"] = { name = "SUPERSOFT", icon = "🟣", color = Color3.fromRGB(191, 90,  242) },
-		["11262199449"] = { name = "INTERMEDIATE",   icon = "🟢", color = Color3.fromRGB(48,  209, 88)  },
-		["11262217221"] = { name = "MEDIUM",        icon = "🟡", color = Color3.fromRGB(255, 214, 10)  },
-		["4504219366"]  = { name = "HARD",         icon = "⚪", color = Color3.fromRGB(210, 210, 215) },
+		["11262205570"] = { name = "SUPER BLANDA", icon = "🟣", color = Color3.fromRGB(191, 90,  242) },
+		["11262199449"] = { name = "INTERMEDIA",   icon = "🟢", color = Color3.fromRGB(48,  209, 88)  },
+		["11262217221"] = { name = "MEDIA",        icon = "🟡", color = Color3.fromRGB(255, 214, 10)  },
+		["4504219366"]  = { name = "DURA",         icon = "⚪", color = Color3.fromRGB(210, 210, 215) },
 	},
 	current   = {},   -- [uid] = { name, icon, color }
 	log       = {},   -- change history (newest first)
@@ -3191,7 +3650,7 @@ function _tirLogChange(p, oldCpd, newCpd, inPit)
 	})
 	if #SPA_Tires.log > SPA_Tires.MAX_LOG then table.remove(SPA_Tires.log) end
 	local locStr = inPit and "PIT" or "TRACK"
-	showNotification(newCpd.icon .. "  " .. getDisplayName(p) .. "  →  " .. newCpd.name .. "  [" .. locStr .. "]", newCpd.color, newCpd.icon, 164)
+	showNotification(newCpd.icon .. "  " .. getDisplayName(p) .. "  →  " .. SPA_EnglishLabel(newCpd.name) .. "  [" .. locStr .. "]", newCpd.color, newCpd.icon, 164)
 	if SPA_Tires.rebuildFn then SPA_Tires.rebuildFn() end
 end
 
@@ -3747,7 +4206,7 @@ end
 
 function SPA_AudioRetry:Log(uid, message)
 	if ENABLE_NITRO_DEBUG then
-		warn(("[SPA-GLOBAL-IDM-INGLISHV2.19 AUDIO] uid=%s %s"):format(tostring(uid), message))
+		warn(("[SPA AUDIO] uid=%s %s"):format(tostring(uid), message))
 	end
 end
 
@@ -3966,10 +4425,10 @@ function SPA_NoClip:Record(uid, state, now, previous, current, kind, reason)
 	state.level = state.strikes >= 2 and "HIGH SUSPICION" or "SUSPICION"
 	if state.strikes < self.REQUIRED_STRIKES or type(proposeSanction) ~= "function" then return end
 	local pl = Players:GetPlayerByUserId(uid)
-	local detail = ("driver=%s UID=%s vehicle=%s strikes=%d previous=%s current=%s type=%s reason=%s"):format(
+	local detail = ("jugador=%s UID=%s vehículo=%s strikes=%d anterior=%s actual=%s tipo=%s motivo=%s"):format(
 		pl and pl.Name or "-", tostring(uid), state.vehicleRoot:GetFullName(), state.strikes,
 		tostring(previous), tostring(current), kind, reason)
-	proposeSanction(uid, "NoClip detected", detail)
+	proposeSanction(uid, "NoClip detectado", detail)
 	state.lastProposal = now; state.strikes = 0; state.suspicious = false
 	state.level = "CONFIRMED"
 end
@@ -4040,6 +4499,7 @@ function SPA_LapsControl:Refresh()
 		local laps = lapData[uid] and lapData[uid].lapsMade or 0
 		local text = ("LAP %d / %d"):format(laps, MAX_LAPS)
 		if refs.laps.Text ~= text then refs.laps.Text = text end
+		if refs.pits then refs.pits.Text="PIT STOPS · "..tostring(pitData[uid] and pitData[uid].pitStopsMade or 0) end
 	end
 	if self.confirmUntil > 0 and tick() > self.confirmUntil then self:CancelReset() end
 end
@@ -4047,6 +4507,7 @@ end
 function SPA_LapsControl:Set(uid, value, batch)
 	if not Players:GetPlayerByUserId(uid) or type(value) ~= "number" or value ~= value or math.abs(value) == math.huge then return end
 	if not lapData[uid] then lapData[uid] = { lapsMade = 0, lastLapTouch = 0 } end
+	SPA_Timing:Reset(uid)
 	lapData[uid].lapsMade = mclamp(mfloor(value), 0, MAX_LAPS)
 	if SPA_RaceModes then SPA_RaceModes:Clear(uid); SPA_RaceModes.leaderLap = 0; SPA_RaceModes.leaderUid = nil end
 	HUD_LAST_SIGNATURE = nil; HUD_RANK_CACHE.signature = nil
@@ -4073,7 +4534,7 @@ function SPA_LapsControl:Add(pl)
 	local uid = pl.UserId
 	if self.rows[uid] then return end
 	local row = Instance.new("Frame")
-	row.Name = "LapControl_" .. uid; row.Size = UDim2.new(1, -8, 0, 62)
+	row.Name = "LapControl_" .. uid; row.Size = UDim2.new(1, -8, 0, 170)
 	row.BackgroundColor3 = C_BG2; row.BorderSizePixel = 0; row.Parent = self.scroll
 	local name = Instance.new("TextLabel")
 	name.Size = UDim2.new(0.55, -8, 0, 26); name.Position = UDim2.new(0, 6, 0, 3)
@@ -4086,9 +4547,16 @@ function SPA_LapsControl:Add(pl)
 	laps.TextColor3 = C_YELLOW; laps.Parent = row
 	local refs = { row = row, laps = laps, connections = {} }
 	self.rows[uid] = refs
+	local pits=Instance.new("TextLabel"); pits.Size=UDim2.new(1,-12,0,28); pits.Position=UDim2.fromOffset(6,82)
+	pits.BackgroundTransparency=1; pits.TextColor3=C_ORANGE; pits.Font=Enum.Font.GothamBold; pits.TextSize=14; pits.Parent=row; refs.pits=pits
+	for i,delta in ipairs({-1,1}) do
+		local b=Instance.new("TextButton"); b.Size=UDim2.new(0.5,-8,0,48); b.Position=UDim2.new((i-1)*0.5,4,0,114)
+		b.Text=delta<0 and "−1 BOX" or "+1 BOX"; b.BackgroundColor3=C_BG; b.TextColor3=C_WHITE; b.Font=Enum.Font.GothamBold; b.TextSize=14; b.Parent=row
+		refs.connections[#refs.connections+1]=b.Activated:Connect(function() SPA_PitsControl:Adjust(uid,delta) end)
+	end
 	for i, label in ipairs({ "− LAP", "+ LAP", "RESET" }) do
 		local button = Instance.new("TextButton")
-		button.Size = UDim2.new(1/3, -8, 0, 26); button.Position = UDim2.new((i-1)/3, 4, 0, 32)
+		button.Size = UDim2.new(1/3, -8, 0, 44); button.Position = UDim2.new((i-1)/3, 4, 0, 32)
 		button.Text = label; button.BackgroundColor3 = i == 3 and C_RED or C_BG
 		button.TextColor3 = C_WHITE; button.Font = Enum.Font.GothamBold; button.TextSize = 11
 		button.BorderSizePixel = 0; button.Parent = row
@@ -4239,6 +4707,7 @@ function SPA_DRS:Create(kind, cf)
 	part.Anchored = true; part.CanCollide = false; part.CanTouch = false; part.CanQuery = false
 	part.Material = Enum.Material.Neon
 	part.Color = kind == "END" and C_RED or (kind == "START" and C_GREEN or C_YELLOW)
+	cf=cf*CFrame.Angles(0,math.rad(-90),0) -- direct gate axes, placement offset only
 	part.CFrame = cf
 	part.Parent = Workspace
 	table.insert(self.zones, { part = part, cf = cf, kind = kind, index = index, id = self.nextId })
@@ -4275,6 +4744,7 @@ end
 
 function SPA_OT:Create(cf)
 	self:Remove()
+	cf=cf*CFrame.Angles(0,math.rad(-90),0) -- direct gate axes, placement offset only
 	local part = Instance.new("Part")
 	part.Name = "SPA_OT_DETECTION"; part.CFrame = cf
 	part.Anchored = true; part.CanCollide = false; part.CanTouch = false; part.CanQuery = false
@@ -4373,21 +4843,21 @@ function SPA_RaceModes:Emit(mode, uid, state, event, now, bad, reason)
 	local driver = self.drivers[uid]
 	local st = PlayerState[uid]
 	if not driver or not st then return end
-	local title = mode == "PIT" and "PIT LANE SPEEDING" or (mode .. " " .. (SPA_ENGLISH_LABELS[event] or event))
+	local title = mode == "PIT" and "EXCESO DE VELOCIDAD EN BOXES" or (mode .. " " .. event)
 	local bonus = mode == "DRS" and DRS_SPEED_BONUS or (mode == "OT" and 2 or PIT_SPEED_PENALTY)
 	local name = getDisplayName(st.player)
-	local detail = ("UID=%s | lap=%d | actual=%.2f | configured=%.2f | base=%.2f | bonus=%.2f / %.2f | permitted=%s | active=%s | GAP=%s | zone=%s | %s"):format(
+	local detail = ("UID=%s | vuelta=%d | real=%.2f | configurada=%.2f | base=%.2f | bonus=%.2f / %.2f | permiso=%s | activo=%s | GAP=%s | zona=%s | %s"):format(
 		tostring(uid), state.lap, driver.actual, driver.configured, driver.base, driver.configured-driver.base, bonus,
 		tostring(state.permitted), tostring(state.active), state.gap and sformat("%.3f",state.gap) or "NO DATA",
-		tostring(state.zone or "OUTSIDE"), reason or title)
+		tostring(state.zone or "OUTSIDE"), reason or SPA_EnglishLabel(title))
 	SPA_RaceControl:AddEvent(mode .. "_" .. event, {
 		category = bad and "INCIDENTES" or "CARRERA", severity = bad and "WARN" or "INFO",
-		uid = uid, name = name, lap = state.lap, title = title, description = name .. " — " .. title,
+		uid = uid, name = name, lap = state.lap, title = SPA_EnglishLabel(title), description = name .. " — " .. SPA_EnglishLabel(title),
 		detail = detail, reason = reason or title, speed = driver.actual, configuredSpeed = driver.configured,
 		baseSpeed = driver.base, detectedBonus = driver.configured-driver.base, permittedBonus = bonus,
 		permitted = state.permitted, active = state.active, gap = state.gap, zone = state.zone, mode = mode,
 	})
-	if ENABLE_CHAT_EVENTS and (mode ~= "DRS" or DRS_CHAT_ENABLED) then announceRaceEvent(name .. " — " .. title) end
+	if ENABLE_CHAT_EVENTS and (mode ~= "DRS" or DRS_CHAT_ENABLED) then announceRaceEvent(name .. " — " .. SPA_EnglishLabel(title)) end
 	if bad then
 		-- proposeSanction retains manual approval, deduplication and existing logs.
 		if mode ~= "DRS" or DRS_PENALTY_ENABLED then
@@ -4397,7 +4867,7 @@ function SPA_RaceModes:Emit(mode, uid, state, event, now, bad, reason)
 			table.insert(VIOLATIONS_LOG, 1, { type = title, uid = uid, name = name, detail = detail, time = os.date("%H:%M:%S") })
 			if #VIOLATIONS_LOG > 200 then table.remove(VIOLATIONS_LOG) end
 			if buildViolationsLogList then buildViolationsLogList() end
-			showNotification(name .. " — " .. title, C_RED, "⚠", 10)
+			showNotification(name .. " — " .. SPA_EnglishLabel(title), C_RED, "⚠", 10)
 		end
 	end
 end
@@ -4586,33 +5056,33 @@ end
 
 function SPA_RaceModes:BuildConfig(toggle, adjust, wp, action)
 	makeSectionHeader(configScroll,"🏁  DRS — ACTIVE DETECTION",120)
-	toggle(configScroll,"Enable DRS",function() return DRS_ENABLED end,function(v) DRS_ENABLED=v; table.clear(DRS_STATE) end,121)
-	adjust(configScroll,"DRS starting lap",function() return DRS_START_LAP end,function(v) DRS_START_LAP=v; table.clear(DRS_STATE) end,1,1,999,nil,122)
-	adjust(configScroll,"DRS GAP (s)",function() return DRS_GAP_SECONDS end,function(v) DRS_GAP_SECONDS=math.round(v*10)/10 end,0.1,0.1,10,nil,123)
-	adjust(configScroll,"DRS bonus",function() return DRS_SPEED_BONUS end,function(v) DRS_SPEED_BONUS=v end,1,1,100,nil,124)
-	toggle(configScroll,"DRS penalties",function() return DRS_PENALTY_ENABLED end,function(v) DRS_PENALTY_ENABLED=v end,125)
-	toggle(configScroll,"DRS announcements",function() return DRS_CHAT_ENABLED end,function(v) DRS_CHAT_ENABLED=v end,126)
-	toggle(configScroll,"Show DRS zones",function() return DRS_ZONES_VISIBLE end,function(v) DRS_ZONES_VISIBLE=v; SPA_DRS:Resize(false) end,127)
-	adjust(configScroll,"DRS width",function() return DRS_DETECTION_WIDTH end,function(v) DRS_DETECTION_WIDTH=v; SPA_DRS:Resize() end,10,10,1000,nil,128)
-	adjust(configScroll,"DRS height",function() return DRS_DETECTION_HEIGHT end,function(v) DRS_DETECTION_HEIGHT=v; SPA_DRS:Resize() end,5,5,500,nil,129)
-	adjust(configScroll,"Detection depth (extend to END)",function() return DRS_DETECTION_DEPTH end,function(v) DRS_DETECTION_DEPTH=v; SPA_DRS:Resize() end,50,10,10000,nil,130)
+	toggle(configScroll,"Activar DRS",function() return DRS_ENABLED end,function(v) DRS_ENABLED=v; table.clear(DRS_STATE) end,121)
+	adjust(configScroll,"Vuelta inicial DRS",function() return DRS_START_LAP end,function(v) DRS_START_LAP=v; table.clear(DRS_STATE) end,1,1,999,nil,122)
+	adjust(configScroll,"GAP DRS (s)",function() return DRS_GAP_SECONDS end,function(v) DRS_GAP_SECONDS=math.round(v*10)/10 end,0.1,0.1,10,nil,123)
+	adjust(configScroll,"Bonus DRS",function() return DRS_SPEED_BONUS end,function(v) DRS_SPEED_BONUS=v end,1,1,100,nil,124)
+	toggle(configScroll,"Sanciones DRS",function() return DRS_PENALTY_ENABLED end,function(v) DRS_PENALTY_ENABLED=v end,125)
+	toggle(configScroll,"Anuncios DRS",function() return DRS_CHAT_ENABLED end,function(v) DRS_CHAT_ENABLED=v end,126)
+	toggle(configScroll,"Zonas DRS visibles",function() return DRS_ZONES_VISIBLE end,function(v) DRS_ZONES_VISIBLE=v; SPA_DRS:Resize(false) end,127)
+	adjust(configScroll,"DRS ancho",function() return DRS_DETECTION_WIDTH end,function(v) DRS_DETECTION_WIDTH=v; SPA_DRS:Resize() end,10,10,1000,nil,128)
+	adjust(configScroll,"DRS altura",function() return DRS_DETECTION_HEIGHT end,function(v) DRS_DETECTION_HEIGHT=v; SPA_DRS:Resize() end,5,5,500,nil,129)
+	adjust(configScroll,"Detección hasta END: fondo",function() return DRS_DETECTION_DEPTH end,function(v) DRS_DETECTION_DEPTH=v; SPA_DRS:Resize() end,50,10,10000,nil,130)
 	wp(configScroll,"+ DRS START",function(cf) SPA_DRS:Create("START",cf) end,131)
 	wp(configScroll,"+ DRS END",function(cf) SPA_DRS:Create("END",cf) end,132)
 	wp(configScroll,"+ DRS DETECTION",function(cf) SPA_DRS:Create("DETECTION",cf) end,133)
-	action(configScroll,"DELETE LAST DRS ZONE",C_DARKRED,function() SPA_DRS:RemoveLast() end,134)
-	action(configScroll,"DELETE ALL DRS ZONES",C_DARKRED,function() SPA_DRS:RemoveAll() end,135)
+	action(configScroll,"ELIMINAR ÚLTIMA ZONA DRS",C_DARKRED,function() SPA_DRS:RemoveLast() end,134)
+	action(configScroll,"ELIMINAR TODAS LAS ZONAS DRS",C_DARKRED,function() SPA_DRS:RemoveAll() end,135)
 	makeSectionHeader(configScroll,"🏁  OT — FIXED +2 BONUS",140)
-	toggle(configScroll,"Enable OT",function() return OT_ENABLED end,function(v) OT_ENABLED=v; table.clear(OT_STATE) end,141)
-	adjust(configScroll,"OT GAP (s)",function() return OT_GAP_SECONDS end,function(v) OT_GAP_SECONDS=math.round(v*10)/10 end,0.1,0.1,10,nil,142)
-	toggle(configScroll,"Show OT zone",function() return OT_ZONES_VISIBLE end,function(v) OT_ZONES_VISIBLE=v; SPA_OT:Resize(false) end,143)
-	adjust(configScroll,"OT width",function() return OT_DETECTION_WIDTH end,function(v) OT_DETECTION_WIDTH=v; SPA_OT:Resize() end,10,10,1000,nil,144)
-	adjust(configScroll,"OT height",function() return OT_DETECTION_HEIGHT end,function(v) OT_DETECTION_HEIGHT=v; SPA_OT:Resize() end,5,5,500,nil,145)
-	adjust(configScroll,"OT depth",function() return OT_DETECTION_DEPTH end,function(v) OT_DETECTION_DEPTH=v; SPA_OT:Resize() end,5,5,500,nil,146)
-	wp(configScroll,"+ CREATE OT ZONE",function(cf) SPA_OT:Create(cf) end,147)
-	action(configScroll,"DELETE OT ZONE",C_DARKRED,function() SPA_OT:Remove() end,148)
+	toggle(configScroll,"Activar OT",function() return OT_ENABLED end,function(v) OT_ENABLED=v; table.clear(OT_STATE) end,141)
+	adjust(configScroll,"GAP OT (s)",function() return OT_GAP_SECONDS end,function(v) OT_GAP_SECONDS=math.round(v*10)/10 end,0.1,0.1,10,nil,142)
+	toggle(configScroll,"Zona OT visible",function() return OT_ZONES_VISIBLE end,function(v) OT_ZONES_VISIBLE=v; SPA_OT:Resize(false) end,143)
+	adjust(configScroll,"OT ancho",function() return OT_DETECTION_WIDTH end,function(v) OT_DETECTION_WIDTH=v; SPA_OT:Resize() end,10,10,1000,nil,144)
+	adjust(configScroll,"OT altura",function() return OT_DETECTION_HEIGHT end,function(v) OT_DETECTION_HEIGHT=v; SPA_OT:Resize() end,5,5,500,nil,145)
+	adjust(configScroll,"OT fondo",function() return OT_DETECTION_DEPTH end,function(v) OT_DETECTION_DEPTH=v; SPA_OT:Resize() end,5,5,500,nil,146)
+	wp(configScroll,"+ CREAR ZONA OT",function(cf) SPA_OT:Create(cf) end,147)
+	action(configScroll,"ELIMINAR ZONA OT",C_DARKRED,function() SPA_OT:Remove() end,148)
 	makeSectionHeader(configScroll,"🚦  PIT SPEED LIMITER",150)
-	toggle(configScroll,"Pit lane speed monitoring",function() return PIT_LIMITER_ENABLED end,function(v) PIT_LIMITER_ENABLED=v; table.clear(SPA_PitLimiter.states) end,151)
-	adjust(configScroll,"Pit lane speed reduction",function() return PIT_SPEED_PENALTY end,function(v) PIT_SPEED_PENALTY=v; table.clear(SPA_PitLimiter.states) end,1,-500,0,nil,152)
+	toggle(configScroll,"Control de velocidad en boxes",function() return PIT_LIMITER_ENABLED end,function(v) PIT_LIMITER_ENABLED=v; table.clear(SPA_PitLimiter.states) end,151)
+	adjust(configScroll,"Reducción en boxes",function() return PIT_SPEED_PENALTY end,function(v) PIT_SPEED_PENALTY=v; table.clear(SPA_PitLimiter.states) end,1,-500,0,nil,152)
 	self.configBuilt = true
 end
 
@@ -4623,7 +5093,7 @@ function _spaInitStage(stage, fn, dependencies)
 		if SPA_INIT.stages[dependency] ~= "OK" then
 			SPA_INIT.stages[stage] = "BLOCKED"; SPA_INIT.criticalFailed = true
 			SPA_INIT.failed[stage] = "failed dependency: " .. dependency
-			warn(("[SPA-GLOBAL-IDM-INGLISHV2.19 INIT ERROR] stage=%s %s"):format(stage, SPA_INIT.failed[stage]))
+			warn(("[SPA INIT ERROR] etapa=%s %s"):format(stage, SPA_INIT.failed[stage]))
 			return false
 		end
 	end
@@ -4631,19 +5101,19 @@ function _spaInitStage(stage, fn, dependencies)
 		SPA_INIT.stages[stage] = "MISSING"
 		SPA_INIT.criticalFailed = true
 		SPA_INIT.failed[stage] = "function unavailable"
-		warn(("[SPA-GLOBAL-IDM-INGLISHV2.19 INIT ERROR] stage=%s function unavailable"):format(tostring(stage)))
+		warn(("[SPA INIT ERROR] etapa=%s function unavailable"):format(tostring(stage)))
 		return false
 	end
 	local ok, err = xpcall(fn, debug.traceback)
 	if ok then
 		SPA_INIT.stages[stage] = "OK"
-		print(("[SPA-GLOBAL-IDM-INGLISHV2.19 INIT] %s OK"):format(tostring(stage)))
+		print(("[SPA INIT] %s OK"):format(tostring(stage)))
 	else
 		SPA_INIT.stages[stage] = "ERROR"
 		SPA_INIT.failed[stage] = tostring(err)
 		SPA_INIT.criticalFailed = true
-		warn(("[SPA-GLOBAL-IDM-INGLISHV2.19 INIT ERROR] stage=%s error=%s"):format(tostring(stage), tostring(err):match("^[^\n]+") or tostring(err)))
-		warn(("[SPA-GLOBAL-IDM-INGLISHV2.19 INIT TRACE] stage=%s traceback=\n%s"):format(tostring(stage), tostring(err)))
+		warn(("[SPA INIT ERROR] etapa=%s error=%s"):format(tostring(stage), tostring(err):match("^[^\n]+") or tostring(err)))
+		warn(("[SPA INIT TRACE] etapa=%s traceback=\n%s"):format(tostring(stage), tostring(err)))
 	end
 	return ok
 end
@@ -4660,9 +5130,10 @@ function _setupUI2()  -- [SPAV4] Global: frees registers in the main scope
 	local function mkConfigToggleRow(parent, labelTxt, getter, setter, order)
 		local row = Instance.new("Frame")
 		row.Size=UDim2.new(1,0,0,34); row.BackgroundColor3=C_BG2; row.BorderSizePixel=0; row.LayoutOrder=order; row.Parent=parent
+		SPA_V220.controls[labelTxt] = row
 		local lbl=Instance.new("TextLabel")
 		lbl.Size=UDim2.new(0.6,0,1,0); lbl.Position=UDim2.new(0,10,0,0); lbl.BackgroundTransparency=1
-		lbl.Text=labelTxt; lbl.Font=Enum.Font.GothamBold; lbl.TextColor3=C_WHITE; lbl.TextSize=12
+		lbl.Text=SPA_EnglishLabel(labelTxt); lbl.Font=Enum.Font.GothamBold; lbl.TextColor3=C_WHITE; lbl.TextSize=12
 		lbl.TextXAlignment=Enum.TextXAlignment.Left; lbl.Parent=row
 		local btn=Instance.new("TextButton")
 		btn.Size=UDim2.new(0.35,-4,0.7,0); btn.Position=UDim2.new(0.62,0,0.15,0); btn.BorderSizePixel=0
@@ -4675,15 +5146,17 @@ function _setupUI2()  -- [SPAV4] Global: frees registers in the main scope
 			btn.TextColor3=v and C_GREEN or Color3.fromRGB(255,80,80)
 		end
 		paint()
+		table.insert(SPA_V220.configRefresh, paint)
 		btn.MouseButton1Click:Connect(function() setter(not getter()); paint() end)
 	end
 
 	local function mkConfigAdjustRow(parent, labelTxt, getter, setter, step, minV, maxV, onChange, order)
 		local row=Instance.new("Frame")
 		row.Size=UDim2.new(1,0,0,34); row.BackgroundColor3=C_BG2; row.BorderSizePixel=0; row.LayoutOrder=order; row.Parent=parent
+		SPA_V220.controls[labelTxt] = row
 		local lbl=Instance.new("TextLabel")
 		lbl.Size=UDim2.new(0.5,0,1,0); lbl.Position=UDim2.new(0,10,0,0); lbl.BackgroundTransparency=1
-		lbl.Text=labelTxt; lbl.Font=Enum.Font.GothamBold; lbl.TextColor3=C_WHITE; lbl.TextSize=12
+		lbl.Text=SPA_EnglishLabel(labelTxt); lbl.Font=Enum.Font.GothamBold; lbl.TextColor3=C_WHITE; lbl.TextSize=12
 		lbl.TextXAlignment=Enum.TextXAlignment.Left; lbl.Parent=row
 		local valLbl=Instance.new("TextLabel")
 		valLbl.Size=UDim2.new(0.15,0,1,0); valLbl.Position=UDim2.new(0.5,0,0,0); valLbl.BackgroundTransparency=1
@@ -4698,6 +5171,7 @@ function _setupUI2()  -- [SPAV4] Global: frees registers in the main scope
 		plus.BackgroundColor3=Color3.fromRGB(50,50,60); plus.Text="+"; plus.Font=Enum.Font.GothamBold
 		plus.TextColor3=C_WHITE; plus.TextSize=16; plus.BorderSizePixel=0; plus.Parent=row
 		local pc=Instance.new("UICorner"); pc.CornerRadius=UDim.new(0,3); pc.Parent=plus
+		table.insert(SPA_V220.configRefresh, function() valLbl.Text=tostring(getter()) end)
 		local function apply(v)
 			setter(v); valLbl.Text=tostring(getter())
 			if onChange then onChange(v) end
@@ -4709,9 +5183,10 @@ function _setupUI2()  -- [SPAV4] Global: frees registers in the main scope
 	local function mkConfigWPRow(parent, labelTxt, onWP, order)
 		local row=Instance.new("Frame")
 		row.Size=UDim2.new(1,0,0,34); row.BackgroundColor3=C_BG2; row.BorderSizePixel=0; row.LayoutOrder=order; row.Parent=parent
+		SPA_V220.controls[labelTxt] = row
 		local lbl=Instance.new("TextLabel")
 		lbl.Size=UDim2.new(0.6,0,1,0); lbl.Position=UDim2.new(0,10,0,0); lbl.BackgroundTransparency=1
-		lbl.Text=labelTxt; lbl.Font=Enum.Font.GothamBold; lbl.TextColor3=C_WHITE; lbl.TextSize=12
+		lbl.Text=SPA_EnglishLabel(labelTxt); lbl.Font=Enum.Font.GothamBold; lbl.TextColor3=C_WHITE; lbl.TextSize=12
 		lbl.TextXAlignment=Enum.TextXAlignment.Left; lbl.Parent=row
 		local btn=Instance.new("TextButton")
 		btn.Size=UDim2.new(0.35,-4,0.7,0); btn.Position=UDim2.new(0.62,0,0.15,0)
@@ -4720,16 +5195,17 @@ function _setupUI2()  -- [SPAV4] Global: frees registers in the main scope
 		local bc=Instance.new("UICorner"); bc.CornerRadius=UDim.new(0,3); bc.Parent=btn
 		btn.MouseButton1Click:Connect(function()
 			local root=player.Character and player.Character:FindFirstChild("HumanoidRootPart")
-			if root then onWP(root.CFrame) end
+			if root then onWP(GetWaypointPlacementCFrame(root.CFrame)) end
 		end)
 	end
 
 	local function mkConfigActionRow(parent, btnTxt, btnColor, onAction, order)
 		local row=Instance.new("Frame")
 		row.Size=UDim2.new(1,0,0,34); row.BackgroundColor3=C_BG2; row.BorderSizePixel=0; row.LayoutOrder=order; row.Parent=parent
+		SPA_V220.controls[btnTxt] = row
 		local btn=Instance.new("TextButton")
 		btn.Size=UDim2.new(1,-16,0.75,0); btn.Position=UDim2.new(0,8,0.125,0)
-		btn.BackgroundColor3=btnColor or C_RED; btn.Text=btnTxt
+		btn.BackgroundColor3=btnColor or C_RED; btn.Text=SPA_EnglishLabel(btnTxt)
 		btn.Font=Enum.Font.GothamBlack; btn.TextColor3=C_WHITE; btn.TextSize=12; btn.BorderSizePixel=0; btn.Parent=row
 		local bc=Instance.new("UICorner"); bc.CornerRadius=UDim.new(0,3); bc.Parent=btn
 		btn.MouseButton1Click:Connect(onAction)
@@ -4745,8 +5221,8 @@ function _setupUI2()  -- [SPAV4] Global: frees registers in the main scope
 
 	-- ── SETTINGS: Race ─────────────────────────────────────────
 	makeSectionHeader(configScroll, "⚙  RACE", 1)
-	mkConfigAdjustRow(configScroll, "Max laps", function() return MAX_LAPS end, function(v) MAX_LAPS=v end, 1, 1, 999, function() towerHeaderText.Text = "LAP ?/"..MAX_LAPS; lapNumLabel.Text = "? / "..MAX_LAPS end, 2)
-	mkConfigAdjustRow(configScroll, "Max pit stops", function() return MAX_PITS end, function(v) MAX_PITS=v end, 1, 1, 99, nil, 3)
+	mkConfigAdjustRow(configScroll, "Max Vueltas", function() return MAX_LAPS end, function(v) MAX_LAPS=v end, 1, 1, 999, function() towerHeaderText.Text = "LAP ?/"..MAX_LAPS; lapNumLabel.Text = "? / "..MAX_LAPS end, 2)
+	mkConfigAdjustRow(configScroll, "Max Boxes", function() return MAX_PITS end, function(v) MAX_PITS=v end, 1, 1, 99, nil, 3)
 
 	do
 		local row=Instance.new("Frame")
@@ -4760,6 +5236,7 @@ function _setupUI2()  -- [SPAV4] Global: frees registers in the main scope
 		box.BackgroundColor3=Color3.fromRGB(40,40,55); box.BorderSizePixel=0
 		box.Font=Enum.Font.GothamBold; box.TextColor3=C_YELLOW; box.TextSize=13
 		box.Text=tostring(SPEED_LIMIT); box.ClearTextOnFocus=false; box.Parent=row
+		table.insert(SPA_V220.configRefresh, function() box.Text=tostring(SPEED_LIMIT) end)
 		local bc=Instance.new("UICorner"); bc.CornerRadius=UDim.new(0,3); bc.Parent=box
 		box:GetPropertyChangedSignal("Text"):Connect(function() box.Text=box.Text:gsub("%D","") end)
 		box.FocusLost:Connect(function()
@@ -4771,7 +5248,7 @@ function _setupUI2()  -- [SPAV4] Global: frees registers in the main scope
 
 	-- ── SETTINGS: Qualifying Mode ──────────────────────────────
 	makeSectionHeader(configScroll, "🏆  QUALIFYING MODE", 5)
-	mkConfigToggleRow(configScroll, "Enable qualifying mode",
+	mkConfigToggleRow(configScroll, "Activar Modo Qualy",
 		function() return QUALY_MODE end,
 		function(v)
 			if v and RACE_STATE == "RACE" then
@@ -4821,9 +5298,9 @@ function _setupUI2()  -- [SPAV4] Global: frees registers in the main scope
 			end
 		end, 6)
 
-	mkConfigAdjustRow(configScroll, "Qualifying laps", function() return QUALY_LAPS end, function(v) QUALY_LAPS = v end, 1, 1, 99, nil, 7)
+	mkConfigAdjustRow(configScroll, "Vueltas Qualy", function() return QUALY_LAPS end, function(v) QUALY_LAPS = v end, 1, 1, 99, nil, 7)
 
-	mkConfigActionRow(configScroll, "↺  RESET QUALIFYING TIMES", Color3.fromRGB(80,0,120), function()
+	mkConfigActionRow(configScroll, "↺  RESETEAR TIEMPOS QUALY", Color3.fromRGB(80,0,120), function()
 		fastLapData = {}
 		QUALY_BEST_TIMES = {}
 		FINAL_QUALY_RESULTS = {}
@@ -4882,74 +5359,75 @@ function _setupUI2()  -- [SPAV4] Global: frees registers in the main scope
 
 	-- ── SETTINGS: Detection ────────────────────────────────────
 	makeSectionHeader(configScroll, "🏁  DETECTION", 20)
-	mkConfigToggleRow(configScroll, "Lap detection",  function() return DETECT_LAPS end,         function(v) DETECT_LAPS=v end,         21)
-	mkConfigToggleRow(configScroll, "Pit detection",    function() return DETECT_PITS end,         function(v) DETECT_PITS=v end,         22)
-	mkConfigToggleRow(configScroll, "Vehicles only",     function() return showOnlyVehicles end,    function(v) showOnlyVehicles=v end,    23)
+	mkConfigToggleRow(configScroll, "Detección Vueltas",  function() return DETECT_LAPS end,         function(v) DETECT_LAPS=v end,         21)
+	mkConfigToggleRow(configScroll, "Detección Boxes",    function() return DETECT_PITS end,         function(v) DETECT_PITS=v end,         22)
+	mkConfigToggleRow(configScroll, "Solo Vehículos",     function() return showOnlyVehicles end,    function(v) showOnlyVehicles=v end,    23)
 
 	-- ── SETTINGS: Waypoints ────────────────────────────────────
 	makeSectionHeader(configScroll, "📐  WAYPOINTS", 30)
-	mkConfigToggleRow(configScroll, "Show waypoints", function() return WP_VISIBLE end, function(v) WP_VISIBLE = v; applyWPVisibility() end, 31)
+	mkConfigToggleRow(configScroll, "Mostrar Waypoints", function() return WP_VISIBLE end, function(v) WP_VISIBLE = v; applyWPVisibility() end, 31)
 	-- ─── PER-WAYPOINT SIZE (not combined) ───────────────────────
 	makeSectionHeader(configScroll, "📐  LAP WP (Start/Finish Line)", 32)
-	mkConfigAdjustRow(configScroll, "LAP – Width (studs)", function() return wpCfg.LAP.width end, function(v)
+	mkConfigAdjustRow(configScroll, "LAP – Ancho (studs)", function() return wpCfg.LAP.width end, function(v)
 		wpCfg.LAP.width = v
 		if lapWall then lapWall.Size = Vector3.new(wpCfg.LAP.width, wpCfg.LAP.height, wpCfg.LAP.thickness) end
 	end, 5, 10, 1000, nil, 33)
-	mkConfigAdjustRow(configScroll, "LAP – Height (studs)", function() return wpCfg.LAP.height end, function(v)
+	mkConfigAdjustRow(configScroll, "LAP – Alto (studs)", function() return wpCfg.LAP.height end, function(v)
 		wpCfg.LAP.height = v
 		if lapWall then lapWall.Size = Vector3.new(wpCfg.LAP.width, wpCfg.LAP.height, wpCfg.LAP.thickness) end
 	end, 5, 10, 500, nil, 34)
-	mkConfigAdjustRow(configScroll, "LAP – Thickness (studs)", function() return wpCfg.LAP.thickness end, function(v)
+	mkConfigAdjustRow(configScroll, "LAP – Grosor (studs)", function() return wpCfg.LAP.thickness end, function(v)
 		wpCfg.LAP.thickness = v
 		if lapWall then lapWall.Size = Vector3.new(wpCfg.LAP.width, wpCfg.LAP.height, wpCfg.LAP.thickness) end
 	end, 1, 1, 200, nil, 35)
 
 	makeSectionHeader(configScroll, "📐  PIT IN WP (Pit Entry)", 36)
-	mkConfigAdjustRow(configScroll, "PIT IN – Width (studs)", function() return wpCfg.PIT_IN.width end, function(v)
+	mkConfigAdjustRow(configScroll, "PIT IN – Ancho (studs)", function() return wpCfg.PIT_IN.width end, function(v)
 		wpCfg.PIT_IN.width = v
 		if pitInWall then pitInWall.Size = Vector3.new(wpCfg.PIT_IN.width, wpCfg.PIT_IN.height, wpCfg.PIT_IN.thickness) end
 	end, 5, 10, 1000, nil, 37)
-	mkConfigAdjustRow(configScroll, "PIT IN – Height (studs)", function() return wpCfg.PIT_IN.height end, function(v)
+	mkConfigAdjustRow(configScroll, "PIT IN – Alto (studs)", function() return wpCfg.PIT_IN.height end, function(v)
 		wpCfg.PIT_IN.height = v
 		if pitInWall then pitInWall.Size = Vector3.new(wpCfg.PIT_IN.width, wpCfg.PIT_IN.height, wpCfg.PIT_IN.thickness) end
 	end, 5, 10, 500, nil, 38)
-	mkConfigAdjustRow(configScroll, "PIT IN – Thickness (studs)", function() return wpCfg.PIT_IN.thickness end, function(v)
+	mkConfigAdjustRow(configScroll, "PIT IN – Grosor (studs)", function() return wpCfg.PIT_IN.thickness end, function(v)
 		wpCfg.PIT_IN.thickness = v
 		if pitInWall then pitInWall.Size = Vector3.new(wpCfg.PIT_IN.width, wpCfg.PIT_IN.height, wpCfg.PIT_IN.thickness) end
 	end, 1, 1, 200, nil, 39)
 
 	makeSectionHeader(configScroll, "📐  PIT OUT WP (Pit Exit)", 40)
-	mkConfigAdjustRow(configScroll, "PIT OUT – Width (studs)", function() return wpCfg.PIT_OUT.width end, function(v)
+	mkConfigAdjustRow(configScroll, "PIT OUT – Ancho (studs)", function() return wpCfg.PIT_OUT.width end, function(v)
 		wpCfg.PIT_OUT.width = v
 		if pitOutWall then pitOutWall.Size = Vector3.new(wpCfg.PIT_OUT.width, wpCfg.PIT_OUT.height, wpCfg.PIT_OUT.thickness) end
 	end, 5, 10, 1000, nil, 41)
-	mkConfigAdjustRow(configScroll, "PIT OUT – Height (studs)", function() return wpCfg.PIT_OUT.height end, function(v)
+	mkConfigAdjustRow(configScroll, "PIT OUT – Alto (studs)", function() return wpCfg.PIT_OUT.height end, function(v)
 		wpCfg.PIT_OUT.height = v
 		if pitOutWall then pitOutWall.Size = Vector3.new(wpCfg.PIT_OUT.width, wpCfg.PIT_OUT.height, wpCfg.PIT_OUT.thickness) end
 	end, 5, 10, 500, nil, 42)
-	mkConfigAdjustRow(configScroll, "PIT OUT – Thickness (studs)", function() return wpCfg.PIT_OUT.thickness end, function(v)
+	mkConfigAdjustRow(configScroll, "PIT OUT – Grosor (studs)", function() return wpCfg.PIT_OUT.thickness end, function(v)
 		wpCfg.PIT_OUT.thickness = v
 		if pitOutWall then pitOutWall.Size = Vector3.new(wpCfg.PIT_OUT.width, wpCfg.PIT_OUT.height, wpCfg.PIT_OUT.thickness) end
 	end, 1, 1, 200, nil, 43)
-	mkConfigAdjustRow(configScroll, "Checkpoint radius", function() return CHECKPOINT_RADIUS end, function(v) CHECKPOINT_RADIUS=v end, 10, 100, 600, function()
+	mkConfigAdjustRow(configScroll, "Radio Checkpoint", function() return CHECKPOINT_RADIUS end, function(v) CHECKPOINT_RADIUS=v end, 10, 100, 600, function()
 		lapSphere.Size       = Vector3.new(CHECKPOINT_RADIUS,CHECKPOINT_RADIUS,CHECKPOINT_RADIUS)
 		pitEntrySphere.Size  = Vector3.new(CHECKPOINT_RADIUS,CHECKPOINT_RADIUS,CHECKPOINT_RADIUS)
 		pitExitSphere.Size   = Vector3.new(CHECKPOINT_RADIUS,CHECKPOINT_RADIUS,CHECKPOINT_RADIUS)
 	end, 34)
-	mkConfigWPRow(configScroll, "Start/finish line position", function(cf)
+	mkConfigWPRow(configScroll, "Posición Meta/Vuelta", function(cf)
+		SPA_Timing:Reset(nil,true)
 		LAP_LINE_CFRAME=cf
 		if lapWall    then lapWall.CFrame=cf*CFrame.Angles(0,mrad(90),0)   end
 		if lapSphere  then lapSphere.CFrame=cf                               end
 		applyWPVisibility()
 		_spaLapRuntimeState("LAP_WALL_REPOSITIONED")
 	end, 35)
-	mkConfigWPRow(configScroll, "Pit entry position", function(cf)
+	mkConfigWPRow(configScroll, "Posición Entrada Boxes", function(cf)
 		PIT_ENTRY_CFRAME=cf
 		if pitInWall      then pitInWall.CFrame=cf*CFrame.Angles(0,mrad(90),0)   end
 		if pitEntrySphere then pitEntrySphere.CFrame=cf                          end
 		applyWPVisibility()
 	end, 36)
-	mkConfigWPRow(configScroll, "Pit exit position", function(cf)
+	mkConfigWPRow(configScroll, "Posición Salida Boxes", function(cf)
 		PIT_EXIT_CFRAME=cf
 		if pitOutWall    then pitOutWall.CFrame=cf*CFrame.Angles(0,mrad(90),0)  end
 		if pitExitSphere then pitExitSphere.CFrame=cf                           end
@@ -4958,12 +5436,12 @@ function _setupUI2()  -- [SPAV4] Global: frees registers in the main scope
 
 	-- ── SETTINGS: Overhead HUD ─────────────────────────────────
 	makeSectionHeader(configScroll, "🧠  OVERHEAD HUD", 40)
-	mkConfigToggleRow(configScroll, "Show overhead name",    function() return SHOW_HEAD_NAME  end, function(v) SHOW_HEAD_NAME=v  end, 41)
-	mkConfigToggleRow(configScroll, "Show overhead speed", function() return SHOW_HEAD_SPEED end, function(v) SHOW_HEAD_SPEED=v end, 42)
+	mkConfigToggleRow(configScroll, "Mostrar nombre sobre cabeza",    function() return SHOW_HEAD_NAME  end, function(v) SHOW_HEAD_NAME=v  end, 41)
+	mkConfigToggleRow(configScroll, "Mostrar velocidad sobre cabeza", function() return SHOW_HEAD_SPEED end, function(v) SHOW_HEAD_SPEED=v end, 42)
 
 	-- ── SETTINGS: Reset ────────────────────────────────────────
 	makeSectionHeader(configScroll, "🔄  RESET", 50)
-	mkConfigActionRow(configScroll, "RESET LAPS (all)", C_DARKRED, function()
+	mkConfigActionRow(configScroll, "RESETEAR VUELTAS (todos)", C_DARKRED, function()
 		SPA_RaceModes:Reset()
 		lapData={}
 		for _,pl in ipairs(Players:GetPlayers()) do ensurePlayerData(pl) end
@@ -4972,7 +5450,7 @@ function _setupUI2()  -- [SPAV4] Global: frees registers in the main scope
 			if lc then lc.Text = sformat("LAP 0/%d", MAX_LAPS); lc.TextColor3= C_WHITE end
 		end
 	end, 51)
-	mkConfigActionRow(configScroll, "RESET FASTEST LAPS (all)", C_DARKRED, function()
+	mkConfigActionRow(configScroll, "RESETEAR FAST LAPS (todos)", C_DARKRED, function()
 		fastLapData={}
 		QUALY_BEST_TIMES = {}
 		FINAL_QUALY_RESULTS = {}
@@ -4988,7 +5466,8 @@ function _setupUI2()  -- [SPAV4] Global: frees registers in the main scope
 			if rightLbl then rightLbl.Text = "NO TIME"; rightLbl.TextColor3= C_GRAY end
 		end
 	end, 52)
-		mkConfigActionRow(configScroll, "RESET PIT STOPS (all)", C_DARKRED, function()
+		mkConfigActionRow(configScroll, "RESETEAR BOXES (todos)", C_DARKRED, function()
+		if SPA_PitsControl and not SPA_PitsControl:CanEdit() then return end
 		table.clear(SPA_PitLimiter.states)
 		pitData={}
 		for _,pl in ipairs(Players:GetPlayers()) do ensurePlayerData(pl) end
@@ -4997,13 +5476,13 @@ function _setupUI2()  -- [SPAV4] Global: frees registers in the main scope
 			if rightLbl then rightLbl.Text = sformat("PIT 0/%d", MAX_PITS); rightLbl.TextColor3= C_WHITE end
 		end
 	end, 53)
-	mkConfigActionRow(configScroll, "HIDE HUD (Q)", C_BG2, function()
+	mkConfigActionRow(configScroll, "OCULTAR HUD (Q)", C_BG2, function()
 		if toggleHUD then toggleHUD() end
 	end, 54)
 
 	-- ── SETTINGS: Tower ────────────────────────────────────────
 	makeSectionHeader(configScroll, "🏆  TIMING TOWER", 60)
-	mkConfigToggleRow(configScroll, "Show tower", function() return towerConfig.visible end, function(v) towerConfig.visible=v; applyTowerConfig() end, 61)
+	mkConfigToggleRow(configScroll, "Mostrar Torre", function() return towerConfig.visible end, function(v) towerConfig.visible=v; applyTowerConfig() end, 61)
 
 	do  -- Tower size
 		local row=Instance.new("Frame")
@@ -5099,13 +5578,13 @@ function _setupUI2()  -- [SPAV4] Global: frees registers in the main scope
 
 	do  -- Tower header color
 		local colorOptions={
-			{name="RED",    color=Color3.fromRGB(230,0,0)},
-			{name="WHITE",  color=Color3.fromRGB(200,200,200)},
-			{name="GREEN",   color=Color3.fromRGB(0,180,70)},
-			{name="YELLOW",color=Color3.fromRGB(220,180,0)},
-			{name="BLUE",    color=Color3.fromRGB(0,100,210)},
-			{name="ORANGE", color=Color3.fromRGB(255,130,0)},
-			{name="PURPLE",  color=Color3.fromRGB(140,0,200)},
+			{name="ROJO",    color=Color3.fromRGB(230,0,0)},
+			{name="BLANCO",  color=Color3.fromRGB(200,200,200)},
+			{name="VERDE",   color=Color3.fromRGB(0,180,70)},
+			{name="AMARILLO",color=Color3.fromRGB(220,180,0)},
+			{name="AZUL",    color=Color3.fromRGB(0,100,210)},
+			{name="NARANJA", color=Color3.fromRGB(255,130,0)},
+			{name="MORADO",  color=Color3.fromRGB(140,0,200)},
 		}
 		local colorIndex=1
 		local row=Instance.new("Frame")
@@ -5117,14 +5596,14 @@ function _setupUI2()  -- [SPAV4] Global: frees registers in the main scope
 		local colorBtn=Instance.new("TextButton")
 		colorBtn.Size=UDim2.new(0.50,-8,0.7,0); colorBtn.Position=UDim2.new(0.48,0,0.15,0)
 		colorBtn.BackgroundColor3=colorOptions[colorIndex].color
-		colorBtn.Text=colorOptions[colorIndex].name
+		colorBtn.Text=SPA_EnglishLabel(colorOptions[colorIndex].name)
 		colorBtn.Font=Enum.Font.GothamBold; colorBtn.TextColor3=C_WHITE; colorBtn.TextSize=11
 		colorBtn.BorderSizePixel=0; colorBtn.Parent=row
 		local cbc2=Instance.new("UICorner"); cbc2.CornerRadius=UDim.new(0,3); cbc2.Parent=colorBtn
 		colorBtn.MouseButton1Click:Connect(function()
 			colorIndex=colorIndex%#colorOptions+1
 			local opt=colorOptions[colorIndex]
-			colorBtn.BackgroundColor3=opt.color; colorBtn.Text=opt.name
+			colorBtn.BackgroundColor3=opt.color; colorBtn.Text=SPA_EnglishLabel(opt.name)
 			towerConfig.headerColor=opt.color; applyTowerConfig()
 		end)
 	end
@@ -5158,7 +5637,7 @@ function _setupUI2()  -- [SPAV4] Global: frees registers in the main scope
 		end)
 	end
 
-	mkConfigActionRow(configScroll, "↺  RESET TOWER POSITION", Color3.fromRGB(40,40,60), function()
+	mkConfigActionRow(configScroll, "↺  RESETEAR POSICIÓN TORRE", Color3.fromRGB(40,40,60), function()
 		TOWER_SCALE=1.0
 		towerConfig.posX=1; towerConfig.offsetX=-TOWER_WIDTH
 		towerConfig.posY=0; towerConfig.offsetY=12
@@ -5169,7 +5648,10 @@ function _setupUI2()  -- [SPAV4] Global: frees registers in the main scope
 	-- LIST UPDATES
 	-- ══════════════════════════════════════════════════════════
 	local function updateGuiLists()
+		if SPA_ControlCenter and SPA_ControlCenter.initialized then SPA_ControlCenter:Refresh() end
 		if SPA_LapsControl.initialized then SPA_LapsControl:Refresh() end
+		if SPA_Timing.RefreshUI then SPA_Timing:RefreshUI() end
+		if SPA_Mobile then SPA_Mobile:Tower() end
 		local perfStart = ENABLE_PERF_DIAGNOSTICS and os.clock() or nil
 		local activeUids = {}
 		local allData = {}
@@ -5485,6 +5967,7 @@ function _setupUI2()  -- [SPAV4] Global: frees registers in the main scope
 	SPA_UI2_lastSeenInPitIn  = {}
 	SPA_UI2_lastSeenInPitOut = {}
 	resetSessionMarkers = function()
+		SPA_Timing:Reset(nil,true)
 		SPA_RaceModes:Reset()
 		previousLapPositions = {}; SPA_UI2_lapStateLogAt = {}; SPA_UI2_lastSeenInPitIn = {}; SPA_UI2_lastSeenInPitOut = {}; lastSeenInCC = {}; ccDebounce = {}
 	end
@@ -5660,7 +6143,7 @@ function _setupUI2()  -- [SPAV4] Global: frees registers in the main scope
 	end
 
 	local function nitroDebug(message)
-		if ENABLE_NITRO_DEBUG then warn("[SPA-GLOBAL-IDM-INGLISHV2.19 NITRO DEBUG] " .. tostring(message)) end
+		if ENABLE_NITRO_DEBUG then warn("[SPA NITRO DEBUG] " .. tostring(message)) end
 	end
 
 	local function refreshNitrousCache(vc, uid, logBuild)
@@ -5749,9 +6232,9 @@ function _setupUI2()  -- [SPAV4] Global: frees registers in the main scope
 			if not groundEffectState[uid] then
 				groundEffectState[uid] = { vehicleId = vc.seatId, value = illegal }
 				local pl = Players:GetPlayerByUserId(uid)
-				warn(("[SPA-GLOBAL-IDM-INGLISHV2.19 GROUND EFFECT] %s uid=%s FreeLength=%.4f SpringConstraints=%d"):format(pl and pl.Name or tostring(uid), tostring(uid), illegal, analyzed))
+				warn(("[SPA GROUND EFFECT] %s uid=%s FreeLength=%.4f SpringConstraints=%d"):format(pl and pl.Name or tostring(uid), tostring(uid), illegal, analyzed))
 				if proposeSanction then
-					proposeSanction(uid, "GROUND EFFECT DETECTED", ("Illegal suspension detected: FreeLength <= 1.6999 | Detected FreeLength: %.4f | SpringConstraints checked: %d"):format(illegal, analyzed), "DSQ")
+					proposeSanction(uid, "EFECTO SUELO DETECTADO", ("Illegal suspension detected: FreeLength <= 1.6999 | Detected FreeLength: %.4f | SpringConstraints checked: %d"):format(illegal, analyzed), "DSQ")
 				end
 			end
 		elseif groundEffectState[uid] then
@@ -5781,7 +6264,7 @@ function _setupUI2()  -- [SPAV4] Global: frees registers in the main scope
 					if ok2 then
 						vc = built; VehicleCache[uid] = vc
 					elseif ENABLE_NITRO_DEBUG then
-						warn(("[SPA-GLOBAL-IDM-INGLISHV2.19 NITRO DEBUG] uid=%s buildVehicleCache error=%s"):format(tostring(uid), tostring(built)))
+						warn(("[SPA NITRO DEBUG] uid=%s buildVehicleCache error=%s"):format(tostring(uid), tostring(built)))
 					end
 				end
 				if vc then
@@ -5807,7 +6290,7 @@ function _setupUI2()  -- [SPAV4] Global: frees registers in the main scope
 						nitroDebug(("uid=%s active=%s -> %s"):format(tostring(uid), tostring(vc.nitrousWasActive), tostring(active)))
 					end
 					if active and not vc.nitrousWasActive and PENALTY_CONFIG and proposeSanction then
-						proposeSanction(uid, "Boost use",
+						proposeSanction(uid, "Uso de Boost",
 							"Boost activation detected (prohibited component)")
 					end
 					vc.nitrousWasActive = active
@@ -5871,7 +6354,7 @@ function _setupUI2()  -- [SPAV4] Global: frees registers in the main scope
 								showSpeedingNotification(getDisplayName(p), maxSpd)
 								VIOLATIONS_LOG = VIOLATIONS_LOG or {}
 								table.insert(VIOLATIONS_LOG, 1, {
-									type = "Excessive speed setting", uid = uid, name = getDisplayName(p),
+									type = "Exceso de Speed", uid = uid, name = getDisplayName(p),
 									detail = ("Configured speed %.1f > limit %.1f"):format(maxSpd, effLim), time = os.date("%H:%M:%S")
 								})
 								SPA_RaceControl:AddEvent("SPEED", {
@@ -5912,26 +6395,19 @@ function _setupUI2()  -- [SPAV4] Global: frees registers in the main scope
 			local seat = st.seat
 			local head = st.head
 			if not head then continue end
-			-- [MEM FIX] Reconnect the drift monitor when the vehicle changes.
-			-- Previously stored the seat Instance (driftConns[uid]._seat = seat),
-			-- retaining the vehicle in RAM even after destruction. Now only
-			-- a plain string identifier is stored for comparison, without retaining
-			-- the Instance reference.
-			local seatId = seat:GetFullName()
-			if not SPA_Telemetry.driftConns[uid] or
-			   (SPA_Telemetry.driftConns[uid]._seatId ~= seatId) then
-				_telWatchDrift(uid, seat)
-				SPA_Telemetry.driftConns[uid]._seatId = seatId
+			-- Compare actual seat identity, not a reused vehicle name; weak reference + lifecycle cleanup.
+			if not SPA_Telemetry.driftConns[uid] or SPA_Telemetry.driftConns[uid].seatRef[1]~=seat then
+				_telWatchDrift(uid,seat)
 			end
 			local tag = head:FindFirstChild("SpeedTag")
 			if not tag then continue end
 			local telLbl = tag:FindFirstChild("TelemetryText")
 			if not telLbl or not SHOW_HEAD_SPEED then continue end
 			local turboV = _telGetTurbo(seat)
-			local driftV = _telGetDrift(seat, uid)
+			local driftV,driftLow,driftHigh = _telGetDrift(seat, uid)
 			local suspV  = _telGetSusp(seat)
 			local distT  = (head.Position - Camera.CFrame.Position).Magnitude
-			telLbl.Text     = sformat("T:%s  D:%s  S:%s", turboV, driftV, suspV)
+			telLbl.Text     = sformat("T:%s  D:%s  S:%s", SPA_EnglishLabel(turboV), driftV, SPA_EnglishLabel(suspV))
 			telLbl.TextSize = mclamp(30*(10/mmax(distT,1))*0.7, 9, 28)
 			telLbl.Visible  = true
 			-- Telemetry alerts
@@ -5944,7 +6420,7 @@ function _setupUI2()  -- [SPAV4] Global: frees registers in the main scope
 					local ak = uid.."_turbo"
 					if cI > mI and (not SPA_Telemetry.alerts[ak] or now-SPA_Telemetry.alerts[ak] > NOTIFICATION_COOLDOWN) then
 						SPA_Telemetry.alerts[ak] = now
-						showNotification("⚡ "..getDisplayName(p).."  TURBO "..turboV.." > "..cdT.maxTurbo, C_ORANGE, "⚡", 56)
+						showNotification("⚡ "..getDisplayName(p).."  TURBO "..SPA_EnglishLabel(turboV).." > "..SPA_EnglishLabel(cdT.maxTurbo), C_ORANGE, "⚡", 56)
 					end
 				end
 				if cdT.maxSusp then
@@ -5953,13 +6429,14 @@ function _setupUI2()  -- [SPAV4] Global: frees registers in the main scope
 					local ak2 = uid.."_susp"
 					if cI2 > mI2 and (not SPA_Telemetry.alerts[ak2] or now-SPA_Telemetry.alerts[ak2] > NOTIFICATION_COOLDOWN) then
 						SPA_Telemetry.alerts[ak2] = now
-						showNotification("🔧 "..getDisplayName(p).."  SUSP "..suspV.." > "..cdT.maxSusp, C_YELLOW, "🔧", 92)
+						showNotification("🔧 "..getDisplayName(p).."  SUSP "..SPA_EnglishLabel(suspV).." > "..SPA_EnglishLabel(cdT.maxSusp), C_YELLOW, "🔧", 92)
 					end
 				end
 				if cdT.maxDrift then
-					local dNum = tonumber(driftV) or 0
+					local exceeds,limitStatus = _telDriftExceeds(driftLow,driftHigh,cdT.maxDrift)
+					if SPA_Telemetry.driftConns[uid] then SPA_Telemetry.driftConns[uid].limitStatus=limitStatus end
 					local ak3  = uid.."_drift"
-					if dNum > cdT.maxDrift and (not SPA_Telemetry.alerts[ak3] or now-SPA_Telemetry.alerts[ak3] > NOTIFICATION_COOLDOWN) then
+					if exceeds and (not SPA_Telemetry.alerts[ak3] or now-SPA_Telemetry.alerts[ak3] > NOTIFICATION_COOLDOWN) then
 						SPA_Telemetry.alerts[ak3] = now
 						showNotification("💨 "..getDisplayName(p).."  DRIFT "..driftV.." > "..tostring(cdT.maxDrift), C_RED, "💨", 128)
 					end
@@ -5977,6 +6454,7 @@ function _setupUI2()  -- [SPAV4] Global: frees registers in the main scope
 	-- the wall's X/Y bounds. No physics overlap queries per frame.
 	SPA_UI2_tLap  = 0
 	RunService.Heartbeat:Connect(function(dt)
+		SPA_Timing:Update(tick()) -- swept timing before the slower PIT/CC maintenance
 		SPA_UI2_tLap += dt
 		if SPA_UI2_tLap >= 0.1 then
 			SPA_UI2_tLap = 0
@@ -5994,7 +6472,7 @@ function _setupUI2()  -- [SPAV4] Global: frees registers in the main scope
 							SPA_UI2_lapStateLogAt[uid] = now
 							local localPos = lapWall.CFrame:PointToObjectSpace(pos)
 							local stPlayer = st.player
-							warn(("[SPA-GLOBAL-IDM-INGLISHV2.19 LAP STATE] uid=%s name=%s source=SEAT position=%s localZ=%.3f raceState=%s detect=%s"):format(tostring(uid), stPlayer and stPlayer.Name or "-", tostring(pos), localPos.Z, tostring(RACE_STATE), tostring(DETECT_LAPS)))
+							warn(("[SPA LAP STATE] uid=%s name=%s source=SEAT position=%s localZ=%.3f raceState=%s detect=%s"):format(tostring(uid), stPlayer and stPlayer.Name or "-", tostring(pos), localPos.Z, tostring(RACE_STATE), tostring(DETECT_LAPS)))
 						end
 					end
 				end
@@ -6008,88 +6486,7 @@ function _setupUI2()  -- [SPAV4] Global: frees registers in the main scope
 			end
 
 			-- ── Lap/Pit detection ──
-			if DETECT_LAPS and lapWall then
-				for uid, sample in pairs(SPA_UI2_posCache) do
-					local pl = sample.player
-					ensurePlayerData(pl)
-					local ld  = lapData[uid]
-					local fld = fastLapData[uid]
-					local pos = sample and sample.position
-					if not ld or not fld then
-						local missingReason = not ld and "MISSING_LAP_DATA" or "MISSING_FAST_DATA"
-						warnHudError("lap_data", pl, missingReason)
-						if sample then previousLapPositions[uid] = sample end
-						continue
-					end
-					if pos then
-						local previousSample = previousLapPositions[uid]
-						local prevPos = previousSample and previousSample.position
-						local crossed, crossInfo = false, nil
-						local sameSource = previousSample and previousSample.source == sample.source
-						local sameSeat = sample.source ~= "SEAT" or (previousSample and previousSample.seat == sample.seat) or false
-						if prevPos and sameSource and sameSeat then crossed, crossInfo = crossedLapSegment(prevPos, pos) end
-						if crossInfo then
-							warn(("[SPA-GLOBAL-IDM-INGLISHV2.19 LAP DEBUG] uid=%s name=%s source=%s prevZ=%.3f currentZ=%.3f hitX=%.3f hitY=%.3f valid=%s"):format(tostring(uid), getDisplayName(pl), tostring(sample.source), crossInfo.prevZ or 0, crossInfo.currentZ or 0, crossInfo.hitX or 0, crossInfo.hitY or 0, tostring(crossInfo.valid == true)))
-						end
-						if crossInfo and not crossed then
-							warn(("[SPA-GLOBAL-IDM-INGLISHV2.19 LAP DEBUG] uid=%s reason=INVALID_GATE"):format(tostring(uid)))
-						end
-						if crossed and FIA_EXCLUDED[uid] then
-							warn(("[SPA-GLOBAL-IDM-INGLISHV2.19 LAP DEBUG] uid=%s reason=FIA_EXCLUDED"):format(tostring(uid)))
-						elseif crossed then
-							local now = tick()
-							local hasRegisteredLap = (ld.lapsMade or 0) > 0 and (ld.lastLapTouch or 0) > 0
-							if not hasRegisteredLap or now - ld.lastLapTouch >= DEBOUNCE_TIME then
-								-- [QUALY LAP LIMIT] QUALY_LAPS is the maximum number of valid laps per driver.
-								if not (RACE_STATE == "QUALY" and (ld.lapsMade or 0) >= QUALY_LAPS) then
-								ld.lapsMade      = mmin(ld.lapsMade+1, MAX_LAPS)
-								ld.lastLapTouch  = now
-								SPA_RaceControl:AddEvent("LAP", {
-									category = (QUALY_MODE and RACE_STATE == "QUALY") and "QUALY" or "CARRERA", severity = "INFO", uid = uid, name = getDisplayName(pl),
-									lap = ld.lapsMade, title = "🏁 LAP " .. tostring(ld.lapsMade),
-									description = getDisplayName(pl) .. " completed the lap",
-								})
-								SPA_RaceModes:OnLap(uid, ld.lapsMade)
-									if fld.currentLapStarted and fld.lastStartTime then
-										local lapTime = now - fld.lastStartTime
-										if not fld.bestTime or lapTime < fld.bestTime then
-											fld.bestTime = lapTime
-											if QUALY_MODE and RACE_STATE == "QUALY" then
-												QUALY_BEST_TIMES[uid] = lapTime
-												QUALY_FIA_STATUS[uid] = FIA_EXCLUDED[uid] == true
-												QUALY_NAMES[uid] = getDisplayName(pl)
-											end
-											SPA_RaceControl:AddEvent("FASTEST_LAP", {
-												category = (QUALY_MODE and RACE_STATE == "QUALY") and "QUALY" or "CARRERA", severity = "INFO", uid = uid, name = getDisplayName(pl),
-												bestTime = fmtTime(lapTime), title = "🟣 FASTEST LAP",
-												description = getDisplayName(pl) .. " — " .. fmtTime(lapTime),
-											})
-										end
-									local globalFastest = (QUALY_MODE and RACE_STATE == "QUALY") and QUALY_GLOBAL_FASTEST or RACE_GLOBAL_FASTEST
-									if lapTime < globalFastest.time then
-										globalFastest.time = lapTime
-										globalFastest.uid  = uid
-										globalFastest.name = getDisplayName(pl)
-										if RACE_STATE == "RACE" then GLOBAL_FASTEST_LAP = RACE_GLOBAL_FASTEST end
-										if ENABLE_CHAT_EVENTS and announceRaceEvent then
-											announceRaceEvent(("🟣 FASTEST LAP — %s %s"):format(getDisplayName(pl), fmtTime(lapTime)))
-										end
-									end
-									end
-									fld.lastStartTime    = now
-									fld.currentLapStarted= true
-										warn(("[SPA-GLOBAL-IDM-INGLISHV2.19 LAP] uid=%s name=%s source=%s cross=segment lap=%d"):format(tostring(uid), getDisplayName(pl), tostring(sample.source), ld.lapsMade or 0))
-								else
-									warn(("[SPA-GLOBAL-IDM-INGLISHV2.19 LAP DEBUG] uid=%s reason=QUALY_LIMIT"):format(tostring(uid)))
-								end
-							else
-								warn(("[SPA-GLOBAL-IDM-INGLISHV2.19 LAP DEBUG] uid=%s reason=DEBOUNCE"):format(tostring(uid)))
-							end
-						end
-					end
-					if sample then previousLapPositions[uid] = sample end
-				end
-			end
+			-- META and sector registration is handled once by SPA_Timing above.
 
 			if DETECT_PITS and pitInWall and pitOutWall then
 				for uid, posSample in pairs(SPA_UI2_posCache) do
@@ -6119,7 +6516,7 @@ function _setupUI2()  -- [SPAV4] Global: frees registers in the main scope
 						if crossedOut and pd.status == "En Boxes" then
 							local now = tick()
 							if now-pd.lastPitTouch >= DEBOUNCE_TIME then
-								pd.pitStopsMade = mmin(pd.pitStopsMade+1,MAX_PITS)
+								pd.pitStopsMade = mmax(pd.pitStopsMade,mmin(pd.pitStopsMade+1,MAX_PITS))
 								pd.status       = "En Pista"
 								pd.lastPitTouch = now
 								SPA_RaceControl:AddEvent("PIT_OUT", { category = "BOXES", severity = "INFO", uid = uid, name = getDisplayName(pl), title = "🏎 PIT OUT", description = getDisplayName(pl) .. " exited the pits" })
@@ -6179,7 +6576,7 @@ function _setupUI2()  -- [SPAV4] Global: frees registers in the main scope
 											if total < limit then
 												showNotification(("⚠ WARNING %d/%d — %s (track limits)"):format(total, limit, displayName), C_YELLOW, "⚠", 8)
 											elseif total == limit then
-												proposeSanction(uid, "Accumulated track limits infringements", ("%d track limits infringements (limit: %d)"):format(total, limit))
+												proposeSanction(uid, "Corner cuts acumulados", ("%d track limits infringements (limit: %d)"):format(total, limit))
 											end
 											-- Potential advantage: flag for review if close behind another car when cutting
 											if ENABLE_GAP and getUidAhead then
@@ -6187,7 +6584,7 @@ function _setupUI2()  -- [SPAV4] Global: frees registers in the main scope
 												if aheadUid then
 													local diff = tonumber((computeGapText(uid, aheadUid):gsub("[^%d%.]","")))
 													if diff and diff <= PENALTY_CONFIG.finalGapSec then
-														proposeSanction(uid, "Possible advantage from cutting the track",
+														proposeSanction(uid, "Posible ventaja por corte",
 															("Was %.3fs behind the car ahead when cutting [%s]"):format(diff, entry.name))
 													end
 												end
@@ -6259,7 +6656,7 @@ function _setupUI2()  -- [SPAV4] Global: frees registers in the main scope
 	end
 
 	makeSectionHeader(configScroll, "🚨  COLLISION SYSTEM", 70)
-	mkConfigToggleRow(configScroll, "Enable collisions + replays (CPU+)",
+	mkConfigToggleRow(configScroll, "Activar choques + repeticiones (CPU+)",
 		function() return ENABLE_CRASH_SYSTEM end,
 		function(v) ENABLE_CRASH_SYSTEM = v end, 71)
 
@@ -6285,7 +6682,10 @@ function _setupUI2()  -- [SPAV4] Global: frees registers in the main scope
 			sweep(notifiedPlayers); sweep(previousLapPositions); sweep(SPA_UI2_lapStateLogAt); sweep(SPA_UI2_lastSeenInPitIn); sweep(SPA_UI2_lastSeenInPitOut)
 		sweep(SPA_UI2_alertedPlayers); sweep(ccData)
 		sweep(SPA_Analysis.data); sweep(SPA_Tires.current); sweep(SPA_Tires._stableTimer)
-		sweep(SPA_Telemetry.driftConns); sweep(SPA_Telemetry.latestDrift); sweep(groundEffectState); sweep(DSQ_DRIVERS)
+		for uid in pairs(SPA_Telemetry.driftConns) do
+			if type(uid)=="number" and not activeUids[uid] then _telStopDrift(uid) end
+		end
+		sweep(groundEffectState); sweep(DSQ_DRIVERS)
 
 		-- Orphaned UI rows (in case PlayerRemoving did not clean them up)
 		for uid, row in pairs(towerRows) do
@@ -6332,27 +6732,27 @@ function _setupUI2()  -- [SPAV4] Global: frees registers in the main scope
 		showNotification(("🧹 Cleanup: %d entries + %d buffers released"):format(cleaned, buffersFreed),
 			Color3.fromRGB(0,150,90), "🧹", 20)
 	end
-	mkConfigActionRow(configScroll, "🧹  CLEAR NONESSENTIAL RESOURCES", Color3.fromRGB(0,120,90), cleanupResources, 73)
+	mkConfigActionRow(configScroll, "🧹  LIMPIAR RECURSOS NO ESENCIALES", Color3.fromRGB(0,120,90), cleanupResources, 73)
 
 	makeSectionHeader(configScroll, "📏  GAP", 74)
-	mkConfigToggleRow(configScroll, "Show gap instead of lap",
+	mkConfigToggleRow(configScroll, "Mostrar gap en vez de vuelta",
 		function() return ENABLE_GAP end,
 		function(v) ENABLE_GAP = v end, 75)
-	mkConfigToggleRow(configScroll, "Gap to leader (OFF = interval to car ahead)",
+	mkConfigToggleRow(configScroll, "Gap al líder (OFF = gap al de adelante)",
 		function() return GAP_MODE_LEAD end,
 		function(v) GAP_MODE_LEAD = v end, 76)
 
 	makeSectionHeader(configScroll, "⚖  PENALTY SETTINGS", 90)
-	mkConfigAdjustRow(configScroll, "Track limits infringements before a penalty",
+	mkConfigAdjustRow(configScroll, "Corner cuts antes de sanción",
 		function() return PENALTY_CONFIG.ccWarnings end,
 		function(v) PENALTY_CONFIG.ccWarnings = v end, 1, 1, 20, nil, 91)
-	mkConfigAdjustRow(configScroll, "Minor collisions before a penalty",
+	mkConfigAdjustRow(configScroll, "Choques leves antes de sanción",
 		function() return PENALTY_CONFIG.crashLeves end,
 		function(v) PENALTY_CONFIG.crashLeves = v end, 1, 1, 20, nil, 92)
-	mkConfigAdjustRow(configScroll, "Gap (s) to flag a possible track-cutting advantage",
+	mkConfigAdjustRow(configScroll, "Gap (s) para marcar ventaja por corte",
 		function() return PENALTY_CONFIG.finalGapSec end,
 		function(v) PENALTY_CONFIG.finalGapSec = v end, 1, 1, 10, nil, 93)
-	mkConfigAdjustRow(configScroll, "Penalty seconds upon confirmation",
+	mkConfigAdjustRow(configScroll, "Segundos de penalización al confirmar",
 		function() return PENALTY_CONFIG.penaltySeconds end,
 		function(v) PENALTY_CONFIG.penaltySeconds = v end, 1, 1, 60, nil, 94)
 
@@ -6378,7 +6778,7 @@ function _setupUI2()  -- [SPAV4] Global: frees registers in the main scope
 			row.LayoutOrder = idx; row.Parent = pendingSanctionsHolder
 			local txt = Instance.new("TextLabel")
 			txt.Size = UDim2.new(0.6,0,1,0); txt.Position = UDim2.new(0,8,0,0); txt.BackgroundTransparency=1
-			txt.Text = ("%s\n%s — %s"):format(s.name, s.reason, s.detail)
+			txt.Text = ("%s\n%s — %s"):format(s.name, SPA_EnglishLabel(s.reason), s.detail)
 			txt.TextWrapped = true; txt.Font = Enum.Font.Gotham; txt.TextColor3 = C_WHITE; txt.TextSize = 11
 			txt.TextXAlignment = Enum.TextXAlignment.Left; txt.Parent = row
 			local okBtn = Instance.new("TextButton")
@@ -6424,7 +6824,7 @@ function _setupUI2()  -- [SPAV4] Global: frees registers in the main scope
 			local v = VIOLATIONS_LOG[idx]
 			local lbl = Instance.new("TextLabel")
 			lbl.Size = UDim2.new(1,0,0,26); lbl.BackgroundTransparency = 1
-			lbl.Text = ("[%s] %s — %s: %s"):format(v.time, v.name, v.type, v.detail)
+			lbl.Text = ("[%s] %s — %s: %s"):format(v.time, v.name, SPA_EnglishLabel(v.type), v.detail)
 			lbl.TextWrapped = true; lbl.Font = Enum.Font.Gotham; lbl.TextSize = 10
 			lbl.TextColor3 = C_YELLOW; lbl.TextXAlignment = Enum.TextXAlignment.Left
 			lbl.LayoutOrder = idx; lbl.Parent = violationsHolder
@@ -6452,7 +6852,7 @@ function _setupUI2()  -- [SPAV4] Global: frees registers in the main scope
 			local lbl = Instance.new("TextLabel")
 			lbl.Size = UDim2.new(1,0,0,26); lbl.BackgroundTransparency = 1
 			local appliedText = s.type == "DSQ" and "DSQ" or ("+" .. tostring(PENALTY_CONFIG.penaltySeconds) .. "s")
-			lbl.Text = ("[%s] %s — %s (%s)"):format(s.time, s.name, s.reason, appliedText)
+			lbl.Text = ("[%s] %s — %s (%s)"):format(s.time, s.name, SPA_EnglishLabel(s.reason), appliedText)
 			lbl.TextWrapped = true; lbl.Font = Enum.Font.Gotham; lbl.TextSize = 10
 			lbl.TextColor3 = Color3.fromRGB(120,220,150); lbl.TextXAlignment = Enum.TextXAlignment.Left
 			lbl.LayoutOrder = idx; lbl.Parent = appliedHolder
@@ -6460,10 +6860,10 @@ function _setupUI2()  -- [SPAV4] Global: frees registers in the main scope
 	end
 
 	makeSectionHeader(configScroll, "🟡  VIRTUAL SAFETY CAR", 96)
-	mkConfigActionRow(configScroll, "🟡  ENABLE / DISABLE VSC", Color3.fromRGB(150,120,0), toggleVSC, 97)
+	mkConfigActionRow(configScroll, "🟡  ACTIVAR / DESACTIVAR VSC", Color3.fromRGB(150,120,0), toggleVSC, 97)
 
 	makeSectionHeader(configScroll, "💬  CHAT ANNOUNCEMENTS", 98)
-	mkConfigToggleRow(configScroll, "Announce events, fastest laps and penalties in chat",
+	mkConfigToggleRow(configScroll, "Anunciar eventos, vueltas rápidas y sanciones en el chat",
 		function() return ENABLE_CHAT_EVENTS end,
 		function(v) ENABLE_CHAT_EVENTS = v end, 99)
 
@@ -6488,7 +6888,7 @@ function _setupUI2()  -- [SPAV4] Global: frees registers in the main scope
 
 	local function buildPostRaceReport()
 		local lines = {}
-		table.insert(lines, "🏁 POST-RACE REPORT — SPA-GLOBAL-IDM-INGLISHV2.19 — Administrator CGF1")
+		table.insert(lines, "🏁 POST-RACE REPORT — Administrator CGF1")
 		table.insert(lines, os.date("%d/%m/%Y %H:%M"))
 		table.insert(lines, "")
 		-- [QUALY REPORT FIX] The official source is the current session or its frozen snapshot.
@@ -6580,6 +6980,12 @@ function _setupUI2()  -- [SPAV4] Global: frees registers in the main scope
 		end
 
 		table.insert(lines, "")
+		table.insert(lines,SPA_Timing:Report())
+		table.insert(lines,"— PIT STOPS —")
+		for _,uid in ipairs(CURRENT_STANDINGS_ORDER or {}) do
+			local pl=Players:GetPlayerByUserId(uid); local pd=pitData[uid]
+			if pl and pd then table.insert(lines,getDisplayName(pl).." · "..tostring(pd.pitStopsMade or 0)) end
+		end
 		table.insert(lines, "— INCIDENTS —")
 		local leves, graves = 0, 0
 		for _, c in ipairs(SPA_Crash.log) do
@@ -6591,7 +6997,7 @@ function _setupUI2()  -- [SPAV4] Global: frees registers in the main scope
 		table.insert(lines, ("Total track limits infringements: %d"):format(ccTotal))
 		local nitroCount = 0
 		for _, v in ipairs(VIOLATIONS_LOG or {}) do
-			if v.type == "Boost use" then nitroCount += 1 end
+			if v.type == "Uso de Boost" then nitroCount += 1 end
 		end
 		table.insert(lines, ("Boost activations detected: %d"):format(nitroCount))
 
@@ -6600,7 +7006,7 @@ function _setupUI2()  -- [SPAV4] Global: frees registers in the main scope
 		if #APPLIED_SANCTIONS == 0 then table.insert(lines, "None.") end
 		for _, s in ipairs(APPLIED_SANCTIONS) do
 			local sanctionText = s.type == "DSQ" and "DSQ" or ("+" .. tostring(PENALTY_CONFIG.penaltySeconds) .. "s")
-			table.insert(lines, ("%s — %s (%s) [%s]"):format(s.name, s.reason, sanctionText, s.time))
+			table.insert(lines, ("%s — %s (%s) [%s]"):format(s.name, SPA_EnglishLabel(s.reason), sanctionText, s.time))
 		end
 
 		table.insert(lines, "")
@@ -6632,7 +7038,7 @@ function _setupUI2()  -- [SPAV4] Global: frees registers in the main scope
 		end
 		return table.concat(lines, "\n")
 	end
-	mkConfigActionRow(configScroll, "📋  GENERATE POST-RACE REPORT", Color3.fromRGB(0,90,140), function()
+	mkConfigActionRow(configScroll, "📋  GENERAR INFORME POST-CARRERA", Color3.fromRGB(0,90,140), function()
 		reportBox.Text = buildPostRaceReport()
 	end, 102)
 
@@ -6668,7 +7074,7 @@ function _setupUI2()  -- [SPAV4] Global: frees registers in the main scope
 		if #text > 3900 then text = text:sub(1, 3900) .. "\n…(truncated; see the rest in the panel)" end
 		local payload = HttpService:JSONEncode({
 			embeds = {{
-				title = "🏁 Post-Race Report — SPA-GLOBAL-IDM-INGLISHV2.19 — Administrator CGF1",
+				title = "🏁 Post-Race Report — Administrator CGF1",
 				description = text,
 				color = 15158332,
 			}}
@@ -6696,17 +7102,17 @@ function _setupUI2()  -- [SPAV4] Global: frees registers in the main scope
 				showNotification("📤 Report sent to Discord", Color3.fromRGB(0,150,90), "📤", 10)
 			else
 				showNotification("❌ Discord did not accept the report", C_RED, "❌", 10)
-				warn("[SPA-GLOBAL-IDM-INGLISHV2.19] Webhook error:", err or ("Unaccepted HTTP status: " .. tostring(statusCode)))
+				warn("[SPA] Webhook error:", err or ("Unaccepted HTTP status: " .. tostring(statusCode)))
 			end
 		end)
 	end
-	mkConfigActionRow(configScroll, "📤  SEND REPORT TO DISCORD", Color3.fromRGB(88,101,242), sendReportToDiscord, 104)
+	mkConfigActionRow(configScroll, "📤  ENVIAR INFORME A DISCORD", Color3.fromRGB(88,101,242), sendReportToDiscord, 104)
 
 	makeSectionHeader(configScroll, "🏆  SEASON REPORT", 106)
 	SEASON_POINTS_TABLE = {25,18,15,12,10,8,6,4,2,1}
 	SEASON_STANDINGS = SEASON_STANDINGS or {}  -- [uid] = {name=..., points=...}
 
-	mkConfigActionRow(configScroll, "➕  ADD THIS RACE TO THE SEASON", Color3.fromRGB(0,90,140), function()
+	mkConfigActionRow(configScroll, "➕  SUMAR ESTA CARRERA A LA TEMPORADA", Color3.fromRGB(0,90,140), function()
 		local pointsPosition = 0
 		for _, uid in ipairs(CURRENT_STANDINGS_ORDER) do
 			local pl = Players:GetPlayerByUserId(uid)
@@ -6721,11 +7127,11 @@ function _setupUI2()  -- [SPAV4] Global: frees registers in the main scope
 		showNotification("🏆 Race added to the championship", Color3.fromRGB(0,150,90), "🏆", 10)
 	end, 107)
 
-	mkConfigActionRow(configScroll, "📋  GENERATE SEASON REPORT", Color3.fromRGB(0,90,140), function()
+	mkConfigActionRow(configScroll, "📋  GENERAR REPORTE DE TEMPORADA", Color3.fromRGB(0,90,140), function()
 		local rows = {}
 		for uid, d in pairs(SEASON_STANDINGS) do table.insert(rows, d) end
 		tsort(rows, function(a,b) return a.points > b.points end)
-		local lines = { "🏆 CHAMPIONSHIP — SPA-GLOBAL-IDM-INGLISHV2.19 — Administrator CGF1", os.date("%d/%m/%Y"), "" }
+		local lines = { "🏆 CHAMPIONSHIP — Administrator CGF1", os.date("%d/%m/%Y"), "" }
 		for i, d in ipairs(rows) do
 			table.insert(lines, i..". "..d.name.." — "..d.points.." pts")
 		end
@@ -6733,7 +7139,7 @@ function _setupUI2()  -- [SPAV4] Global: frees registers in the main scope
 	end, 108)
 
 	makeSectionHeader(configScroll, "🔔  NOTIFICATIONS", 78)
-	mkConfigToggleRow(configScroll, "Show notifications",
+	mkConfigToggleRow(configScroll, "Mostrar notificaciones",
 		function() return NOTIF_ENABLED end,
 		function(v) NOTIF_ENABLED = v end, 79)
 
@@ -6742,6 +7148,7 @@ function _setupUI2()  -- [SPAV4] Global: frees registers in the main scope
 		local cronRow = Instance.new("Frame")
 		cronRow.Size=UDim2.new(1,0,0,44); cronRow.BackgroundColor3=C_BG2; cronRow.BorderSizePixel=0; cronRow.LayoutOrder=81; cronRow.Parent=configScroll
 
+		SPA_V220.controls.CRONOMETRO = cronRow
 		local cronBtn = Instance.new("TextButton")
 		cronBtn.Size=UDim2.new(0.42,-8,0.72,0); cronBtn.Position=UDim2.new(0,8,0.14,0)
 		cronBtn.BackgroundColor3=Color3.fromRGB(0,120,50); cronBtn.Text="▶  START"
@@ -6936,14 +7343,14 @@ function _setupUI2()  -- [SPAV4] Global: frees registers in the main scope
 		VIOLATIONS_LOG = VIOLATIONS_LOG or {}
 		table.insert(VIOLATIONS_LOG, 1, { type = reason, uid = uid, name = name, detail = detail, time = os.date("%H:%M:%S") })
 		if #VIOLATIONS_LOG > 200 then table.remove(VIOLATIONS_LOG) end
-		if reason == "Boost use" then
+		if reason == "Uso de Boost" then
 			SPA_RaceControl:AddEvent("BOOST", { category = "INCIDENTES", severity = "WARN", uid = uid, name = name, title = "⚡ BOOST", description = name .. " — Boost use detected" })
 		end
 		if sanctionType == "DSQ" then
 			SPA_RaceControl:AddEvent("DSQ_PROPOSED", { category = "SANCIONES", severity = "WARN", uid = uid, name = name, title = "⛔ DSQ PROPOSED", description = name .. " — GROUND EFFECT DETECTED" })
 		end
-		SPA_RaceControl:AddEvent("SANCTION_PROPOSED", { category = "SANCIONES", severity = "WARN", uid = uid, name = name, reason = reason, detail = detail, title = "🚩 PENALTY PROPOSED", description = name .. " — " .. tostring(reason) })
-		showNotification(("🚩 PENALTY PROPOSED — %s: %s"):format(name, reason), C_RED, "🚩", 15)
+		SPA_RaceControl:AddEvent("SANCTION_PROPOSED", { category = "SANCIONES", severity = "WARN", uid = uid, name = name, reason = reason, detail = detail, title = "🚩 PENALTY PROPOSED", description = name .. " — " .. tostring(SPA_EnglishLabel(reason)) })
+		showNotification(("🚩 PENALTY PROPOSED — %s: %s"):format(name, SPA_EnglishLabel(reason)), C_RED, "🚩", 15)
 		if buildPendingSanctionsList then buildPendingSanctionsList() end
 		if buildViolationsLogList then buildViolationsLogList() end
 	end
@@ -6962,9 +7369,9 @@ function _setupUI2()  -- [SPAV4] Global: frees registers in the main scope
 			showNotification(("⛔ DSQ — GROUND EFFECT DETECTED — %s"):format(s.name), C_RED, "⛔", 15)
 			if ENABLE_CHAT_EVENTS then announceRaceEvent(("⛔ DSQ — GROUND EFFECT DETECTED — %s"):format(s.name)) end
 		else
-			SPA_RaceControl:AddEvent("SANCTION_APPLIED", { category = "SANCIONES", severity = "INFO", uid = s.uid, name = s.name, reason = s.reason, title = "✅ PENALTY APPLIED", description = s.name .. " — " .. tostring(s.reason) .. " — +" .. tostring(PENALTY_CONFIG.penaltySeconds) .. "s" })
+			SPA_RaceControl:AddEvent("SANCTION_APPLIED", { category = "SANCIONES", severity = "INFO", uid = s.uid, name = s.name, reason = s.reason, title = "✅ PENALTY APPLIED", description = s.name .. " — " .. tostring(SPA_EnglishLabel(s.reason)) .. " — +" .. tostring(PENALTY_CONFIG.penaltySeconds) .. "s" })
 			showNotification(("✅ Penalty applied: %s (+%ds)"):format(s.name, PENALTY_CONFIG.penaltySeconds), Color3.fromRGB(0,150,90), "✅", 12)
-			if ENABLE_CHAT_EVENTS then announceRaceEvent(("⚠️ PENALTY: %s +%ds — %s"):format(s.name, PENALTY_CONFIG.penaltySeconds, s.reason)) end
+			if ENABLE_CHAT_EVENTS then announceRaceEvent(("⚠️ PENALTY: %s +%ds — %s"):format(s.name, PENALTY_CONFIG.penaltySeconds, SPA_EnglishLabel(s.reason))) end
 		end
 		if buildPendingSanctionsList then buildPendingSanctionsList() end
 		if buildAppliedSanctionsList then buildAppliedSanctionsList() end
@@ -7033,6 +7440,7 @@ function _setupUI2()  -- [SPAV4] Global: frees registers in the main scope
 
 	Players.PlayerRemoving:Connect(function(pl)
 		local uid = pl.UserId
+		SPA_Timing:Reset(uid,true)
 		SPA_RaceModes:Clear(uid)
 		lapData[uid]=nil; pitData[uid]=nil; fastLapData[uid]=nil
 		lastSpeeds[uid]=nil; notifiedPlayers[uid]=nil
@@ -7155,7 +7563,7 @@ function _setupCCUI()  -- [SPAV4] Global: frees registers in the main scope
 	titleTxt.Size = UDim2.new(0.75, 0, 1, 0)
 	titleTxt.Position = UDim2.new(0, 14, 0, 0)
 	titleTxt.BackgroundTransparency = 1
-	titleTxt.Text = "SPA-GLOBAL-IDM-INGLISHV2.19 — TRACK LIMITS"
+	titleTxt.Text = "SPA TRACK LIMITS"
 	titleTxt.Font = Enum.Font.GothamBlack
 	titleTxt.TextColor3 = CCWPCOLOR
 	titleTxt.TextSize = 13
@@ -7313,7 +7721,7 @@ function _setupCCUI()  -- [SPAV4] Global: frees registers in the main scope
 			local wpName = nameBox.Text ~= "" and nameBox.Text or ("WP_CC_" .. (ccWpCounter + 1))
 			ccWpCounter = ccWpCounter + 1
 			local id = ccWpCounter
-			local wall = createCCWall(id, wpName, root.CFrame)
+			local wall = createCCWall(id, wpName, GetWaypointPlacementCFrame(root.CFrame))
 			ccWaypoints[id] = { name = wpName, wall = wall, cframe = wall.CFrame, halfWidth = wall.Size.X / 2, halfHeight = wall.Size.Y / 2 }
 			lastSeenInCC[id] = {}
 			nameBox.Text = ""
@@ -7425,6 +7833,7 @@ function _setupCCUI()  -- [SPAV4] Global: frees registers in the main scope
 	for _, btn in pairs(tabButtons) do
 		btn.MouseButton1Click:Connect(function()
 			currentCCTab = btn.Text
+			SPA_V220.ccTab = currentCCTab
 			for name, f in pairs(tabFrames) do
 				local isActive = (name == currentCCTab)
 				f.Visible = isActive
@@ -7453,6 +7862,20 @@ function _setupCCUI()  -- [SPAV4] Global: frees registers in the main scope
 		end
 	end)
 
+	SPA_V220.ccPanel = ccPanel; SPA_V220.ccFrames=tabFrames
+	SPA_V220.openCC = function(tab)
+		currentCCTab = tab or "WP CC"; SPA_V220.ccTab = currentCCTab
+		ccPanel.Visible = true
+		for name, frame in pairs(tabFrames) do
+			local active = name == currentCCTab
+			frame.Visible = active
+			tabButtons[name].BackgroundColor3 = active and CCWPCOLOR or C_BG2
+			tabButtons[name].TextColor3 = active and Color3.fromRGB(0,0,0) or C_GRAY
+			local indicator = tabButtons[name]:FindFirstChild("Indicator")
+			if indicator then indicator.BackgroundColor3 = active and CCWPCOLOR or C_BG2 end
+		end
+		if currentCCTab == "WP CC" then buildWpCCList() elseif currentCCTab == "REGISTROS CC" then buildRegCCList() else buildConfigCCList() end
+	end
 	buildWpCCList()
 end
 
@@ -7489,7 +7912,7 @@ function _setupTireSystem()
 	task.defer(_syncTire)
 
 	-- ── Visual order of compounds in the selector ──────────────
-	local TIRE_ORDER = { "SUPERSOFT", "SOFT", "MEDIUM", "HARD", "INTERMEDIATE", "FULL WET" }
+	local TIRE_ORDER = { "SUPER BLANDA", "BLANDA", "MEDIA", "DURA", "INTERMEDIA", "FULL WET" }
 	local tireByName = {}
 	for id, cpd in pairs(SPA_Tires.COMPOUNDS) do tireByName[cpd.name] = cpd end
 
@@ -7542,7 +7965,7 @@ function _setupTireSystem()
 
 			local cpLbl = Instance.new("TextLabel")
 			cpLbl.Size = UDim2.new(0.25, 0, 1, 0); cpLbl.Position = UDim2.new(0.57, 0, 0, 0)
-			cpLbl.BackgroundTransparency = 1; cpLbl.Text = cur and cur.name or "NO DATA"
+			cpLbl.BackgroundTransparency = 1; cpLbl.Text = cur and SPA_EnglishLabel(cur.name) or "NO DATA"
 			cpLbl.Font = Enum.Font.GothamBlack; cpLbl.TextColor3 = cur and cur.color or C_GRAY
 			cpLbl.TextSize = 12; cpLbl.TextXAlignment = Enum.TextXAlignment.Left; cpLbl.Parent = row
 
@@ -7558,12 +7981,17 @@ function _setupTireSystem()
 				local captP, captUid = p, uid
 				setBtn.MouseButton1Click:Connect(function()
 					-- Destroy the previous selector if one exists
-					local prev = tireFrame:FindFirstChild("TireSel_"..captUid)
+					local prev = tireFrame:FindFirstChild("TireSel_"..captUid,true)
 					if prev then prev:Destroy(); return end
 
-					local sel = Instance.new("Frame")
+					local rowHeight = SPA_Mobile and SPA_Mobile:Compact() and 44 or 32
+					local headerHeight = rowHeight==44 and 44 or 28
+					local selectorHeight = headerHeight+2 + #TIRE_ORDER * (rowHeight+2)
+					local sel = Instance.new("ScrollingFrame")
 					sel.Name = "TireSel_"..captUid
-					sel.Size = UDim2.new(0, 220, 0, 30 + #TIRE_ORDER * 34)
+					sel.Size = UDim2.new(0, 220, 0, math.min(selectorHeight,math.max(80,tireFrame.AbsoluteSize.Y-56)))
+					sel.CanvasSize = UDim2.fromOffset(0,selectorHeight)
+					sel.ScrollingDirection = Enum.ScrollingDirection.Y; sel.ScrollBarThickness=6; sel.Active=true
 					sel.Position = UDim2.new(0.5, -110, 0, 48)
 					sel.BackgroundColor3 = C_BG2; sel.BackgroundTransparency = 0.05
 					sel.BorderSizePixel = 0; sel.ZIndex = 20; sel.Parent = tireFrame
@@ -7571,7 +7999,7 @@ function _setupTireSystem()
 					Glass.registerModal(sel)
 
 					local selHdr = Instance.new("TextLabel")
-					selHdr.Size = UDim2.new(1, 0, 0, 28); selHdr.BackgroundColor3 = C_RED
+					selHdr.Size = UDim2.new(1, -headerHeight, 0, headerHeight); selHdr.BackgroundColor3 = C_RED
 					selHdr.BackgroundTransparency = 0; selHdr.BorderSizePixel = 0
 					selHdr.Text = "🔧 TIRE CHANGE — " .. getDisplayName(captP)
 					selHdr.Font = Enum.Font.GothamBold; selHdr.TextColor3 = C_WHITE
@@ -7582,10 +8010,10 @@ function _setupTireSystem()
 						local cpd = tireByName[cname]
 						if not cpd then continue end
 						local btn2 = Instance.new("TextButton")
-						btn2.Size = UDim2.new(1, 0, 0, 32)
-						btn2.Position = UDim2.new(0, 0, 0, 28 + (idx-1)*34)
+						btn2.Size = UDim2.new(1, -8, 0, rowHeight)
+						btn2.Position = UDim2.new(0, 0, 0, headerHeight + (idx-1)*(rowHeight+2))
 						btn2.BackgroundColor3 = cpd.color; btn2.BackgroundTransparency = 0.75
-						btn2.Text = cpd.icon .. "  " .. cpd.name
+						btn2.Text = cpd.icon .. "  " .. SPA_EnglishLabel(cpd.name)
 						btn2.Font = Enum.Font.GothamBlack; btn2.TextColor3 = cpd.color
 						btn2.TextSize = 12; btn2.BorderSizePixel = 0; btn2.ZIndex = 21; btn2.Parent = sel
 
@@ -7602,8 +8030,8 @@ function _setupTireSystem()
 					end
 
 					local closeSelBtn = Instance.new("TextButton")
-					closeSelBtn.Size = UDim2.new(0, 22, 0, 22)
-					closeSelBtn.Position = UDim2.new(1, -24, 0, 3)
+					closeSelBtn.Size = UDim2.new(0, headerHeight, 0, headerHeight)
+					closeSelBtn.Position = UDim2.new(1, -headerHeight, 0, 0)
 					closeSelBtn.BackgroundColor3 = C_DARKRED; closeSelBtn.Text = "✕"
 					closeSelBtn.Font = Enum.Font.GothamBold; closeSelBtn.TextColor3 = C_WHITE
 					closeSelBtn.TextSize = 11; closeSelBtn.BorderSizePixel = 0
@@ -7675,7 +8103,7 @@ function _setupTireSystem()
 			local changeLbl = Instance.new("TextLabel")
 			changeLbl.Size = UDim2.new(0.52, -8, 0, 18); changeLbl.Position = UDim2.new(0.47, 0, 0, 24)
 			changeLbl.BackgroundTransparency = 1
-			changeLbl.Text = entry.oldIcon .. " " .. entry.oldName .. "  →  " .. entry.newIcon .. " " .. entry.newName
+			changeLbl.Text = entry.oldIcon .. " " .. SPA_EnglishLabel(entry.oldName) .. "  →  " .. entry.newIcon .. " " .. SPA_EnglishLabel(entry.newName)
 			changeLbl.Font = Enum.Font.GothamBold; changeLbl.TextColor3 = entry.newColor
 			changeLbl.TextSize = 11; changeLbl.TextXAlignment = Enum.TextXAlignment.Right
 			changeLbl.TextTruncate = Enum.TextTruncate.AtEnd; changeLbl.Parent = card
@@ -7768,9 +8196,2140 @@ SPA_INIT.tiresOk = _spaInitStage("TIRES", _setupTireSystem, { "UI2" })
 SPA_INIT.glassOk = _spaInitStage("GLASS_APPLY", Glass and Glass.apply, { "UI1", "UI2", "CC_UI", "TIRES", "LAPS CONTROL" })
 SPA_INIT.ready = SPA_INIT.ui1Ok and SPA_INIT.ui2Ok and SPA_INIT.collisionOk and SPA_INIT.analysisOk and SPA_INIT.replayOk and SPA_INIT.ccUiOk and SPA_INIT.tiresOk and SPA_INIT.glassOk and SPA_INIT.audioOk and SPA_INIT.noclipOk and SPA_INIT.lapsControlOk and SPA_INIT.drsOk and SPA_INIT.otOk and SPA_INIT.pitLimiterOk and not SPA_INIT.criticalFailed
 if SPA_INIT.ready then
-	print("✅ SPA-GLOBAL-IDM-INGLISHV2.19 — RACE CONTROL SYSTEM (Unified)")
+	print("✅ SPA-GLOBAL V2.22.5 — RACE CONTROL SYSTEM (Unified)")
 	print("🏁 Native track limits monitoring integrated without memory leaks")
-	print("🍏 SPA-GLOBAL-IDM-INGLISHV2.19 — iOS Glassmorphism interface applied (frosted glass + blur)")
+	print("🍏 SPAV4 — iOS Glassmorphism interface applied (frosted glass + blur)")
 else
-	warn("[SPA-GLOBAL-IDM-INGLISHV2.19 INIT INCOMPLETE] SPA-GLOBAL-IDM-INGLISHV2.19 was not marked as ready; check the failed stages.")
+	warn("[SPA INIT INCOMPLETE] SPA GLOBAL PRO was not marked as ready; check the failed stages.")
 end
+
+
+-- ═══ V2.20 · TRACK SYSTEM: portable data, no executable code ═══
+SPA_Tracks = (function()
+	local T = { FORMAT_VERSION = 1, Current = nil, Anchor = nil, Profiles = {},
+		MAX_CODE = 262144, MAX_CC = 64, MAX_DRS = 24, MAX_PROFILES = 20 }
+	local settingsSpec = {
+		laps={1,999,true}, maxPits={1,99,true}, speedLimit={1,500}, pitReduction={-500,0},
+		checkpointRadius={1,1000}, ccDebounce={1,30}, ccWidth={1,1000}, ccHeight={1,500}, ccDepth={0.1,100},
+		drsLap={1,999,true}, drsGap={0.1,10}, drsBonus={1,100}, drsWidth={1,1000}, drsHeight={1,500}, drsDepth={1,10000},
+		otGap={0.1,10}, otWidth={1,1000}, otHeight={1,500}, otDepth={1,500},
+		detectLaps="boolean", detectPits="boolean", visible="boolean", ccEnabled="boolean", ccVisible="boolean",
+		drsEnabled="boolean", drsPenalty="boolean", drsChat="boolean", drsVisible="boolean",
+		otEnabled="boolean", otVisible="boolean", pitEnabled="boolean",
+	}
+	local function finite(n, lo, hi, integer)
+		return type(n)=="number" and n==n and n>=lo and n<=hi and (not integer or n%1==0)
+	end
+	local function keys(t, names)
+		assert(type(t)=="table" and getmetatable(t)==nil, "Invalid data structure")
+		for k in pairs(t) do assert(names[k], "Unsupported field: "..tostring(k)) end
+	end
+	local function array(t, maxCount, exact)
+		assert(type(t)=="table", "Expected a list")
+		local n=0
+		for k in pairs(t) do assert(finite(k,1,maxCount,true), "Invalid list index"); n+=1 end
+		assert(n<=maxCount and (not exact or n==exact), "Invalid item count")
+		for i=1,n do assert(t[i]~=nil, "Incomplete list") end
+		return n
+	end
+	local function textValue(s, maxSize)
+		return type(s)=="string" and #s>0 and #s<=maxSize and not s:find("[%z\1-\31\127]")
+	end
+	local function tree(t, seen, depth, budget)
+		assert(depth<=9, "Data nesting is too deep")
+		budget.n+=1; assert(budget.n<=20000,"Too much data")
+		if type(t)=="table" then
+			assert(not seen[t] and getmetatable(t)==nil,"Recursive or shared tables are not allowed"); seen[t]=true
+			for k,v in pairs(t) do
+				assert(type(k)=="string" or type(k)=="number","Invalid key")
+				tree(v,seen,depth+1,budget)
+			end
+		else
+			assert(type(t)=="string" or type(t)=="boolean" or finite(t,-1e9,1e9),"Invalid data type")
+			if type(t)=="string" then assert(#t<=512,"Text is too long") end
+		end
+	end
+	local function cfValid(a)
+		array(a,12,12)
+		for i=1,12 do assert(finite(a[i],i<=3 and -1e6 or -1.001,i<=3 and 1e6 or 1.001),"Non-finite or out-of-range CFrame") end
+		local x=Vector3.new(a[4],a[5],a[6]); local y=Vector3.new(a[7],a[8],a[9]); local z=Vector3.new(a[10],a[11],a[12])
+		assert(math.abs(x.Magnitude-1)<0.001 and math.abs(y.Magnitude-1)<0.001 and math.abs(z.Magnitude-1)<0.001
+			and math.abs(x:Dot(y))<0.001 and math.abs(x:Dot(z))<0.001 and math.abs(y:Dot(z))<0.001
+			and math.abs(x:Cross(y):Dot(z)-1)<0.002,"Invalid CFrame rotation")
+	end
+	local function zoneValid(z, lap)
+		keys(z,{cf=true,size=true,detection=true})
+		cfValid(z.cf); array(z.size,3,3)
+		for i=1,3 do assert(finite(z.size[i],0.1,10000),"Dimension out of range") end
+		if lap then
+			keys(z.detection,{width=true,height=true,tolerance=true})
+			assert(finite(z.detection.width,0.1,10000) and finite(z.detection.height,0.1,10000)
+				and finite(z.detection.tolerance,0,100),"Invalid detection dimensions")
+		else assert(z.detection==nil,"Additional detection is not supported") end
+	end
+	function T:_Validate(data)
+		tree(data,{},0,{n=0})
+		keys(data,{formatVersion=true,track=true})
+		assert(data.formatVersion==self.FORMAT_VERSION,"Incompatible Track Format")
+		local t=data.track
+		keys(t,{id=true,name=true,author=true,created=true,settings=true,lap=true,pitIn=true,pitOut=true,drs=true,ot=true,cornerCuts=true,sector1=true,sector2=true,sector3=true})
+		assert(textValue(t.id,96) and t.id:match("^SPA%-%w[%w%-]*$"),"Invalid TRACK ID")
+		assert(textValue(t.name,80) and textValue(t.author,32) and textValue(t.created,32),"Incomplete metadata")
+		keys(t.settings,settingsSpec)
+		for key,spec in pairs(settingsSpec) do
+			local value=t.settings[key]
+			if spec=="boolean" then assert(type(value)=="boolean","Invalid configuration: "..key)
+			else assert(finite(value,spec[1],spec[2],spec[3]),"Configuration out of range: "..key) end
+		end
+		zoneValid(t.lap,true); zoneValid(t.pitIn); zoneValid(t.pitOut)
+		for i=1,3 do if t["sector"..i]~=nil then zoneValid(t["sector"..i]) end end
+		local groups={}
+		array(t.drs,self.MAX_DRS*3)
+		local ids={}
+		for _,d in ipairs(t.drs) do
+			keys(d,{kind=true,index=true,id=true,zone=true})
+			assert(d.kind=="START" or d.kind=="END" or d.kind=="DETECTION","Invalid DRS type")
+			assert(finite(d.index,1,self.MAX_DRS,true) and finite(d.id,1,1000000,true) and not ids[d.id],"Invalid or duplicate DRS ID")
+			ids[d.id]=true; groups[d.index]=groups[d.index] or {}
+			assert(not groups[d.index][d.kind],"Duplicate DRS zone"); groups[d.index][d.kind]=true
+			zoneValid(d.zone)
+		end
+		for _,g in pairs(groups) do assert(g.START and g.END and g.DETECTION,"Incomplete DRS configuration: missing START/END/DETECTION") end
+		assert(t.ot==false or type(t.ot)=="table","Invalid OT zone")
+		if t.ot then zoneValid(t.ot) end
+		array(t.cornerCuts,self.MAX_CC); ids={}
+		for _,cc in ipairs(t.cornerCuts) do
+			keys(cc,{id=true,name=true,zone=true})
+			assert(finite(cc.id,1,1000000,true) and not ids[cc.id] and textValue(cc.name,80),"Invalid or duplicate CC")
+			ids[cc.id]=true; zoneValid(cc.zone)
+		end
+		return data
+	end
+	function T:GetSettings()
+		return {laps=MAX_LAPS,maxPits=MAX_PITS,speedLimit=SPEED_LIMIT,pitReduction=PIT_SPEED_PENALTY,pitEnabled=PIT_LIMITER_ENABLED,
+			detectLaps=DETECT_LAPS,detectPits=DETECT_PITS,visible=WP_VISIBLE,checkpointRadius=CHECKPOINT_RADIUS,
+			ccEnabled=DETECTCC,ccVisible=SHOW_WAYPOINTS_CC,ccDebounce=CCDEBOUNCETIME,ccWidth=CCWPWIDTH,ccHeight=CCWPHEIGHT,ccDepth=CCWPTHICKNESS,
+			drsEnabled=DRS_ENABLED,drsLap=DRS_START_LAP,drsGap=DRS_GAP_SECONDS,drsBonus=DRS_SPEED_BONUS,drsPenalty=DRS_PENALTY_ENABLED,
+			drsChat=DRS_CHAT_ENABLED,drsVisible=DRS_ZONES_VISIBLE,drsWidth=DRS_DETECTION_WIDTH,drsHeight=DRS_DETECTION_HEIGHT,drsDepth=DRS_DETECTION_DEPTH,
+			otEnabled=OT_ENABLED,otGap=OT_GAP_SECONDS,otVisible=OT_ZONES_VISIBLE,otWidth=OT_DETECTION_WIDTH,otHeight=OT_DETECTION_HEIGHT,otDepth=OT_DETECTION_DEPTH}
+	end
+	function T:SetSettings(s)
+		MAX_LAPS=s.laps; MAX_PITS=s.maxPits; SPEED_LIMIT=s.speedLimit
+		PIT_SPEED_PENALTY=s.pitReduction; PIT_LIMITER_ENABLED=s.pitEnabled
+		DETECT_LAPS=s.detectLaps; DETECT_PITS=s.detectPits; WP_VISIBLE=s.visible; CHECKPOINT_RADIUS=s.checkpointRadius
+		DETECTCC=s.ccEnabled; SHOW_WAYPOINTS_CC=s.ccVisible; CCDEBOUNCETIME=s.ccDebounce; CCWPWIDTH=s.ccWidth; CCWPHEIGHT=s.ccHeight; CCWPTHICKNESS=s.ccDepth
+		DRS_ENABLED=s.drsEnabled; DRS_START_LAP=s.drsLap; DRS_GAP_SECONDS=s.drsGap; DRS_SPEED_BONUS=s.drsBonus
+		DRS_PENALTY_ENABLED=s.drsPenalty; DRS_CHAT_ENABLED=s.drsChat; DRS_ZONES_VISIBLE=s.drsVisible
+		DRS_DETECTION_WIDTH=s.drsWidth; DRS_DETECTION_HEIGHT=s.drsHeight; DRS_DETECTION_DEPTH=s.drsDepth
+		OT_ENABLED=s.otEnabled; OT_GAP_SECONDS=s.otGap; OT_ZONES_VISIBLE=s.otVisible
+		OT_DETECTION_WIDTH=s.otWidth; OT_DETECTION_HEIGHT=s.otHeight; OT_DETECTION_DEPTH=s.otDepth
+	end
+	function T:AnchorCF()
+		assert(self.Anchor and self.Anchor.Parent,"Track Anchor is not configured")
+		local cf=self.Anchor.CFrame; cfValid({cf:GetComponents()}); return cf
+	end
+	function T:SetAnchor(cf)
+		if not cf then
+			local st=PlayerState and PlayerState[player.UserId]
+			local root=(st and st.inVehicle and st.seat) or (player.Character and player.Character:FindFirstChild("HumanoidRootPart"))
+			assert(root,"Operator position not found"); cf=root.CFrame
+		end
+		cfValid({cf:GetComponents()})
+		if not self.Anchor or not self.Anchor.Parent then
+			self.Anchor=Instance.new("Part"); self.Anchor.Name="SPA_TRACK_ANCHOR"
+			self.Anchor.Size=Vector3.new(6,1,6); self.Anchor.Anchored=true
+			self.Anchor.CanCollide=false; self.Anchor.CanTouch=false; self.Anchor.CanQuery=false
+			self.Anchor.Color=C_RED; self.Anchor.Material=Enum.Material.Neon; self.Anchor.Parent=Workspace
+		end
+		self.Anchor.CFrame=cf; self.Anchor.Transparency=0.25
+		return cf
+	end
+	function T:Zone(part, anchor, detection)
+		assert(part and part.Parent,"Incomplete configuration: waypoint unavailable")
+		local z={cf={anchor:ToObjectSpace(part.CFrame):GetComponents()},size={part.Size.X,part.Size.Y,part.Size.Z}}
+		if detection then z.detection={width=detection.detectionWidth,height=detection.detectionHeight,tolerance=detection.detectionTolerance or 0} end
+		return z
+	end
+	function T:CaptureCurrentTrack(name)
+		assert(textValue(name,80),"Enter a track name (1–80 characters)")
+		local anchor=self:AnchorCF()
+		assert(#self.Profiles<self.MAX_PROFILES,"Profile limit for this session reached")
+		local t={id="SPA-"..HttpService:GenerateGUID(false):gsub("%-",""):upper(),name=name,author=player.Name,
+			created=os.date("!%Y-%m-%dT%H:%M:%SZ"),settings=self:GetSettings(),drs={},cornerCuts={},ot=false}
+		t.lap=self:Zone(lapWall,anchor,wpCfg.LAP); t.pitIn=self:Zone(pitInWall,anchor); t.pitOut=self:Zone(pitOutWall,anchor)
+		for i=1,3 do local p=SPA_Timing.gates[i]; if p and p.Parent then t["sector"..i]=self:Zone(p,anchor) end end
+		for _,z in ipairs(SPA_DRS.zones) do table.insert(t.drs,{id=z.id,index=z.index,kind=z.kind,zone=self:Zone(z.part,anchor)}) end
+		if OT_DETECTION_ZONE then t.ot=self:Zone(OT_DETECTION_ZONE.part,anchor) end
+		for id,cc in pairs(ccWaypoints) do table.insert(t.cornerCuts,{id=id,name=cc.name,zone=self:Zone(cc.wall,anchor)}) end
+		table.sort(t.cornerCuts,function(a,b) return a.id<b.id end)
+		local data=self:_Validate({formatVersion=self.FORMAT_VERSION,track=t})
+		self.Current=data; table.insert(self.Profiles,data)
+		return data
+	end
+	function T:Checksum(s)
+		local a,b=1,0
+		for i=1,#s do a=(a+s:byte(i))%65521; b=(b+a)%65521 end
+		return string.format("%08X",b*65536+a)
+	end
+	function T:GenerateCode(data)
+		data=self:_Validate(data or self.Current)
+		local json=HttpService:JSONEncode(data)
+		assert(#json<=120000,"Track is too large")
+		local hex=table.create(#json)
+		for i=1,#json do hex[i]=string.format("%02X",json:byte(i)) end
+		local body="SPA_TRACK_FORMAT_"..self.FORMAT_VERSION.."|"..table.concat(hex)
+		return body.."|"..self:Checksum(body)
+	end
+	function T:DecodeCode(code)
+		assert(type(code)=="string" and #code<=self.MAX_CODE,"Track Code is too long")
+		code=code:match("^%s*(.-)%s*$")
+		local version,payload,checksum=code:match("^SPA_TRACK_FORMAT_(%d+)|([%x]+)|([%x]+)$")
+		assert(version,"Incompatible or incomplete code")
+		assert(version==tostring(self.FORMAT_VERSION),"Incompatible Track Format version")
+		assert(#checksum==8 and #payload%2==0,"Corrupt Track Code")
+		local body="SPA_TRACK_FORMAT_"..version.."|"..payload
+		assert(self:Checksum(body)==checksum:upper(),"Invalid checksum: data has been modified or is incomplete")
+		local bytes=table.create(#payload/2)
+		for i=1,#payload,2 do bytes[#bytes+1]=string.char(tonumber(payload:sub(i,i+1),16)) end
+		local data=HttpService:JSONDecode(table.concat(bytes))
+		return self:_Validate(data)
+	end
+	function T:ValidateCode(code)
+		local ok,data=pcall(function() return self:DecodeCode(code) end)
+		if ok then return true,data end
+		return false,tostring(data)
+	end
+	function T:Snapshot()
+		local bundle={lap=lapWall,pitIn=pitInWall,pitOut=pitOutWall,lapSphere=lapSphere,pitInSphere=pitEntrySphere,pitOutSphere=pitExitSphere,
+			lapCF=LAP_LINE_CFRAME,pitInCF=PIT_ENTRY_CFRAME,pitOutCF=PIT_EXIT_CFRAME,cfg=wpCfg,cc=ccWaypoints,ccCounter=ccWpCounter,
+			drs=SPA_DRS.zones,drsCounter=SPA_DRS.nextId,ot=OT_DETECTION_ZONE,settings=self:GetSettings(),parts={}}
+		for _,p in ipairs({lapWall,pitInWall,pitOutWall,lapSphere,pitEntrySphere,pitExitSphere}) do table.insert(bundle.parts,p) end
+		bundle.sectors=table.clone(SPA_Timing.gates)
+		for _,p in pairs(bundle.sectors) do table.insert(bundle.parts,p) end
+		for _,cc in pairs(ccWaypoints) do table.insert(bundle.parts,cc.wall) end
+		for _,z in ipairs(SPA_DRS.zones) do table.insert(bundle.parts,z.part) end
+		if OT_DETECTION_ZONE then table.insert(bundle.parts,OT_DETECTION_ZONE.part) end
+		bundle.parents={}
+		bundle.timing={states=SPA_Timing.states,traces=SPA_Timing.traces,last=SPA_Timing.last,best=SPA_Timing.best,overall=SPA_Timing.overall}
+		for _,p in ipairs(bundle.parts) do bundle.parents[p]=p.Parent end
+		bundle.markers={previous=previousLapPositions,lapLog=SPA_UI2_lapStateLogAt,pitIn=SPA_UI2_lastSeenInPitIn,
+			pitOut=SPA_UI2_lastSeenInPitOut,cc=lastSeenInCC,debounce=ccDebounce,collections={}}
+		if SPA_RaceModes then
+			bundle.markers.leaderLap=SPA_RaceModes.leaderLap; bundle.markers.leaderUid=SPA_RaceModes.leaderUid
+			for _,collection in pairs({drs=DRS_STATE,ot=OT_STATE,pit=SPA_PitLimiter.states,traces=SPA_RaceModes.traces,
+				drivers=SPA_RaceModes.drivers,ahead=SPA_RaceModes.ahead,speed=SPA_RaceModes.speedChecks}) do
+				table.insert(bundle.markers.collections,{target=collection,values=table.clone(collection)})
+			end
+		end
+		return bundle
+	end
+	function T:RestoreMarkers(markers)
+		previousLapPositions=markers.previous; SPA_UI2_lapStateLogAt=markers.lapLog
+		SPA_UI2_lastSeenInPitIn=markers.pitIn; SPA_UI2_lastSeenInPitOut=markers.pitOut
+		lastSeenInCC=markers.cc; ccDebounce=markers.debounce
+		for _,saved in ipairs(markers.collections) do
+			table.clear(saved.target); for key,value in pairs(saved.values) do saved.target[key]=value end
+		end
+		if SPA_RaceModes then SPA_RaceModes.leaderLap=markers.leaderLap; SPA_RaceModes.leaderUid=markers.leaderUid end
+	end
+	function T:Build(data, anchor)
+		local t=data.track
+		local b={settings=t.settings,parts={},cfg={},cc={},ccCounter=0,drs={},drsCounter=0}
+		local function make(name,z,color,visible)
+			local world=anchor:ToWorldSpace(CFrame.new(table.unpack(z.cf)))
+			local input=world*CFrame.Angles(0,math.rad(-90),0)
+			local p=createWall(name,color,input,Vector3.new(table.unpack(z.size)),visible and 0.4 or 1)
+			table.insert(b.parts,p); p.Parent=nil
+			return p,input
+		end
+		local function sphere(name,cf)
+			local p=createSphereTrigger(name,cf); table.insert(b.parts,p); p.Parent=nil
+			p.Size=Vector3.new(t.settings.checkpointRadius,t.settings.checkpointRadius,t.settings.checkpointRadius)
+			return p
+		end
+		local ok,err=xpcall(function()
+			b.sectors={}
+			for i=1,3 do if t["sector"..i] then b.sectors[i]=make("SPA_SECTOR_"..i,t["sector"..i],C_BLUE,t.settings.visible) end end
+			b.lap,b.lapCF=make("LAP_WALL",t.lap,C_GREEN,t.settings.visible)
+			b.pitIn,b.pitInCF=make("PIT_IN_WALL",t.pitIn,C_ORANGE,t.settings.visible)
+			b.pitOut,b.pitOutCF=make("PIT_OUT_WALL",t.pitOut,Color3.fromRGB(128,0,128),t.settings.visible)
+			b.lapSphere=sphere("LapTrigger",b.lapCF); b.pitInSphere=sphere("PitEntryTrigger",b.pitInCF); b.pitOutSphere=sphere("PitExitTrigger",b.pitOutCF)
+			for key,z in pairs({LAP=t.lap,PIT_IN=t.pitIn,PIT_OUT=t.pitOut}) do
+				b.cfg[key]={width=z.size[1],height=z.size[2],thickness=z.size[3]}
+				if z.detection then
+					b.cfg[key].detectionWidth=z.detection.width; b.cfg[key].detectionHeight=z.detection.height; b.cfg[key].detectionTolerance=z.detection.tolerance
+				end
+			end
+			for _,cc in ipairs(t.cornerCuts) do
+				local p=make("CCWP_"..cc.id,cc.zone,CCWPCOLOR,t.settings.ccVisible)
+				b.cc[cc.id]={name=cc.name,wall=p,cframe=p.CFrame,halfWidth=p.Size.X/2,halfHeight=p.Size.Y/2}
+				b.ccCounter=math.max(b.ccCounter,cc.id)
+			end
+			for _,d in ipairs(t.drs) do
+				local p=make("SPA_DRS_"..d.kind.."_"..d.id,d.zone,d.kind=="END" and C_RED or (d.kind=="START" and C_GREEN or C_YELLOW),t.settings.drsVisible)
+				p.CanQuery=false
+				table.insert(b.drs,{part=p,cf=p.CFrame,size=p.Size,kind=d.kind,id=d.id,index=d.index})
+				b.drsCounter=math.max(b.drsCounter,d.id)
+			end
+			if t.ot then
+				local p=make("SPA_OT_DETECTION",t.ot,C_BLUE,t.settings.otVisible); p.CanQuery=false
+				b.ot={part=p,cf=p.CFrame,size=p.Size,id="OT"}
+			end
+		end,debug.traceback)
+		if not ok then for _,p in ipairs(b.parts) do p:Destroy() end; error(err,0) end
+		return b
+	end
+	function T:Install(b)
+		self:SetSettings(b.settings)
+		lapWall=b.lap; pitInWall=b.pitIn; pitOutWall=b.pitOut
+		lapSphere=b.lapSphere; pitEntrySphere=b.pitInSphere; pitExitSphere=b.pitOutSphere
+		LAP_LINE_CFRAME=b.lapCF; PIT_ENTRY_CFRAME=b.pitInCF; PIT_EXIT_CFRAME=b.pitOutCF
+		wpCfg=b.cfg; ccWaypoints=b.cc; ccWpCounter=b.ccCounter
+		SPA_Timing.gates=b.sectors or {}
+		if b.timing then for key,value in pairs(b.timing) do SPA_Timing[key]=value end end
+		SPA_DRS.zones=b.drs; SPA_DRS.nextId=b.drsCounter; OT_DETECTION_ZONE=b.ot
+		for _,p in ipairs(b.parts) do
+			if b.parents then p.Parent=b.parents[p] else p.Parent=Workspace end
+		end
+	end
+	function T:RefreshUI()
+		for _,refresh in ipairs(SPA_V220.configRefresh) do refresh() end
+		if buildWpCCList then buildWpCCList() end
+		if buildConfigCCList then buildConfigCCList() end
+		HUD_LAST_SIGNATURE=nil; HUD_RANK_CACHE.signature=nil
+		towerHeaderText.Text="LAP ?/"..MAX_LAPS; lapNumLabel.Text="? / "..MAX_LAPS
+	end
+	function T:ApplyTrack(data)
+		assert(not self.applying,"An import is already in progress")
+		assert(RACE_STATE~="RACE" and RACE_STATE~="QUALY","End the active session before changing tracks")
+		self:_Validate(data); local anchor=self:AnchorCF()
+		-- Freeze only validated data before constructing the Parts.
+		data=self:_Validate(HttpService:JSONDecode(HttpService:JSONEncode(data)))
+		local old=self:Snapshot()
+		local pending=self:Build(data,anchor) -- No detection references have changed.
+		self.applying=true
+		local ok,err=xpcall(function()
+			self:Install(pending)
+			for _,p in ipairs(old.parts) do p.Parent=nil end
+			self:RefreshUI()
+			if resetSessionMarkers then resetSessionMarkers() end
+		end,debug.traceback)
+		if not ok then
+			local restored,restoreError=xpcall(function() self:Install(old); self:RestoreMarkers(old.markers) end,debug.traceback)
+			if restored then
+				for _,p in ipairs(pending.parts) do p:Destroy() end
+				local uiOK,uiError=xpcall(function() self:RefreshUI() end,debug.traceback)
+				if not uiOK then warn("[SPA TRACK UI] "..tostring(uiError)) end
+			else
+				self.Recovery={previous=old,pending=pending}
+				warn("[SPA TRACK ROLLBACK ERROR] "..tostring(restoreError))
+			end
+			self.applying=false; warn("[SPA TRACK APPLY ERROR] "..tostring(err))
+			return false,restored and "Import failed. The previous configuration was restored." or "Critical restore error. Objects preserved; check Output."
+		end
+		-- Remove the old Parts only after confirming the change.
+		self.Current=data
+		self.applying=false
+		local cleaned,cleanupError=xpcall(function()
+			for _,p in ipairs(old.parts) do p:Destroy() end
+		end,debug.traceback)
+		if not cleaned then
+			warn("[SPA TRACK CLEANUP ERROR] "..tostring(cleanupError))
+			return true,"Track loaded; check Output for a cleanup error."
+		end
+		return true,"Track loaded successfully"
+	end
+	function T:Summary(data)
+		if not data then return "NO TRACK LOADED" end
+		local t=data.track
+		return ("%s\nTRACK ID: %s\nCreated by @%s · %s\nFormat: SPA TRACK %d · %d LAPS\n%d DRS ZONES · %d CORNER CUTS · PIT CONFIGURED\nOT: %s"):format(
+			t.name,t.id,t.author,t.created,data.formatVersion,t.settings.laps,#t.drs/3,#t.cornerCuts,t.ot and "CONFIGURED" or "NO ZONE")
+	end
+	return T
+end)()
+
+-- ═══ V2.20 · Optional UI: navigation over the original panels ═══
+function SPA_V220:Make(class, props, parent)
+	local obj=Instance.new(class)
+	for key,value in pairs(props) do obj[key]=value end
+	obj.Parent=parent
+	return obj
+end
+function SPA_V220:Label(parent,text,height,order)
+	local label=self:Make("TextLabel",{Size=UDim2.new(1,-12,0,height or 36),BackgroundTransparency=1,
+		Text=text,TextColor3=C_WHITE,Font=Enum.Font.Gotham,TextSize=14,TextWrapped=true,RichText=false,
+		TextXAlignment=Enum.TextXAlignment.Left,LayoutOrder=order or 0},parent)
+	if parent:IsA("ScrollingFrame") then label.AutomaticSize=Enum.AutomaticSize.Y end
+	return label
+end
+function SPA_V220:Button(parent,text,fn,order)
+	local b=self:Make("TextButton",{Size=UDim2.new(1,-12,0,48),BackgroundColor3=C_BG2,BackgroundTransparency=0.18,
+		Text=text,TextColor3=C_WHITE,Font=Enum.Font.GothamBold,TextSize=14,TextWrapped=true,
+		BorderSizePixel=0,LayoutOrder=order or 0,AutoButtonColor=true},parent)
+	self:Make("UICorner",{CornerRadius=UDim.new(0,12)},b)
+	b.MouseButton1Click:Connect(function()
+		local ok,err=xpcall(fn,debug.traceback)
+		if not ok then
+			warn("[SPA V2.20 UI] "..tostring(err))
+			if SPA_ControlCenter then SPA_ControlCenter:Message("❌ "..tostring(err):match("^[^\n]+"),true) end
+		end
+	end)
+	return b
+end
+function SPA_V220:Clear(parent)
+	for _,c in ipairs(parent:GetChildren()) do if c:IsA("GuiObject") then c:Destroy() end end
+end
+function SPA_V220:Input(parent,placeholder,height,multiline)
+	return self:Make("TextBox",{Size=UDim2.new(1,-12,0,height or 44),BackgroundColor3=C_BG2,BorderSizePixel=0,
+		Text="",PlaceholderText=placeholder,PlaceholderColor3=C_GRAY,TextColor3=C_WHITE,TextSize=13,
+		Font=Enum.Font.Code,TextWrapped=true,MultiLine=multiline or false,ClearTextOnFocus=false,RichText=false,
+		TextXAlignment=Enum.TextXAlignment.Left,TextYAlignment=Enum.TextYAlignment.Top,LayoutOrder=2},parent)
+end
+function SPA_V220:Panel(gui,title)
+	local panel=self:Make("Frame",{Size=UDim2.new(0.92,0,0.88,0),Position=UDim2.fromScale(0.5,0.5),
+		AnchorPoint=Vector2.new(0.5,0.5),BackgroundColor3=C_BG,BorderSizePixel=0,Visible=false},gui)
+	self:Make("UISizeConstraint",{MaxSize=Vector2.new(920,760)},panel)
+	Glass.registerModal(panel)
+	local head=self:Label(panel,title,42); head.Position=UDim2.new(0,14,0,0); head.Size=UDim2.new(1,-72,0,42); head.Font=Enum.Font.GothamBlack
+	local content=createScrollingList(panel)
+	content.Position=UDim2.new(0,12,0,48); content.Size=UDim2.new(1,-24,1,-98); content.BackgroundTransparency=1
+	local footer=self:Label(panel,"",44); footer.Position=UDim2.new(0,14,1,-47); footer.TextSize=12; footer.TextColor3=C_GRAY
+	return panel,content,footer
+end
+function SPA_V220:Navigate(tab, control)
+	assert(tabFrames[tab],"Panel unavailable: "..tostring(tab))
+	currentTab=tab
+	for name,frame in pairs(tabFrames) do
+		local active=name==tab; frame.Visible=active
+		local btn=tabButtons[name]
+		btn.BackgroundColor3=active and C_RED or Color3.new(0,0,0); btn.BackgroundTransparency=active and 0 or 0.6
+		btn.TextColor3=active and C_WHITE or C_GRAY
+		local ind=btn:FindFirstChild("Indicator")
+		if ind then ind.BackgroundColor3=active and C_RED or Color3.new(0,0,0); ind.BackgroundTransparency=active and 0 or 1 end
+	end
+	mainFrame.Visible=true
+	if self.ccPanel then self.ccPanel.Visible=false end
+	local target=control and self.controls[control] or tabFrames[tab]
+	if target and tab=="CONFIG" then
+		local y=target.AbsolutePosition.Y-configScroll.AbsolutePosition.Y+configScroll.CanvasPosition.Y
+		configScroll.CanvasPosition=Vector2.new(0,math.max(0,y-12))
+	end
+	return target or tabFrames[tab]
+end
+
+SPA_ControlCenter = { initialized=false, lastRefresh=0 }
+function SPA_ControlCenter:Message(message,bad)
+	self.message=message
+	if self.status then self.status.Text=message; self.status.TextColor3=bad and C_RED or C_GREEN end
+	if self.trackStatus then self.trackStatus.Text=message; self.trackStatus.TextColor3=bad and C_RED or C_GREEN end
+end
+function SPA_ControlCenter:Refresh()
+	if not self.initialized or not self.panel.Visible then return end
+	if tick()-self.lastRefresh<0.25 then return end
+	self.lastRefresh=tick()
+	local names={IDLE="IDLE",QUALY="QUALIFYING",RACE="RACE",FINISHED="FINISHED"}
+	self.dashboard.Text=("SESSION: %s\nTRACK: %s\nDRIVERS: %d CONNECTED\nRACE CONTROL: %s"):format(
+		names[RACE_STATE] or RACE_STATE,SPA_Tracks and SPA_Tracks.Current and SPA_Tracks.Current.track.name or "NO TRACK LOADED",
+		#Players:GetPlayers(),SPA_INIT.ready and "READY" or "ERROR — check Output")
+	self.completed.Text=SPA_TUTORIAL_COMPLETED and "✓ Tutorial completed" or "Optional tutorial · you can start working now"
+end
+function SPA_ControlCenter:Hide()
+	self.panel.Visible=false; self.trackPanel.Visible=false
+	if SPA_ConnectUI then SPA_ConnectUI:Hide() end
+	if SPA_Tutorial and SPA_Tutorial.menu then SPA_Tutorial.menu.Visible=false end
+end
+function SPA_ControlCenter:Open()
+	if not self.initialized then return end
+	if SPA_Tutorial and SPA_Tutorial.active then SPA_Tutorial:Stop(false) end
+	self:Hide(); mainFrame.Visible=false
+	if SPA_V220.ccPanel then SPA_V220.ccPanel.Visible=false end
+	self.panel.Visible=true; self.lastRefresh=0; self:Refresh()
+	TweenService:Create(self.panel,TweenInfo.new(0.18),{BackgroundTransparency=0.12}):Play()
+end
+function SPA_ControlCenter:Go(tab,control)
+	self:Hide(); return SPA_V220:Navigate(tab,control)
+end
+function SPA_ControlCenter:CloseTracks()
+	self.pending=nil; self:Open()
+end
+function SPA_ControlCenter:TrackView(mode,data)
+	assert(SPA_Tracks,"SPA Track System is unavailable")
+	self:Hide(); self.trackPanel.Visible=true; SPA_V220:Clear(self.trackContent)
+	mainFrame.Visible=false
+	if SPA_V220.ccPanel then SPA_V220.ccPanel.Visible=false end
+	self.trackStatus.Text="Profiles are kept for this session. Export the code to share or save them."
+	local p=self.trackContent
+	if mode=="capture" then
+		SPA_V220:Label(p,"TRACK NAME · first configure LAP, PIT, DRS, OT and CC in the original panels.",56,1)
+		local name=SPA_V220:Input(p,"Track name",44)
+		SPA_V220:Button(p,"CAPTURE CURRENT CONFIGURATION / SAVE PROFILE",function()
+			local captured=SPA_Tracks:CaptureCurrentTrack(name.Text)
+			self:TrackView("export",captured); self:Message("✓ Configuration captured")
+		end,3)
+	elseif mode=="export" then
+		SPA_V220:Label(p,SPA_Tracks:Summary(data),150,1)
+		local code=SPA_V220:Input(p,"TRACK CODE",150,true); code.Text=SPA_Tracks:GenerateCode(data); code.TextEditable=false
+		SPA_V220:Button(p,"COPY TRACK CODE",function()
+			local copied=false
+			if type(setclipboard)=="function" then copied=pcall(setclipboard,code.Text) end
+			if not copied then
+				code:CaptureFocus(); code.SelectionStart=1; code.CursorPosition=#code.Text+1
+				self:Message("Select the code and copy it manually (Ctrl+C or your device's menu).")
+			else self:Message("✓ Track Code copied") end
+		end,3)
+		self:Message("✓ Track Code generated")
+	elseif mode=="import" then
+		self.pending=nil
+		SPA_V220:Label(p,"PASTE YOUR SPA TRACK CODE · Contains data only; code is never executed.",60,1)
+		local code=SPA_V220:Input(p,"SPA_TRACK_FORMAT_1|DATA|CHECKSUM",160,true)
+		SPA_V220:Button(p,"VALIDATE",function()
+			local ok,decoded=SPA_Tracks:ValidateCode(code.Text)
+			if not ok then self:Message("❌ "..decoded,true); return end
+			self.pending=decoded; self:TrackView("confirm",decoded); self:Message("✓ Track Code validated")
+		end,3)
+	elseif mode=="confirm" then
+		SPA_V220:Label(p,SPA_Tracks:Summary(data),150,1)
+		SPA_V220:Label(p,"IMPORT replaces the track using the current anchor. A backup is saved before applying and restored on failure. Importing is not allowed during an active session.",72,2)
+		SPA_V220:Button(p,"IMPORT — CONFIRM REPLACEMENT",function()
+			local ok,message=SPA_Tracks:ApplyTrack(data)
+			if ok then
+				local exists=false
+				for _,profile in ipairs(SPA_Tracks.Profiles) do if profile.track.id==data.track.id then exists=true end end
+				if not exists and #SPA_Tracks.Profiles<SPA_Tracks.MAX_PROFILES then table.insert(SPA_Tracks.Profiles,SPA_Tracks.Current) end
+				self.pending=nil; self:TrackView("home")
+			end
+			self:Message((ok and "✓ " or "❌ ")..message,not ok)
+		end,4)
+		SPA_V220:Button(p,"CANCEL",function() self.pending=nil; self:TrackView("home") end,5)
+	elseif mode=="profiles" then
+		SPA_V220:Label(p,"LOADED TRACKS · Profiles for this session",44,1)
+		if #SPA_Tracks.Profiles==0 then SPA_V220:Label(p,"No profiles have been captured or imported yet.",48,2) end
+		for i,profile in ipairs(SPA_Tracks.Profiles) do
+			SPA_V220:Button(p,profile.track.name.." · "..profile.track.id,function() self.pending=profile; self:TrackView("confirm",profile) end,i+2)
+		end
+	else
+		SPA_V220:Label(p,SPA_Tracks:Summary(SPA_Tracks.Current),150,1)
+		SPA_V220:Button(p,"📍 SET TRACK ANCHOR HERE",function() SPA_Tracks:SetAnchor(); self:Message("✓ Track Anchor set to the current position and orientation") end,2)
+		SPA_V220:Button(p,"SHOW / HIDE TRACK ANCHOR",function()
+			SPA_Tracks:AnchorCF(); SPA_Tracks.Anchor.Transparency=SPA_Tracks.Anchor.Transparency==1 and 0.25 or 1
+		end,3)
+		SPA_V220:Button(p,"CREATE / CAPTURE TRACK",function() self:TrackView("capture") end,4)
+		SPA_V220:Button(p,"IMPORT TRACK CODE",function() self:TrackView("import") end,5)
+		SPA_V220:Button(p,"LOADED TRACKS",function() self:TrackView("profiles") end,6)
+		SPA_V220:Button(p,"GENERATE TRACK CODE",function() assert(SPA_Tracks.Current,"Capture or import a track first"); self:TrackView("export",SPA_Tracks.Current) end,7)
+		SPA_V220:Button(p,"CONFIGURE EXISTING WAYPOINTS",function() self:Go("CONFIG","Posición Meta/Vuelta") end,8)
+	end
+	SPA_V220:Button(p,"⌂ BACK TO TRACKS / HOME",function()
+		if mode=="home" then self:CloseTracks() else self.pending=nil; self:TrackView("home") end
+	end,100)
+end
+function SPA_ControlCenter:Init()
+	self.gui=SPA_V220:Make("ScreenGui",{Name="SPA_CONTROL_CENTER",ResetOnSpawn=false,DisplayOrder=80,ZIndexBehavior=Enum.ZIndexBehavior.Sibling},playerGui)
+	self.panel,self.content,self.status=SPA_V220:Panel(self.gui,"SPA CONTROL CENTER · V2.22.5")
+	self.trackPanel,self.trackContent,self.trackStatus=SPA_V220:Panel(self.gui,"SPA TRACK SYSTEM")
+	for _,panel in ipairs({self.panel,self.trackPanel}) do
+		local close=SPA_V220:Button(panel,"✕",function() self:Hide() end)
+		close.Size=UDim2.new(0,34,0,30); close.Position=UDim2.new(1,-44,0,7)
+	end
+	local profile=SPA_V220:Make("Frame",{Size=UDim2.new(1,-12,0,106),BackgroundTransparency=1,LayoutOrder=1},self.content)
+	local avatar=SPA_V220:Make("ImageLabel",{Size=UDim2.new(0,82,0,82),Position=UDim2.new(0,8,0,8),BackgroundColor3=C_BG2,Image=""},profile)
+	SPA_V220:Make("UICorner",{CornerRadius=UDim.new(0,40)},avatar)
+	local fallback=SPA_V220:Label(avatar,"FIA",82); fallback.TextXAlignment=Enum.TextXAlignment.Center
+	local label=SPA_V220:Label(profile,player.DisplayName.."\nFIA OPERATOR · @"..player.Name,90)
+	label.Position=UDim2.new(0,104,0,0); label.Size=UDim2.new(1,-112,0,90)
+	SPA_V220:Label(self.content,"Welcome to Race Control, @"..player.Name.."\nWhat would you like to prepare today?",68,2)
+	self.dashboard=SPA_V220:Label(self.content,"",108,3)
+	self.completed=SPA_V220:Label(self.content,"",42,4)
+	local cards={
+		{"🏁 RACE",function() self:Go("VUELTAS") end},
+		{"🗺️ TRACKS",function() self:TrackView("home") end},
+		{"⚖️ RACE CONTROL",function() self:Go("RACE CONTROL") end},
+		{"📡 TELEMETRY",function() self:Go("ONBOARD"); showNotification("Existing telemetry: select a driver in ONBOARD. Speed, turbo, drift and suspension data appear above their vehicle; limits are in SETTINGS.",C_WHITE,"📡",15) end},
+		{"🎥 ANALYSIS",function() self:Go("ANÁLISIS") end},
+		{"🎓 TUTORIAL",function() assert(SPA_Tutorial and SPA_Tutorial.initialized,"Tutorial unavailable"); SPA_Tutorial:Menu() end},
+		{"📢 UPDATES",function() if SPA_ConnectUI then SPA_ConnectUI:Open("updates") end end},
+		{"💬 SUPPORT",function() if SPA_ConnectUI then SPA_ConnectUI:Open("support") end end},
+		{"💡 IDEAS & FEEDBACK",function() if SPA_ConnectUI then SPA_ConnectUI:Open("feedback") end end},
+		{"⚙️ SETTINGS",function() self:Go("CONFIG") end},
+	}
+	for i,card in ipairs(cards) do SPA_V220:Button(self.content,card[1],card[2],i+4) end
+	local home=SPA_V220:Button(self.gui,"⌂ HOME",function() self:Open() end)
+	home.Size=UDim2.new(0,88,0,32); home.Position=UDim2.new(0,14,1,-44)
+	self.home=home; self.initialized=true
+	self.gui.Destroying:Connect(function()
+		self.initialized=false
+		if SPA_Tutorial then SPA_Tutorial:Stop(false) end
+		end)
+	task.spawn(function()
+		local ok,url,ready=pcall(function() return Players:GetUserThumbnailAsync(player.UserId,Enum.ThumbnailType.HeadShot,Enum.ThumbnailSize.Size180x180) end)
+		if not avatar.Parent then return end
+		if ok and ready and type(url)=="string" and url~="" then avatar.Image=url; fallback.Visible=false
+		else fallback.Text="FIA"; warn("[SPA AVATAR] Thumbnail unavailable; using fallback.") end
+	end)
+	if SPA_V220.loadingDone then self:Open() end
+end
+
+-- ═══ TUTORIAL · independent navigation and highlighting, no permanent loops ═══
+SPA_TUTORIAL_COMPLETED = false
+SPA_Tutorial = { initialized=false, active=false, connections={}, index=1, full=false }
+SPA_Tutorial.steps = {
+	{"Carrera","PREPARE THE RACE","CONFIG","Max Vueltas","Set the maximum number of laps before starting. Importing a track also restores this value. This tutorial never starts or resets a session for you."},
+	{"Carrera","START AND FINISH","CONFIG","CRONOMETRO","START puts the session in RACE and starts the race timer. STOP changes it to FINISHED. Preparing a new race may reset transient data: review the report before doing so."},
+	{"Carrera","POSITIONS AND STATES","VUELTAS",nil,"The tower and LAPS show the existing standings. FIA excludes drivers from the calculations. IDLE, QUALY, RACE and FINISHED identify the session state."},
+	{"Carrera","FASTEST LAP AND GAPS","FAST LAPS",nil,"FASTEST LAPS shows the best times. In SETTINGS, you can display the gap to the leader or the car ahead; times and laps are still calculated by V2.19."},
+	{"Clasificación","QUALIFYING MODE","CONFIG","Activar Modo Qualy","Enable qualifying before the race. Valid laps have a configurable limit. Starting the race preserves a snapshot of the qualifying results."},
+	{"Clasificación","QUALIFYING LAPS","CONFIG","Vueltas Qualy","Set the attempt limit. RESET QUALIFYING TIMES clears the session times; do not press it if you need to keep them."},
+	{"Circuitos y Waypoints","LAP / PIT IN / PIT OUT","CONFIG","Posición Meta/Vuelta","Use SET WP at your current position to place the start/finish line. PIT IN and PIT OUT define pit entry and exit. The script uses vehicle position and plane crossings."},
+	{"Circuitos y Waypoints","DIMENSIONS AND VISIBILITY","CONFIG","LAP – Ancho (studs)","Adjust width, height and thickness. Show waypoints controls their visibility. The LAP detection zone has its own dimensions: hiding a Part does not disable detection."},
+	{"Circuitos y Waypoints","TRACK LIMITS: WAYPOINTS","CC","WP CC","Place a CC WP from the original panel, assign a name and check its dimensions. REMOVE deletes one; REMOVE ALL deletes all CC waypoints."},
+	{"Circuitos y Waypoints","TRACK LIMITS: WARNINGS","CC","CONFIG CC","Track limits detection enabled and debounce control the warnings. Infringements generate logs and penalty proposals according to the thresholds in SETTINGS; penalties are not applied automatically."},
+	{"Circuitos y Waypoints","TRACK ANCHOR AND CODES","TRACK",nil,"Set the anchor at a reproducible reference point with the same orientation. Capture a profile, export the code and share it. When importing, set the new anchor, validate, review the summary and confirm; the backup protects against errors. Profiles are kept for this session."},
+	{"DRS / OT / Pit","DRS: DETECTION, START AND END","CONFIG","+ DRS DETECTION","DETECTION is an active volume that recalculates the gap. START opens the usage section and END closes it. In V2.19, leaving DETECTION removes permission: extend the detection volume to the end of the section."},
+	{"DRS / OT / Pit","DRS: LAP, GAP AND BONUS","CONFIG","Vuelta inicial DRS","By default, DRS is available from LAP 3, with a maximum gap of 1 s and a +10 bonus. These values are configurable. An unknown gap does not grant permission."},
+	{"DRS / OT / Pit","DRS: USE AND INFRINGEMENTS","CONFIG","Sanciones DRS","PERMITTED does not mean ACTIVATED: the actual increase and the car's configuration are monitored. An incorrect bonus or use without permission generates warnings and proposals; messages are rate-limited."},
+	{"DRS / OT / Pit","OT: A SINGLE ZONE","CONFIG","+ CREAR ZONA OT","The single OT zone starts the cycle, and the next crossing renews it. The gap is evaluated on entry. The permitted increase is always +2; it is not automatically added to the DRS bonus."},
+	{"DRS / OT / Pit","PITS AND PIT SPEED LIMITER","CONFIG","Reducción en boxes","PIT IN activates the In Pits state; PIT OUT ends it and counts the stop. The limiter checks the configured reduction (−30 by default). It does not physically change the car's speed."},
+	{"Race Control","EVENTS AND REVIEW","RACE CONTROL",nil,"Select an event to view the driver, time, lap and details. Filters separate race, qualifying, incidents and penalties. Review the evidence before deciding."},
+	{"Race Control","PENALTIES AND DSQ","SANCIONES",nil,"Proposals await your confirmation. APPLY imposes the existing penalty; DISMISS rejects it. Ground Effect may propose DSQ. This tutorial does not apply penalties."},
+	{"Telemetría","MONITOR A DRIVER","ONBOARD",nil,"Select a driver to follow. Existing telemetry displays speed and its limit, along with turbo, drift and suspension, above the vehicle. There is no separate telemetry panel to duplicate."},
+	{"Telemetría","LIMITS AND CALIBRATION","CONFIG","Mostrar velocidad sobre cabeza","Enable overhead speed. SETTINGS lets you calibrate the reading; LAPS also contains driver names and individual limits. Calibration does not modify vehicle physics."},
+	{"Neumáticos","COMPOUNDS AND CHANGES","LLANTAS",nil,"Compounds are identified by their configured texture IDs. SET manually records a compound when the driver is in the pits; it does not change the car's physical tires. Stable changes are recorded in the history."},
+	{"Replay / Análisis","INCIDENTS AND RECORDING","CONFIG","Activar choques + repeticiones (CPU+)","Enable the existing system to record contacts and replays. It is disabled by default to reduce load. It only captures situations that meet its thresholds."},
+	{"Replay / Análisis","REVIEW TRAJECTORIES","ANÁLISIS",nil,"Select an incident and use GHOST 3D to replay the recorded trajectories. Snapshots allow review even after the driver has left. An anomaly alone does not prove an infringement."},
+	{"Configuración","GENERAL SETTINGS","CONFIG",nil,"SETTINGS retains all original options. The new controls do not replace calculations or detection. HOME always lets you return to the control center."},
+	{"Configuración","REPORT AND DISCORD","CONFIG","📋  GENERAR INFORME POST-CARRERA","Generate the report at the end. To send it, use your own Discord webhook. Sending requires HTTP support from the environment; it is not guaranteed by a normal LocalScript."},
+	{"Configuración","SEASON","CONFIG","➕  SUMAR ESTA CARRERA A LA TEMPORADA","Explicitly add the race to the season and generate its report. A Track Code does not contain results, penalties, players or season data."},
+}
+function SPA_Tutorial:Disconnect()
+	for _,c in ipairs(self.connections) do c:Disconnect() end
+	table.clear(self.connections)
+end
+function SPA_Tutorial:Restore()
+	local s=self.saved
+	if not s then return end
+	SPA_V220:Navigate(s.tab); mainFrame.Visible=s.main
+	configScroll.CanvasPosition=s.canvas
+	if SPA_V220.ccPanel then
+		if s.cc and SPA_V220.openCC then SPA_V220.openCC(s.ccTab or "WP CC") else SPA_V220.ccPanel.Visible=false end
+	end
+	self.saved=nil
+end
+function SPA_Tutorial:Stop(completed)
+	self.active=false; self:Disconnect()
+	if self.overlay then self.overlay.Enabled=false end
+	if completed and self.full then SPA_TUTORIAL_COMPLETED=true end
+	-- Disable the overlay before restoring: a UI failure never leaves input blocked.
+	local ok,err=xpcall(function() self:Restore() end,debug.traceback)
+	if not ok then warn("[SPA TUTORIAL RESTORE] "..tostring(err)) end
+	if SPA_ControlCenter and SPA_ControlCenter.trackPanel then SPA_ControlCenter.trackPanel.Visible=false end
+end
+function SPA_Tutorial:Menu()
+	self:Stop(false); SPA_ControlCenter:Hide(); self.menu.Visible=true
+	SPA_V220:Clear(self.menuContent)
+	for i,category in ipairs({"Carrera","Clasificación","Circuitos y Waypoints","DRS / OT / Pit","Race Control","Telemetría","Neumáticos","Replay / Análisis","Configuración","Recorrido completo"}) do
+		SPA_V220:Button(self.menuContent,SPA_EnglishLabel(category),function() self:Start(category) end,i)
+	end
+end
+function SPA_Tutorial:Start(category)
+	self:Stop(false); self.menu.Visible=false
+	self.saved={tab=currentTab,main=mainFrame.Visible,canvas=configScroll.CanvasPosition,cc=SPA_V220.ccPanel and SPA_V220.ccPanel.Visible,ccTab=SPA_V220.ccTab}
+	self.sequence={}; self.full=category=="Recorrido completo"
+	for _,step in ipairs(self.steps) do if self.full or step[1]==category then table.insert(self.sequence,step) end end
+	assert(#self.sequence>0,"Tutorial category unavailable")
+	self.index=1; self.active=true
+	self:Step()
+end
+function SPA_Tutorial:Position(target)
+	if not self.active or not target or not target.Parent then return end
+	local root=self.shield
+	local origin=root.AbsolutePosition; local area=root.AbsoluteSize
+	local pos=target.AbsolutePosition-origin; local size=target.AbsoluteSize
+	local x=math.clamp(pos.X-4,0,area.X); local y=math.clamp(pos.Y-4,0,area.Y)
+	local w=math.clamp(size.X+8,0,area.X-x); local h=math.clamp(size.Y+8,0,area.Y-y)
+	self.outline.Position=UDim2.fromOffset(x,y); self.outline.Size=UDim2.fromOffset(w,h)
+	local rects={{0,0,area.X,y},{0,y+h,area.X,area.Y-y-h},{0,y,x,h},{x+w,y,area.X-x-w,h}}
+	for i,r in ipairs(rects) do self.dims[i].Position=UDim2.fromOffset(r[1],r[2]); self.dims[i].Size=UDim2.fromOffset(r[3],r[4]) end
+	local cw=math.min(390,math.max(160,area.X-24)); local ch=math.min(286,math.max(130,area.Y-24))
+	local cx=x+w+12
+	if cx+cw>area.X-12 then cx=math.max(12,x-cw-12) end
+	local cy=math.clamp(y,12,math.max(12,area.Y-ch-12))
+	if x<cw+24 and x+w+cw+24>area.X then cy=math.max(12,area.Y-ch-12); cx=math.max(12,area.X-cw-12) end
+	self.card.Position=UDim2.fromOffset(cx,cy); self.card.Size=UDim2.fromOffset(cw,ch)
+end
+function SPA_Tutorial:Step()
+	self:Disconnect(); SPA_ControlCenter:Hide()
+	local step=self.sequence[self.index]
+	local ok,err=xpcall(function()
+		local target
+		if step[3]=="CC" then
+			assert(SPA_V220.openCC,"CC panel unavailable"); SPA_V220.openCC(step[4]); mainFrame.Visible=false; target=SPA_V220.ccPanel
+		elseif step[3]=="TRACK" then SPA_ControlCenter:TrackView("home"); target=SPA_ControlCenter.trackPanel
+		else target=SPA_V220:Navigate(step[3],step[4]) end
+		self.title.Text=("STEP %d OF %d · %s"):format(self.index,#self.sequence,step[2])
+		self.body.Text=step[5]; self.previous.Visible=self.index>1
+		self.next.Text=self.index==#self.sequence and "FINISH" or "NEXT"
+		self.overlay.Enabled=true
+		self:Position(target)
+		for _,prop in ipairs({"AbsolutePosition","AbsoluteSize"}) do table.insert(self.connections,target:GetPropertyChangedSignal(prop):Connect(function() self:Position(target) end)) end
+		table.insert(self.connections,self.shield:GetPropertyChangedSignal("AbsoluteSize"):Connect(function() self:Position(target) end))
+		table.insert(self.connections,target.AncestryChanged:Connect(function() if not target.Parent then self:Stop(false) end end))
+		task.defer(function() if self.active then self:Position(target) end end)
+	end,debug.traceback)
+	if not ok then self:Stop(false); warn("[SPA TUTORIAL] "..tostring(err)); SPA_ControlCenter:Message("Could not open this step; check Output.",true) end
+end
+function SPA_Tutorial:Init()
+	self.menu,self.menuContent=SPA_V220:Panel(SPA_ControlCenter.gui,"WHAT WOULD YOU LIKE TO LEARN?")
+	local close=SPA_V220:Button(self.menu,"⌂ HOME",function() self.menu.Visible=false; SPA_ControlCenter:Open() end)
+	close.Size=UDim2.new(0,90,0,32); close.Position=UDim2.new(1,-102,1,-42)
+	self.overlay=SPA_V220:Make("ScreenGui",{Name="SPA_TUTORIAL_OVERLAY",ResetOnSpawn=false,DisplayOrder=180,Enabled=false,ZIndexBehavior=Enum.ZIndexBehavior.Sibling},playerGui)
+	self.shield=SPA_V220:Make("Frame",{Size=UDim2.fromScale(1,1),BackgroundTransparency=1,Active=true},self.overlay)
+	self.dims={}
+	for i=1,4 do
+		self.dims[i]=SPA_V220:Make("Frame",{BackgroundColor3=Color3.new(0,0,0),BackgroundTransparency=0.48,BorderSizePixel=0,ZIndex=1},self.shield)
+		self.dims[i]:SetAttribute("_glassed",true)
+	end
+	self.outline=SPA_V220:Make("Frame",{BackgroundTransparency=1,BorderSizePixel=0,ZIndex=2},self.shield)
+	SPA_V220:Make("UIStroke",{Color=C_RED,Thickness=3,ApplyStrokeMode=Enum.ApplyStrokeMode.Border},self.outline)
+	self.card=SPA_V220:Make("Frame",{BackgroundColor3=C_BG,BorderSizePixel=0,ZIndex=3},self.shield)
+	SPA_V220:Make("UICorner",{CornerRadius=UDim.new(0,16)},self.card)
+	self.title=SPA_V220:Label(self.card,"",62); self.title.Size=UDim2.new(1,-24,0,62); self.title.Position=UDim2.fromOffset(12,0); self.title.Font=Enum.Font.GothamBold
+	local scroll=createScrollingList(self.card); scroll.Position=UDim2.new(0,12,0,62); scroll.Size=UDim2.new(1,-24,1,-150); scroll.BackgroundTransparency=1
+	self.body=SPA_V220:Label(scroll,"",200); self.body.TextYAlignment=Enum.TextYAlignment.Top
+	self.previous=SPA_V220:Button(self.card,"PREVIOUS",function() if self.active and self.index>1 then self.index-=1; self:Step() end end)
+	self.previous.Size=UDim2.new(0.46,0,0,32); self.previous.Position=UDim2.new(0.03,0,1,-80)
+	self.next=SPA_V220:Button(self.card,"NEXT",function()
+		if not self.active then return end
+		if self.index<#self.sequence then self.index+=1; self:Step()
+		else self:Stop(true); SPA_ControlCenter:Open(); SPA_ControlCenter:Message("✓ Tutorial completed") end
+	end)
+	self.next.Size=UDim2.new(0.46,0,0,32); self.next.Position=UDim2.new(0.51,0,1,-80)
+	local skip=SPA_V220:Button(self.card,"SKIP TUTORIAL",function() self:Stop(false); SPA_ControlCenter:Open() end)
+	skip.Size=UDim2.new(0.94,0,0,30); skip.Position=UDim2.new(0.03,0,1,-42)
+	self.overlay.Destroying:Connect(function() self:Stop(false) end)
+	self.initialized=true
+end
+
+-- Optional stages: a failure here preserves startup and the V2.19 panels.
+function SPA_V220:Stage(name,fn)
+	local ok,err=xpcall(fn,debug.traceback)
+	self.stages[name]=ok and "OK" or "ERROR"
+	if ok then print("[SPA INIT] "..name.." OK") else warn("[SPA INIT OPTIONAL ERROR] "..name.."\n"..tostring(err)) end
+	return ok
+end
+SPA_V220:Stage("TRACK SYSTEM",function() assert(SPA_Tracks and SPA_Tracks.FORMAT_VERSION==1,"Track System unavailable") end)
+if SPA_V220:Stage("CONTROL CENTER",function() SPA_ControlCenter:Init() end) then
+	SPA_V220:Stage("TUTORIAL",function() SPA_Tutorial:Init() end)
+	if SPA_V220.loadingDone then SPA_ControlCenter:Open() end
+end
+
+-- V2.21 CONNECT MODULES · optional, asynchronous, data-only
+SPA_HTTP = (function()
+	local H={queue={},active=nil,sequence=0,enabled=true,maxQueue=32,timeout=10,maxBody=524288,
+		lastCode=0,lastError=nil,transport=nil,available=false,retryDelays={15,30,60,120}}
+	function H:Detect()
+		-- An injected adapter must be supplied by the host, never by remote data.
+		if type(SPA_HTTP_TRANSPORT)=="function" then self.transport=SPA_HTTP_TRANSPORT
+		elseif type(request)=="function" then self.transport=request
+		elseif type(http_request)=="function" then self.transport=http_request
+		elseif type(syn)=="table" and type(syn.request)=="function" then self.transport=syn.request
+		else
+			local ok,isServer=pcall(function() return RunService:IsServer() end)
+			if ok and isServer then self.transport=function(o) return HttpService:RequestAsync(o) end end
+		end
+		self.available=type(self.transport)=="function"; return self.available
+	end
+	function H:ValidURL(url)
+		return type(url)=="string" and #url<=2048 and url:match("^https://[%w%.%-]+:?%d*/[%w%-%._~/%?=&%%]*$")~=nil
+			and not url:find("%.%.") and not url:find("[%z\1-\32\127]")
+	end
+	function H:JSONSafe(value,depth,budget)
+		depth=depth or 0; budget=budget or {n=0}
+		budget.n+=1
+		if depth>14 or budget.n>30000 then return false end
+		if type(value)=="table" then
+			for k,v in pairs(value) do
+				if (type(k)~="string" and type(k)~="number") or not self:JSONSafe(v,depth+1,budget) then return false end
+			end
+		elseif type(value)=="number" then return value==value and math.abs(value)<1e15
+		elseif type(value)=="string" then return #value<=262144
+		elseif type(value)~="boolean" and value~=nil then return false end
+		return true
+	end
+	function H:Deliver(job,result)
+		if job.done then return end
+		job.done=true
+		local ok=pcall(job.callback,result)
+		if not ok then warn("[SPA CONNECT] CALLBACK_ERROR"); if SPA_Connect then SPA_Connect:RecordError("HTTP","CALLBACK_ERROR") end end
+	end
+	function H:Wake(delay)
+		if self.wake then pcall(task.cancel,self.wake) end
+		self.wake=task.delay(math.max(0,delay or 0),function() self.wake=nil; self:Pump() end)
+	end
+	function H:Finish(job,result)
+		if self.active~=job then return end
+		if job.timer then pcall(task.cancel,job.timer); job.timer=nil end
+		self.active=nil; self.lastCode=result.status or 0; self.lastError=result.ok and nil or result.error
+		local retry=self.enabled and not job.cancelled and not job.noRetry and result.retry and job.attempt<=#self.retryDelays
+		if retry then
+			job.ready=os.clock()+math.max(self.retryDelays[job.attempt],math.min(result.retryAfter or 0,120))
+			table.insert(self.queue,job)
+		else self:Deliver(job,result) end
+		self:Wake(0)
+	end
+	function H:Pump()
+		if not self.enabled or self.active then return end
+		local now=os.clock(); local chosen; local soon
+		for i,j in ipairs(self.queue) do
+			if j.ready<=now and (not chosen or j.priority>self.queue[chosen].priority) then chosen=i end
+			if not soon or j.ready<soon then soon=j.ready end
+		end
+		if not chosen then if soon then self:Wake(soon-now) end; return end
+		local job=table.remove(self.queue,chosen); self.active=job; job.attempt+=1
+		-- task.delay(0) ensures handles exist before a synchronous adapter returns.
+		job.thread=task.delay(0,function()
+			local ok,response=pcall(self.transport,job.options)
+			if self.active~=job or job.cancelled then return end
+			if not ok then self:Finish(job,{ok=false,status=0,error="HTTP_UNAVAILABLE",retry=true}); return end
+			if type(response)~="table" then self:Finish(job,{ok=false,status=0,error="INVALID_HTTP_RESPONSE"}); return end
+			local status=tonumber(response.StatusCode or response.status_code)
+			local body=response.Body or response.body
+			if not status or status%1~=0 or status<100 or status>599 or type(body)~="string" then
+				self:Finish(job,{ok=false,status=0,error="INVALID_HTTP_RESPONSE"}); return
+			end
+			if #body>self.maxBody then self:Finish(job,{ok=false,status=status,error="RESPONSE_TOO_LARGE"}); return end
+			if status<200 or status>=300 then
+				local headers=response.Headers or response.headers or {}
+				local retryAfter=type(headers)=="table" and tonumber(headers["Retry-After"] or headers["retry-after"]) or 0
+				local apiOK,apiData=pcall(function() return HttpService:JSONDecode(body) end)
+				local apiError=apiOK and type(apiData)=="table" and type(apiData.error)=="string" and apiData.error:match("^[A-Z_0-9]+$") and apiData.error:sub(1,96) or nil
+				self:Finish(job,{ok=false,status=status,error="HTTP_"..status,apiError=apiError,retry=status==429 or status>=500,retryAfter=retryAfter}); return
+			end
+			local decoded,data=pcall(function() return HttpService:JSONDecode(body) end)
+			if not decoded or type(data)~="table" or not self:JSONSafe(data) then
+				self:Finish(job,{ok=false,status=status,error="INVALID_JSON"}); return
+			end
+			self:Finish(job,{ok=true,status=status,data=data,latency=math.floor((os.clock()-job.started)*1000)})
+		end)
+		job.started=os.clock()
+		job.timer=task.delay(self.timeout,function()
+			if self.active~=job then return end
+			job.timer=nil; job.cancelled=true
+			-- Logical timeout: ignore late results. Never blindly retry a timed-out write.
+			local cancelled=pcall(task.cancel,job.thread)
+			self:Finish(job,{ok=false,status=0,error="TIMEOUT"})
+			if not cancelled then
+				-- A host that cannot cancel is disabled, avoiding accumulation of hung requests.
+				self:Stop("TRANSPORT_STALLED")
+			end
+		end)
+	end
+	function H:Request(options,callback)
+		callback=type(callback)=="function" and callback or function() end
+		if not self.enabled or not self.available then callback({ok=false,status=0,error="HTTP_DISABLED"}); return end
+		if #self.queue>=self.maxQueue then callback({ok=false,status=0,error="QUEUE_FULL"}); return end
+		if type(options)~="table" or not self:ValidURL(options.Url) or (options.Method~="GET" and options.Method~="POST") then
+			callback({ok=false,status=0,error="INVALID_REQUEST"}); return
+		end
+		local body=options.Body
+		if type(body)=="table" then
+			local ok,encoded=pcall(function() return HttpService:JSONEncode(body) end)
+			if not ok then callback({ok=false,status=0,error="INVALID_REQUEST_JSON"}); return end
+			body=encoded
+		end
+		if body~=nil and (type(body)~="string" or #body>300000) then callback({ok=false,status=0,error="REQUEST_TOO_LARGE"}); return end
+		self.sequence+=1
+		local safe={Url=options.Url,Method=options.Method,Headers=table.clone(options.Headers or {})}
+		if body then safe.Body=body end
+		local job={options=safe,priority=math.clamp(tonumber(options.Priority) or 1,0,2),callback=callback,
+			id=self.sequence,ready=os.clock(),attempt=0,noRetry=options.NoRetry==true}
+		table.insert(self.queue,job); self:Wake(0); return job.id
+	end
+	function H:Get(url,headers,callback,priority) return self:Request({Url=url,Method="GET",Headers=headers,Priority=priority},callback) end
+	function H:Post(url,body,headers,callback,priority) return self:Request({Url=url,Method="POST",Body=body,Headers=headers,Priority=priority},callback) end
+	function H:Stop(reason)
+		self.enabled=false
+		if self.wake then pcall(task.cancel,self.wake); self.wake=nil end
+		if self.active then
+			local job=self.active; self.active=nil; job.cancelled=true
+			if job.timer then pcall(task.cancel,job.timer) end
+			if job.thread then pcall(task.cancel,job.thread) end
+			self:Deliver(job,{ok=false,status=0,error=reason or "CANCELLED"})
+		end
+		local pending=self.queue; self.queue={}
+		for _,job in ipairs(pending) do self:Deliver(job,{ok=false,status=0,error=reason or "CANCELLED"}) end
+	end
+	H:Detect()
+	return H
+end)()
+
+SPA_Connect = (function()
+	local C={API_VERSION=1,enabled=true,status="DISABLED",baseUrl=SPA_CONNECT_BASE_URL,latency=nil,lastHealthCheck=0,
+		caches={},tickets={},feedback={},activeTicket=nil,errors={},errorSeen={},noticeSeen={},pending={},unread=0,
+		flags={supportEnabled=true,feedbackEnabled=true,updatesEnabled=true,trackLibraryEnabled=false},
+		ttl={health=60,features=300,updates=300,notices=300,["known-issues"]=300,faq=600},generation=0}
+	local statuses={OPEN=true,STAFF_REPLY=true,WAITING_USER=true,STAFF_REVIEWING=true,RESOLVED=true,CLOSED=true}
+	local categories={BUG=true,CONFIGURATION=true,TRACK_SYSTEM=true,DRS_OT=true,TELEMETRY=true,RACE_CONTROL=true,REPLAY=true,OTHER=true}
+	local feedbackTypes={IDEA=true,BUG=true,QUESTION=true,FEEDBACK=true}
+	local function textOK(s,max)
+		return type(s)=="string" and #s>0 and #s<=max and not s:find("[%z\1-\8\11\12\14-\31\127]")
+	end
+	local function secretOK(s) return textOK(s,256) and #s>=32 and s:match("^[%w_%-]+$") end
+	local function idOK(s) return textOK(s,96) and s:match("^SPA[%w%-]+$") end
+	local function listOK(t,max)
+		if type(t)~="table" or #t>max then return false end
+		local n=0
+		for k in pairs(t) do if type(k)~="number" or k<1 or k%1~=0 or k>#t then return false end; n+=1 end
+		return n==#t
+	end
+	function C:Version(v)
+		if type(v)~="string" or #v>24 or not v:match("^%d+%.%d+%.?%d*$") then return nil end
+		local a={}; for n in v:gmatch("%d+") do n=tonumber(n); if n>99999 then return nil end; a[#a+1]=n end
+		if #a<2 or #a>3 then return nil end
+		return a
+	end
+	function C:Compare(a,b)
+		a=self:Version(a); b=self:Version(b); if not a or not b then return nil end
+		for i=1,3 do local x,y=a[i] or 0,b[i] or 0; if x~=y then return x>y and 1 or -1 end end
+		return 0
+	end
+	function C:RecordError(module,code)
+		-- Deliberately no raw traces, URLs, request bodies, keys or arbitrary output in diagnostics.
+		module=type(module)=="string" and module:match("^[%w_]+$") and module:sub(1,32) or "SPA"
+		code=type(code)=="string" and code:match("^[%w_]+$") and code:sub(1,64) or "INTERNAL_ERROR"
+		local signature=module..":"..code; local now=os.clock()
+		if self.errorSeen[signature] and now-self.errorSeen[signature]<300 then return end
+		self.errorSeen[signature]=now
+		table.insert(self.errors,{module=module,code=code})
+		if #self.errors>20 then
+			local old=table.remove(self.errors,1); self.errorSeen[old.module..":"..old.code]=nil
+		end
+		if SPA_ConnectUI then SPA_ConnectUI:ErrorPrompt() end
+	end
+	function C:Notify(message,icon)
+		if showNotification then pcall(showNotification,message,C_BG2,icon or "💬",15) end
+	end
+	function C:Changed()
+		if SPA_ConnectUI and SPA_ConnectUI.initialized then SPA_ConnectUI:Status() end
+	end
+	function C:Configure(url,enabled)
+		url=type(url)=="string" and url:match("^%s*(.-)%s*$"):gsub("/+$","") or ""
+		assert(url=="" or (SPA_HTTP:ValidURL(url.."/v1/health") and not url:find("[?=&]")),"Use a public HTTPS base URL without credentials or a query string")
+		assert(next(self.tickets)==nil and #self.feedback==0 or url==self.baseUrl,"Restart SPA before changing servers when tickets exist")
+		self.generation+=1; self.enabled=enabled~=false; self.baseUrl=url; self.caches={}; self.pending={}
+		if self.timer then pcall(task.cancel,self.timer); self.timer=nil end
+		SPA_HTTP:Stop("RECONFIGURED"); SPA_HTTP.enabled=self.enabled; SPA_HTTP:Detect()
+		self.status=(not self.enabled or url=="" or not SPA_HTTP.available) and "DISABLED" or "OFFLINE"
+		self:Changed()
+		if self.enabled and url~="" and SPA_HTTP.available then self.status="OFFLINE"; self:Tick() end
+	end
+	function C:Call(method,path,body,headers,priority,callback)
+		if not self.enabled or self.baseUrl=="" or not SPA_HTTP.available or not SPA_HTTP.enabled then
+			self.status="DISABLED"; self:Changed(); callback(false,nil,"HTTP_DISABLED"); return
+		end
+		local gen=self.generation
+		local h={["Accept"]="application/json",["Content-Type"]="application/json",["X-Client-ID"]=self.clientId}
+		for k,v in pairs(headers or {}) do h[k]=v end
+		if method=="POST" then h["X-Request-ID"]=HttpService:GenerateGUID(false) end
+		SPA_HTTP:Request({Url=self.baseUrl..path,Method=method,Body=body,Headers=h,Priority=priority},function(result)
+			if gen~=self.generation then return end
+			if not result.ok then
+				if result.status==0 or result.status>=500 then self.status="OFFLINE" end
+				self.lastError=result.error; self:Changed()
+				callback(false,nil,result.error); return
+			end
+			self.lastError=nil
+			callback(true,result.data,nil,result)
+		end)
+	end
+	function C:ValidResource(kind,d)
+		if type(d)~="table" then return false end
+		if kind=="features" then
+			for k in pairs(self.flags) do if type(d[k])~="boolean" then return false end end
+			for k in pairs(d) do if self.flags[k]==nil then return false end end
+			return true
+		elseif kind=="health" then
+			if (d.status~="ONLINE" and d.status~="DEGRADED" and d.status~="OFFLINE") or type(d.maintenance)~="boolean" or type(d.services)~="table" then return false end
+			local n=0
+			for k,v in pairs(d.services) do n+=1; if n>12 or not textOK(k,40) or not textOK(v,32) then return false end end
+			return true
+		elseif kind=="updates" then
+			if not self:Version(d.latestVersion) or not ({OPTIONAL=true,RECOMMENDED=true,IMPORTANT=true})[d.releaseType] or not listOK(d.updates,50) then return false end
+			for _,u in ipairs(d.updates) do
+				if type(u)~="table" or not self:Version(u.version) or not textOK(u.title,150) or not textOK(u.date,40) or not listOK(u.changes,50) then return false end
+				for _,v in ipairs(u.changes) do
+					if type(v)~="table" or not ({NEW=true,IMPROVED=true,FIXED=true,IMPORTANT=true,SECURITY=true})[v.type] or not textOK(v.description,2000) then return false end
+				end
+			end
+			return true
+		else
+			if not listOK(d.items,100) then return false end
+			for _,v in ipairs(d.items) do
+				if type(v)~="table" then return false end
+				if kind=="faq" then
+					if not textOK(v.question,200) or not textOK(v.answer,4000) then return false end
+				elseif kind=="notices" then
+					if not textOK(v.id,96) or not textOK(v.title,150) or not textOK(v.message,2000)
+						or not ({INFO=true,IMPORTANT=true,CRITICAL=true})[v.priority] or not textOK(v.expires,40) then return false end
+					if v.minimumVersion and not self:Version(v.minimumVersion) then return false end
+					if v.maximumVersion and not self:Version(v.maximumVersion) then return false end
+				elseif kind=="known-issues" then
+					if not textOK(v.title,150) or not textOK(v.description,2000) or not textOK(v.status,40) then return false end
+				end
+			end
+			return true
+		end
+	end
+	function C:Fetch(kind,force,callback)
+		callback=callback or function() end
+		local cached=self.caches[kind]
+		if not force and cached and os.clock()-cached.at<self.ttl[kind] then callback(true,cached.data); return end
+		if self.pending[kind] then
+			if #self.pending[kind]<8 then table.insert(self.pending[kind],callback) else callback(false,cached and cached.data,"BUSY") end
+			return
+		end
+		self.pending[kind]={callback}
+		self:Call("GET","/v1/"..kind,nil,nil,kind=="health" and 1 or 0,function(ok,data,err,result)
+			if ok and not self:ValidResource(kind,data) then ok=false; err="INVALID_API_DATA" end
+			if ok then
+				self.caches[kind]={at=os.clock(),data=data}
+				if kind=="features" then for k in pairs(self.flags) do self.flags[k]=data[k] end
+				elseif kind=="health" then
+					self.status=data.maintenance and "DEGRADED" or data.status; self.maintenance=data.maintenance
+					self.latency=result and result.latency or self.latency; self.lastHealthCheck=os.time(); SPA_V221.services=data.services
+				elseif kind=="notices" then self:Notices(data.items)
+				elseif kind=="updates" then
+					if self:Compare(data.latestVersion,SPA_V221.version)==1 and self.notifiedVersion~=data.latestVersion then
+						self.notifiedVersion=data.latestVersion; self:Notify("NEW SPA VERSION · SPA-GLOBAL V"..data.latestVersion.." AVAILABLE","⬆","IMPORTANT")
+					end
+				end
+			else self.lastError=err end
+			local waiting=self.pending[kind] or {}; self.pending[kind]=nil
+			for _,fn in ipairs(waiting) do pcall(fn,ok,ok and data or (cached and cached.data),err) end
+			self:Changed()
+		end)
+	end
+	function C:NoticeActive(n)
+		local ok,date=pcall(function() return DateTime.fromIsoDate(n.expires).UnixTimestamp end)
+		return ok and date>os.time() and (not n.minimumVersion or (self:Compare(SPA_V221.version,n.minimumVersion) or -1)>=0)
+			and (not n.maximumVersion or (self:Compare(SPA_V221.version,n.maximumVersion) or 1)<=0)
+	end
+	function C:Notices(items)
+		for _,n in ipairs(items) do
+			if self:NoticeActive(n) and not self.noticeSeen[n.id] and #self.noticeOrder<200 and (n.priority=="IMPORTANT" or n.priority=="CRITICAL") then
+				self.noticeSeen[n.id]=true
+				table.insert(self.noticeOrder,n.id)
+				self:Notify(n.title.."\n"..n.message,"📢")
+			end
+		end
+	end
+	function C:Metadata()
+		local current=SPA_Tracks and SPA_Tracks.Current
+		return {username=player.Name,displayName=player.DisplayName,userId=player.UserId,spaVersion=SPA_V221.version,
+			trackId=current and current.track.id or nil,trackName=current and current.track.name or nil,raceState=RACE_STATE}
+	end
+	function C:Diagnostics()
+		local modules={}
+		for _,k in ipairs({"ui1Ok","ui2Ok","drsOk","otOk","pitLimiterOk","replayOk","analysisOk","tiresOk","ready"}) do modules[k]=SPA_INIT[k]==true end
+		return {spaVersion=SPA_V221.version,raceState=RACE_STATE,trackId=SPA_Tracks.Current and SPA_Tracks.Current.track.id or nil,
+			trackName=SPA_Tracks.Current and SPA_Tracks.Current.track.name or nil,playerCount=#Players:GetPlayers(),
+			connectStatus=self.status,latency=self.latency,errors=table.clone(self.errors),modules=modules}
+	end
+	function C:AdoptTicket(d,subject,category)
+		assert(idOK(d.ticketId) and secretOK(d.ticketKey) and statuses[d.status],"INVALID_TICKET_RESPONSE")
+		local t=self.tickets[d.ticketId]
+		if not t then
+			assert(#self.ticketOrder<20,"History limit for this session reached")
+			t={ticketId=d.ticketId,key=d.ticketKey,status=d.status,subject=subject or d.subject or d.ticketId,category=category or "OTHER",
+				messages={},after=0,unread=0,nextPoll=0}; self.tickets[d.ticketId]=t; table.insert(self.ticketOrder,d.ticketId)
+		end
+		return t
+	end
+	function C:CreateTicket(category,subject,message,diagnostics,callback)
+		assert(self.consent,"Accept the privacy notice before submitting")
+		assert(self.flags.supportEnabled and not self.maintenance,"Support temporalmente deshabilitado")
+		assert(categories[category] and textOK(subject,100) and textOK(message,1500),"Invalid subject/category/message (100/1500 characters)")
+		assert(#self.ticketOrder<20,"Session history is full")
+		local data=self:Metadata(); data.category=category; data.subject=subject; data.message=message
+		if diagnostics and category=="BUG" then data.diagnostics=self:Diagnostics() end
+		self:Call("POST","/v1/tickets",data,nil,2,function(ok,d,err)
+			if ok then
+				local valid,t=pcall(function() return self:AdoptTicket(d,subject,category) end)
+				if valid then self.activeTicket=t.ticketId; self:PollTicket(t,true); callback(true,t); return end
+				err="INVALID_TICKET_RESPONSE"
+			end
+			callback(false,nil,err)
+		end)
+	end
+	function C:PollTicket(t,force)
+		if t.busy or (not force and (((t.status=="CLOSED" or t.status=="RESOLVED") and not t.more) or os.clock()<t.nextPoll)) then return end
+		t.busy=true
+		self:Call("GET","/v1/tickets/"..t.ticketId.."/messages?afterMessageId="..t.after,nil,{["X-Ticket-Key"]=t.key},2,function(ok,d,err)
+			t.busy=false; t.nextPoll=os.clock()+((SPA_ConnectUI and SPA_ConnectUI.mode=="ticket" and self.activeTicket==t.ticketId and SPA_ConnectUI.panel.Visible) and 15 or 60)
+			if not ok then t.lastError=err; return end
+			local ticket=d.ticket
+			if type(ticket)~="table" or ticket.ticketId~=t.ticketId or not statuses[ticket.status] or not listOK(d.messages,100) then t.lastError="INVALID_TICKET_DATA"; return end
+			local cursor=t.after
+			for _,m in ipairs(d.messages) do
+				if type(m)~="table" or type(m.id)~="number" or m.id%1~=0 or m.id<=cursor or m.id>1e12
+					or (m.authorType~="STAFF" and m.authorType~="PLAYER") or not textOK(m.message,2000)
+					or (m.staffName and not textOK(m.staffName,100)) then t.lastError="INVALID_MESSAGE"; return end
+				cursor=m.id
+			end
+			t.status=ticket.status; t.priority=ticket.priority; t.lastError=nil
+			local newStaff=false
+			for _,m in ipairs(d.messages) do
+				table.insert(t.messages,{id=m.id,authorType=m.authorType,staffName=m.staffName,message=m.message,createdAt=m.createdAt})
+				if #t.messages>200 then table.remove(t.messages,1) end
+				if m.authorType=="STAFF" then t.unread+=1; newStaff=true end
+				t.after=m.id
+			end
+			if newStaff then self:Notify("New reply from SPA Development · "..t.ticketId.."\nOpen SUPPORT to read it.","💬") end
+			if SPA_ConnectUI and SPA_ConnectUI.mode=="ticket" and self.activeTicket==t.ticketId and SPA_ConnectUI.panel.Visible then
+				t.unread=0; SPA_ConnectUI:TicketMessages(t)
+			end
+			self:Changed()
+			t.more=d.hasMore==true and #d.messages>0
+			if t.more then t.nextPoll=0 end
+		end)
+	end
+	function C:Reply(t,message,callback)
+		assert(self.consent and self.flags.supportEnabled and not self.maintenance,"Support unavailable")
+		assert(t and t.status~="CLOSED" and t.status~="RESOLVED" and textOK(message,1500),"Invalid reply or closed ticket")
+		self:Call("POST","/v1/tickets/"..t.ticketId.."/messages",{message=message},{["X-Ticket-Key"]=t.key},2,function(ok,d,err)
+			if ok then self:PollTicket(t,true) end; callback(ok,d,err)
+		end)
+	end
+	function C:Close(t,callback)
+		self:Call("POST","/v1/tickets/"..t.ticketId.."/close","{}",{["X-Ticket-Key"]=t.key},2,function(ok,d,err)
+			if ok then t.status="CLOSED"; self:PollTicket(t,true) end; callback(ok,d,err)
+		end)
+	end
+	function C:SendFeedback(category,message,diagnostics,callback)
+		assert(self.consent and self.flags.feedbackEnabled and not self.maintenance,"Acepta privacidad; Feedback debe estar disponible")
+		assert(feedbackTypes[category] and textOK(message,2000) and #self.feedback<20,"Invalid feedback or full history")
+		local data=self:Metadata(); data.category=category; data.message=message
+		if diagnostics and category=="BUG" then data.diagnostics=self:Diagnostics() end
+		self:Call("POST","/v1/feedback",data,nil,1,function(ok,d,err)
+			if ok and idOK(d.feedbackId) and secretOK(d.feedbackKey) then
+				table.insert(self.feedback,{id=d.feedbackId,key=d.feedbackKey}); callback(true,d); return
+			end
+			callback(false,nil,err or "INVALID_FEEDBACK_RESPONSE")
+		end)
+	end
+	function C:FeedbackTicket(f,callback)
+		self:Call("GET","/v1/feedback/"..f.id,nil,{["X-Feedback-Key"]=f.key},1,function(ok,d,err)
+			if ok and d.ticketId then
+				local valid,t=pcall(function() return self:AdoptTicket(d,"Feedback "..f.id,"OTHER") end)
+				if valid then callback(true,t); return end
+				ok=false; err="INVALID_TICKET_RESPONSE"
+			end
+			callback(ok,nil,err)
+		end)
+	end
+	function C:Tick()
+		if not self.enabled or self.baseUrl=="" or not SPA_HTTP.available or not SPA_HTTP.enabled then return end
+		self:Fetch("health"); self:Fetch("features"); self:Fetch("known-issues"); self:Fetch("faq")
+		if self.flags.updatesEnabled then self:Fetch("updates"); self:Fetch("notices") end
+		for _,id in ipairs(self.ticketOrder) do self:PollTicket(self.tickets[id],false) end
+		local delay=30
+		if SPA_ConnectUI and SPA_ConnectUI.mode=="ticket" and SPA_ConnectUI.panel.Visible then delay=15 end
+		if self.timer then pcall(task.cancel,self.timer) end
+		self.timer=task.delay(delay,function() self.timer=nil; self:Tick() end)
+	end
+	function C:Stop()
+		self.generation+=1; self.enabled=false
+		if self.timer then pcall(task.cancel,self.timer); self.timer=nil end
+		SPA_HTTP:Stop("STOPPED")
+		if self.errorConnection then self.errorConnection:Disconnect(); self.errorConnection=nil end
+		self.status="DISABLED"
+	end
+	C.ticketOrder={}; C.noticeOrder={}; C.clientId=HttpService:GenerateGUID(false)
+	return C
+end)()
+
+SPA_ConnectUI = {initialized=false,mode=nil,view=0,errorPrompted=false}
+function SPA_ConnectUI:Hide()
+	if self.panel then self.panel.Visible=false end
+	self.view+=1; self.mode=nil; self.messageList=nil
+end
+function SPA_ConnectUI:Message(text,bad)
+	if self.footer then self.footer.Text=text; self.footer.TextColor3=bad and C_RED or C_GREEN end
+end
+function SPA_ConnectUI:Async(action)
+	if self.sending then self:Message("A request is in progress; wait for the result.",true); return end
+	self.sending=true
+	local view=self.view
+	local function done(ok,data,err)
+		self.sending=false
+		if view~=self.view then return end
+		if not ok then
+			self:Message(err=="TIMEOUT" and "Request timed out. Your submission may have been received; check your history before trying again." or ("Unavailable: "..tostring(err or "ERROR")),true)
+		end
+	end
+	local ok,err=xpcall(function() action(function(success,data,message) done(success,data,message) end,view) end,debug.traceback)
+	if not ok then self.sending=false; self:Message(tostring(err):match("^[^\n]+"),true); warn("[SPA CONNECT UI] "..tostring(err)) end
+end
+function SPA_ConnectUI:Button(text,fn,order,parent)
+	return SPA_V220:Button(parent or self.content,text,fn,order)
+end
+function SPA_ConnectUI:Label(text,height,order,parent)
+	return SPA_V220:Label(parent or self.content,text,height or 48,order)
+end
+function SPA_ConnectUI:Input(placeholder,height,order,multi)
+	local box=SPA_V220:Input(self.content,placeholder,height,multi)
+	box.LayoutOrder=order; return box
+end
+function SPA_ConnectUI:UpdateSignature()
+	local cache=SPA_Connect.caches.updates
+	if not cache then return "" end
+	local ok,encoded=pcall(function() return HttpService:JSONEncode(cache.data) end)
+	return ok and SPA_Tracks:Checksum(encoded) or ""
+end
+function SPA_ConnectUI:Status()
+	if not self.initialized then return end
+	local c=SPA_Connect
+	local colors={ONLINE=C_GREEN,DEGRADED=C_YELLOW,OFFLINE=C_RED,DISABLED=C_GRAY}
+	self.homeStatus.Text="SPA CONNECT · "..c.status..(c.maintenance and "\nTEMPORARILY UNAVAILABLE · Maintenance in progress." or "")
+	self.homeStatus.TextColor3=colors[c.status] or C_GRAY
+	local count=0; for _,id in ipairs(c.ticketOrder) do count+=c.tickets[id].unread end; c.unread=count
+	self.supportCard.Text="💬 SUPPORT"..(count>0 and (" • "..count) or "")
+	self.updateCard.Text="📢 UPDATES"..(self:UpdateSignature()~="" and self:UpdateSignature()~=self.readUpdates and " • NEW" or "")
+	self.configStatus.Text=("SPA CONNECT · %s\nLATENCY: %s · LATEST SYNC: %s"):format(c.status,c.latency and (c.latency.." ms") or "—",c.lastHealthCheck>0 and os.date("%H:%M:%S",c.lastHealthCheck) or "—")
+	if self.inbox then self.inbox.Visible=count>0; self.inbox.Text="💬 SUPPORT • "..count.." · OPEN" end
+end
+function SPA_ConnectUI:Open(mode)
+	assert(self.initialized,"SPA Connect UI unavailable")
+	if SPA_Tutorial.active then SPA_Tutorial:Stop(false) end
+	SPA_ControlCenter:Hide(); mainFrame.Visible=false
+	if SPA_V220.ccPanel then SPA_V220.ccPanel.Visible=false end
+	self.panel.Visible=true; self.mode=mode; self.view+=1; self.sending=false; self.messageList=nil
+	SPA_V220:Clear(self.content)
+	self:Message("SPA CONNECT BETA · FIA tools work offline.")
+	if mode=="support" then self:Support()
+	elseif mode=="ticket" then self:Ticket()
+	elseif mode=="newTicket" then self:TicketForm()
+	elseif mode=="feedback" then self:Feedback()
+	elseif mode=="updates" then self:Updates()
+	elseif mode=="faq" or mode=="known-issues" or mode=="notices" then self:Resource(mode)
+	elseif mode=="library" then self:Library()
+	elseif mode=="diagnostics" then self:Diagnostics()
+	else self:Config() end
+	self:Status()
+end
+function SPA_ConnectUI:Privacy(order)
+	self:Label("PRIVACY · Submitting shares your username, DisplayName, UserId (unverified metadata), version, current track, session state and message with SPA Development. Diagnostics are optional. Do not paste passwords, tokens, private webhooks or other people's data.",112,order)
+	local consent
+	consent=self:Button(SPA_Connect.consent and "✓ NOTICE ACCEPTED (this session)" or "I AGREE TO THE DESCRIBED SUBMISSION",function()
+		SPA_Connect.consent=not SPA_Connect.consent
+		consent.Text=SPA_Connect.consent and "✓ NOTICE ACCEPTED (this session)" or "I AGREE TO THE DESCRIBED SUBMISSION"
+	end,order+1)
+end
+function SPA_ConnectUI:DiagnosticChoice(order,category)
+	local choice={attach=false}
+	local button
+	button=self:Button("DO NOT ATTACH technical diagnostics",function()
+		if category()~="BUG" then self:Message("Diagnostics are only available for BUG reports.",true); return end
+		choice.attach=not choice.attach
+		button.Text=choice.attach and "✓ ATTACH technical diagnostics" or "DO NOT ATTACH technical diagnostics"
+	end,order)
+	self:Label("Diagnostics: version, state, track, player count, modules, latency and SPA error codes. No raw traces, other players' messages, results or credentials.",80,order+1)
+	return choice
+end
+function SPA_ConnectUI:Support()
+	self:Label("SPA SUPPORT CENTER\nHow can we help you?",64,1)
+	self:Button("FREQUENTLY ASKED QUESTIONS",function() self:Open("faq") end,2)
+	self:Button("CREATE TICKET",function() self:Open("newTicket") end,3)
+	self:Label("MY TICKETS · This history and its keys are kept only while SPA is open. Close or resolve tickets before leaving. Keys are never displayed.",80,4)
+	for i,id in ipairs(SPA_Connect.ticketOrder) do
+		local t=SPA_Connect.tickets[id]
+		self:Button(id.." · "..t.status..(t.unread>0 and (" • "..t.unread) or "").."\n"..t.subject,function()
+			SPA_Connect.activeTicket=id; self:Open("ticket")
+		end,i+4)
+	end
+	self:Button("CONNECTION DIAGNOSTICS",function() self:Open("diagnostics") end,80)
+end
+function SPA_ConnectUI:TicketForm()
+	self:Label("NEW REQUEST · maximum 3 open tickets",48,1)
+	local category="OTHER"; local categoryButton
+	local choices={"BUG","CONFIGURATION","TRACK_SYSTEM","DRS_OT","TELEMETRY","RACE_CONTROL","REPLAY","OTHER"}; local index=8
+	categoryButton=self:Button("CATEGORY: OTHER · change",function()
+		index=index%#choices+1; category=choices[index]; categoryButton.Text="CATEGORY: "..category.." · change"
+	end,2)
+	local subject=self:Input("SUBJECT · maximum 100 characters",48,3)
+	local message=self:Input("MESSAGE · maximum 1500 characters",150,4,true)
+	self:Privacy(5)
+	local diagnostic=self:DiagnosticChoice(7,function() return category end)
+	self:Button("SUBMIT TO SUPPORT",function()
+		self:Async(function(done,view)
+			self:Message("Submitting request…")
+			SPA_Connect:CreateTicket(category,subject.Text,message.Text,diagnostic.attach,function(ok,t,err)
+				done(ok,t,err)
+				if ok and self.view==view then self:Open("ticket"); self:Message("✓ Ticket created: "..t.ticketId) end
+			end)
+		end)
+	end,9)
+	self:Button("BACK TO SUPPORT",function() self:Open("support") end,10)
+end
+function SPA_ConnectUI:TicketMessages(t)
+	if not self.messageList or not self.messageList.Parent then return end
+	SPA_V220:Clear(self.messageList)
+	SPA_V220:Label(self.messageList,t.ticketId.." · "..t.status.." · "..(t.priority or "NORMAL").."\n"..t.subject,80,1)
+	if t.status=="STAFF_REVIEWING" then SPA_V220:Label(self.messageList,"SPA Development is reviewing your request…",56,2) end
+	for i,m in ipairs(t.messages) do
+		local who=m.authorType=="STAFF" and ("SPA Development · "..(m.staffName or "Staff")) or "YOU"
+		SPA_V220:Label(self.messageList,who.."\n"..m.message,70,i+2)
+	end
+	if t.lastError then SPA_V220:Label(self.messageList,"Last check: "..t.lastError,40,500) end
+	if self.replyButton then self.replyButton.Visible=t.status~="CLOSED" and t.status~="RESOLVED" end
+end
+function SPA_ConnectUI:Ticket()
+	local t=SPA_Connect.tickets[SPA_Connect.activeTicket]
+	if not t then self:Label("Select a ticket from MY TICKETS."); return end
+	t.unread=0
+	self.messageList=createScrollingList(self.content)
+	self.messageList.Size=UDim2.new(1,-12,0,260); self.messageList.LayoutOrder=1
+	local reply=self:Input("WRITE A REPLY · maximum 1500 characters",120,2,true)
+	self.replyButton=self:Button("SEND REPLY",function()
+		self:Async(function(done,view)
+			SPA_Connect:Reply(t,reply.Text,function(ok,d,err) done(ok,d,err); if ok and self.view==view then reply.Text=""; self:Message("✓ Reply sent") end end)
+		end)
+	end,3)
+	self:Button("REFRESH MESSAGES",function() SPA_Connect:PollTicket(t,true) end,4)
+	local confirmed=false; local close
+	close=self:Button("CLOSE TICKET",function()
+		if not confirmed then confirmed=true; close.Text="CONFIRM CLOSURE"; return end
+		self:Async(function(done,view)
+			SPA_Connect:Close(t,function(ok,d,err) done(ok,d,err); if ok and self.view==view then self:Open("support") end end)
+		end)
+	end,5)
+	self:Button("MY TICKETS",function() self:Open("support") end,6)
+	self:TicketMessages(t); SPA_Connect:PollTicket(t,true)
+	-- Reschedule at the visible-ticket cadence; no parallel polling loop.
+	if SPA_Connect.enabled and SPA_Connect.baseUrl~="" then
+		if SPA_Connect.timer then pcall(task.cancel,SPA_Connect.timer) end
+		SPA_Connect.timer=task.delay(15,function() SPA_Connect.timer=nil; SPA_Connect:Tick() end)
+	end
+end
+function SPA_ConnectUI:Feedback()
+	self:Label("IDEAS & FEEDBACK\nWhat would you like to share with SPA Development?",64,1)
+	local types={"IDEA","BUG","QUESTION","FEEDBACK"}; local index=1; local button
+	button=self:Button("TYPE: IDEA · change",function() index=index%#types+1; button.Text="TYPE: "..types[index].." · change" end,2)
+	local message=self:Input("Your message · maximum 2000 characters",150,3,true)
+	self:Privacy(4)
+	local diagnostic=self:DiagnosticChoice(6,function() return types[index] end)
+	self:Button("SUBMIT FEEDBACK",function()
+		self:Async(function(done,view)
+			SPA_Connect:SendFeedback(types[index],message.Text,diagnostic.attach,function(ok,d,err)
+				done(ok,d,err); if ok and self.view==view then self:Open("feedback"); self:Message("✓ Feedback submitted: "..d.feedbackId) end
+			end)
+		end)
+	end,8)
+	self:Label("MY SUBMISSIONS · If Staff converts a submission into a ticket, click it to retrieve the conversation.",70,9)
+	for i,f in ipairs(SPA_Connect.feedback) do
+		self:Button(f.id.." · VIEW REPLY / TICKET",function()
+			self:Async(function(done,view)
+				SPA_Connect:FeedbackTicket(f,function(ok,t,err)
+					done(ok,t,err)
+					if ok and self.view==view then
+						if t then SPA_Connect.activeTicket=t.ticketId; self:Open("ticket") else self:Message("This feedback does not have an associated ticket yet.") end
+					end
+				end)
+			end)
+		end,i+9)
+	end
+end
+function SPA_ConnectUI:Updates()
+	self:Label("SPA GLOBAL · CURRENT VERSION V2.22.5",50,1)
+	local info=self:Label("LATEST VERSION: unverified\nSTATUS: OFFLINE / not synchronized",75,2)
+	local localChanges="V2.21 · SPA CONNECT\nNEW · Support, Updates, Feedback, FAQ and notices.\nIMPROVED · Track sharing with confirmation and backup.\nFIXED · Track preview removed."
+	local details=self:Label(localChanges,180,3)
+	local view=self.view
+	if SPA_Connect.flags.updatesEnabled then SPA_Connect:Fetch("updates",false,function(ok,d)
+		if self.view~=view or not d then return end
+		local newer=SPA_Connect:Compare(d.latestVersion,SPA_V221.version)==1
+		info.Text="LATEST VERSION: V"..d.latestVersion.."\nSTATUS: "..(newer and "UPDATE AVAILABLE" or "UP TO DATE").." · "..d.releaseType..(ok and "" or " · CACHED")
+		local lines={}
+		for _,u in ipairs(d.updates) do
+			table.insert(lines,"V"..u.version.." · "..u.title.." · "..u.date)
+			for _,change in ipairs(u.changes) do table.insert(lines,change.type.." · "..change.description) end
+		end
+		details.Text=#lines>0 and table.concat(lines,"\n") or localChanges
+		self.readUpdates=self:UpdateSignature(); self:Status()
+	end) end
+	self:Button("⚠ KNOWN ISSUES",function() self:Open("known-issues") end,4)
+	self:Button("📢 GLOBAL NOTICES",function() self:Open("notices") end,5)
+	self:Button("SPA SERVICES / DIAGNOSTICS",function() self:Open("diagnostics") end,6)
+	self:Button("SPA TRACK LIBRARY · EXPERIMENTAL",function() self:Open("library") end,7)
+	self:Label("Updates are informational only. Code is never downloaded or executed automatically.",65,8)
+end
+function SPA_ConnectUI:Resource(kind)
+	self:Label(({faq="FREQUENTLY ASKED QUESTIONS",["known-issues"]="KNOWN ISSUES",notices="SPA GLOBAL NOTICES"})[kind],50,1)
+	local fallback=kind=="faq" and "LAP: SETTINGS → Start/finish line position → SET WP.\nDRS: configure Detection, Start and End, and check the gap/minimum lap.\nTracks: set the anchor, validate the code, review the summary and confirm.\nReplay: enable collisions + replays and open ANALYSIS.\nRace Control: review evidence and confirm or dismiss proposals." or "No verified remote data. This does not mean there are no issues."
+	local body=self:Label(fallback,220,2)
+	local view=self.view
+	SPA_Connect:Fetch(kind,false,function(ok,d)
+		if self.view~=view or not d then return end
+		local lines={}
+		for _,item in ipairs(d.items) do
+			if kind=="faq" then table.insert(lines,item.question.."\n"..item.answer)
+			elseif kind=="known-issues" then table.insert(lines,item.title.." · "..item.status.."\n"..item.description)
+			elseif SPA_Connect:NoticeActive(item) then table.insert(lines,item.priority.." · "..item.title.."\n"..item.message) end
+		end
+		body.Text=(ok and "" or "CACHED · Not currently synchronized\n")..(#lines>0 and table.concat(lines,"\n\n") or "No current items have been published.")
+	end)
+	self:Button("BACK",function() self:Open(kind=="faq" and "support" or "updates") end,3)
+end
+function SPA_ConnectUI:Library()
+	self:Label("SPA TRACK LIBRARY · BETA EXPERIMENTAL",50,1)
+	if not SPA_Connect.flags.trackLibraryEnabled then self:Label("Library is disabled. Local Track Codes remain available.",70,2); return end
+	self:Label("Publishing makes the Track Code, name, author and track configuration public. Only publish tracks you want to share. Scripts, webhooks and results are not accepted.",90,2)
+	local confirmed=false; local publish
+	publish=self:Button("PUBLISH CURRENT TRACK",function()
+		if not confirmed then confirmed=true; publish.Text="I CONFIRM PUBLIC PUBLICATION"; return end
+		self:Async(function(done,view)
+			local code=SPA_Tracks:GenerateCode()
+			SPA_Connect:Call("POST","/v1/tracks",{trackCode=code},nil,0,function(ok,d,err) done(ok,d,err); if ok and self.view==view then self:Message("✓ Track published") end end)
+		end)
+	end,3)
+	local state=self:Label("Loading library…",50,4); local view=self.view
+	SPA_Connect:Call("GET","/v1/tracks",nil,nil,0,function(ok,d,err)
+		if self.view~=view then return end
+		if not ok or type(d.items)~="table" or #d.items>100 then state.Text="Library unavailable · "..tostring(err or "INVALID_DATA"); return end
+		state.Text="Select to download and validate. Importing always requires confirmation."
+		for i,item in ipairs(d.items) do
+			if type(item)=="table" and type(item.id)=="string" and item.id:match("^SPA[%w%-]+$") and #item.id<=96 and type(item.name)=="string" and #item.name<=80 then
+				self:Button(item.name.." · "..item.id,function()
+					self:Async(function(done,downloadView)
+						SPA_Connect:Call("GET","/v1/tracks/"..item.id,nil,nil,0,function(success,track,errorCode)
+							if success and type(track.trackCode)=="string" then
+								local valid,data=SPA_Tracks:ValidateCode(track.trackCode)
+								if valid then
+									done(true)
+									if self.view==downloadView then SPA_ControlCenter.pending=data; SPA_ControlCenter:TrackView("confirm",data) end
+									return
+								end
+								errorCode="INVALID_TRACK_CODE"
+							end
+							done(false,nil,errorCode or "INVALID_DATA")
+						end)
+					end)
+				end,i+4)
+			end
+		end
+	end)
+end
+function SPA_ConnectUI:Config()
+	self:Label("SPA CONNECT · SETTINGS",50,1)
+	local url=self:Input("https://your-api.example · blank = offline",55,2)
+	url.Text=SPA_Connect.baseUrl
+	self:Label("Use only your backend's public HTTPS endpoint. Never paste tokens, administrator keys or webhooks. Changing servers requires a restart if this session has tickets.",90,3)
+	self:Button("SAVE URL / ENABLE",function() SPA_Connect:Configure(url.Text,true); self:Message("Configuration applied") end,4)
+	self:Button("DISABLE SPA CONNECT",function() SPA_Connect:Configure(SPA_Connect.baseUrl,false); self:Message("SPA Connect disabled; local modules continue working") end,5)
+	self:Button("TEST CONNECTION / REFRESH STATUS",function()
+		SPA_Connect:Fetch("health",true,function(ok) self:Message(ok and "✓ Service health verified" or "Could not verify the service.",not ok) end)
+	end,6)
+	self:Button("CONNECTION DIAGNOSTICS",function() self:Open("diagnostics") end,7)
+	self:Button("SPA TRACK LIBRARY · BETA",function() self:Open("library") end,8)
+end
+function SPA_ConnectUI:Diagnostics()
+	local c=SPA_Connect
+	self:Label("SPA CONNECT DIAGNOSTICS",50,1)
+	self:Label(("HTTP: %s\nAPI: %s\nSTATUS CODE: %s\nLATENCY: %s\nLAST ERROR: %s\nLATEST SYNC: %s"):format(
+		SPA_HTTP.available and "AVAILABLE" or "UNAVAILABLE",c.status,tostring(SPA_HTTP.lastCode),
+		c.latency and (c.latency.." ms") or "—",c.lastError or SPA_HTTP.lastError or "NONE",
+		c.lastHealthCheck>0 and os.date("%H:%M:%S",c.lastHealthCheck) or "—"),170,2)
+	local services={}
+	for name,status in pairs(SPA_V221.services) do table.insert(services,name.." · "..status) end
+	self:Label("SPA SERVICES\n"..(#services>0 and table.concat(services,"\n") or "No verified remote status."),120,3)
+	self:Button("REFRESH STATUS",function()
+		self:Async(function(done,view)
+			SPA_Connect:Fetch("health",true,function(ok,d,err) done(ok,d,err); if self.view==view then self:Open("diagnostics") end end)
+		end)
+	end,4)
+	self:Button("CONFIGURE CONNECTION",function() self:Open("connectConfig") end,5)
+	self:Button("CREATE TECHNICAL REPORT (consent required)",function() self:Open("newTicket") end,6)
+end
+function SPA_ConnectUI:ErrorPrompt()
+	if not self.initialized or self.errorPrompted then return end
+	self.errorPrompted=true
+	self.errorButton.Visible=true
+	if self.ignoreError then self.ignoreError.Visible=true end
+	SPA_Connect:Notify("SPA detected an internal error. You can create a technical report from SUPPORT; nothing has been sent.","⚠")
+end
+function SPA_ConnectUI:Init()
+	self.panel,self.content,self.footer=SPA_V220:Panel(SPA_ControlCenter.gui,"SPA CONNECT · V2.22.5")
+	local close=SPA_V220:Button(self.panel,"⌂ HOME",function() SPA_ControlCenter:Open() end)
+	close.Size=UDim2.new(0,100,0,30); close.Position=UDim2.new(1,-116,0,7)
+	self.homeStatus=SPA_V220:Label(SPA_ControlCenter.content,"SPA CONNECT · DISABLED",58,4)
+	for _,child in ipairs(SPA_ControlCenter.content:GetChildren()) do
+		if child:IsA("TextButton") and child.Text=="💬 SUPPORT" then self.supportCard=child end
+		if child:IsA("TextButton") and child.Text=="📢 UPDATES" then self.updateCard=child end
+	end
+	assert(self.supportCard and self.updateCard,"SPA Connect cards missing")
+	self.configStatus=SPA_V220:Label(configScroll,"SPA CONNECT · DISABLED",80,130)
+	SPA_V220:Button(configScroll,"SPA CONNECT · CONFIGURE / TEST CONNECTION",function() self:Open("connectConfig") end,131)
+	SPA_V220:Button(configScroll,"SPA CONNECT · TEST CONNECTION",function()
+		SPA_Connect:Fetch("health",true,function(ok) SPA_Connect:Notify(ok and "SPA Connect: connection verified" or "SPA Connect unavailable; check Diagnostics.","📡") end)
+	end,132)
+	SPA_V220:Button(configScroll,"SPA CONNECT · REFRESH STATUS",function() self:Open("diagnostics") end,133)
+	self.inbox=SPA_V220:Button(SPA_ControlCenter.gui,"💬 SUPPORT · OPEN",function() self:Open("support") end)
+	self.inbox.Size=UDim2.new(0,240,0,32); self.inbox.Position=UDim2.new(1,-250,1,-44); self.inbox.Visible=false
+	self.errorButton=SPA_V220:Button(SPA_ControlCenter.content,"⚠ INTERNAL ERROR · SUBMIT REPORT",function()
+		self:Open("newTicket")
+		self:Message("Nothing will be sent until you accept the privacy notice, select BUG and confirm SUBMIT TO SUPPORT.")
+		self.errorButton.Visible=false; if self.ignoreError then self.ignoreError.Visible=false end
+	end,20)
+	self.errorButton.Visible=false
+	self.ignoreError=SPA_V220:Button(SPA_ControlCenter.content,"DISMISS ERROR NOTICE",function() self.errorButton.Visible=false; self.ignoreError.Visible=false end,21)
+	self.ignoreError.Visible=false
+	self.initialized=true; self:Status()
+	SPA_ControlCenter.gui.Destroying:Connect(function() self.initialized=false; SPA_Connect:Stop() end)
+	-- Read only SPA-tagged engine errors. Retain a generic code, never the Output text.
+	local ok,connection=pcall(function()
+		return game:GetService("LogService").MessageOut:Connect(function(message,kind)
+			if kind==Enum.MessageType.MessageError and type(message)=="string" and message:find("[SPA",1,true) then
+				SPA_Connect:RecordError("RUNTIME","SPA_INTERNAL_ERROR")
+			end
+		end)
+	end)
+	if ok then SPA_Connect.errorConnection=connection end
+	if SPA_INIT.criticalFailed then SPA_Connect:RecordError("INIT","CRITICAL_STAGE_FAILED") end
+end
+SPA_V220:Stage("SPA CONNECT UI",function() SPA_ConnectUI:Init() end)
+SPA_V221.connect=SPA_Connect
+-- No network operation participates in SPA_INIT.ready or the loading animation.
+task.defer(function()
+	local ok,err=xpcall(function() SPA_Connect:Configure(SPA_CONNECT_BASE_URL,true) end,debug.traceback)
+	if not ok then SPA_Connect.status="DISABLED"; warn("[SPA CONNECT START] "..tostring(err)) end
+end)
+
+
+
+
+-- V2.22 ADDITIVE MODULES
+-- V2.22 remote publication notifications. No remote code; bounded non-modal queue.
+do
+ SPA_Connect.ttl.updates=60; SPA_Connect.ttl.notices=30
+ SPA_Connect.updateSeen={}; SPA_Connect.noticeRead={}; SPA_Connect.notificationQueue={}
+ function SPA_Connect:DrainNotifications()
+  if self.notificationTimer then return end
+  local item=table.remove(self.notificationQueue,1); if not item then return end
+  if showNotification then pcall(showNotification,item.text,item.priority=="CRITICAL" and C_RED or item.priority=="IMPORTANT" and C_YELLOW or C_BG2,item.icon,15) end
+  self.notificationTimer=task.delay(6,function() self.notificationTimer=nil; if self.enabled then self:DrainNotifications() end end)
+ end
+ function SPA_Connect:Notify(message,icon,priority)
+  if #self.notificationQueue>=160 then return false end
+  local item={text=tostring(message):sub(1,2200),icon=icon or "💬",priority=priority or "INFO"}
+  if priority=="CRITICAL" then table.insert(self.notificationQueue,1,item) else table.insert(self.notificationQueue,item) end
+  self:DrainNotifications(); return true
+ end
+ function SPA_Connect:Notices(items)
+  for _,n in ipairs(items) do
+   local key=n.noticeId or n.id
+   if type(key)=="string" and #key<=96 and self:NoticeActive(n) and not self.noticeSeen[key] then
+    if self:Notify("SPA GLOBAL · "..n.priority.."\n"..n.title.."\n"..n.message,"📢",n.priority) then self.noticeSeen[key]=true end
+   end
+  end
+ end
+ local fetch=SPA_Connect.Fetch
+ function SPA_Connect:Fetch(kind,force,callback)
+  return fetch(self,kind,force,function(ok,d,err)
+   if ok and d and kind=="updates" then
+    for _,u in ipairs(d.updates) do
+     local key=u.updateId or u.id
+     if type(key)=="string" and #key<=96 and not self.updateSeen[key] then
+      local description=u.changes[1] and u.changes[1].description or ""
+      if self:Notify("NEW UPDATE POST · V"..u.version.."\n"..u.title.."\n"..description,"📢","INFO") then self.updateSeen[key]=true end
+     end
+    end
+   end
+   if callback then callback(ok,d,err) end
+  end)
+ end
+ local status=SPA_ConnectUI.Status
+ function SPA_ConnectUI:Status()
+  status(self)
+  if self.noticesCard then
+   local count=0; local cached=SPA_Connect.caches.notices
+   for _,n in ipairs(cached and cached.data.items or {}) do if SPA_Connect:NoticeActive(n) and not SPA_Connect.noticeRead[n.noticeId or n.id] then count+=1 end end
+   self.noticesCard.Text="📢 NOTICES"..(count>0 and (" • "..count) or "")
+  end
+ end
+ local resource=SPA_ConnectUI.Resource
+ function SPA_ConnectUI:Resource(kind)
+  resource(self,kind)
+  if kind=="notices" then SPA_Connect:Fetch(kind,false,function(ok,d)
+   if ok and self.mode=="notices" then for _,n in ipairs(d.items) do SPA_Connect.noticeRead[n.noticeId or n.id]=true end; self:Status() end
+  end) end
+ end
+ SPA_ConnectUI.noticesCard=SPA_V220:Button(SPA_ControlCenter.content,"📢 NOTICES",function() SPA_ConnectUI:Open("notices") end,7)
+ SPA_ConnectUI:Status()
+end
+
+-- V2.22 FIA NETWORK MODULE: data only, session-bound transport, no frame networking.
+SPA_FIA = (function()
+ local F={status="OFFLINE",roomId=nil,token=nil,sessionId=nil,room=nil,operators={},incidents={},timeline={},cursor=0,
+  applied={},pendingReports={},sharedEvents={},mode="room",joinStation="INCIDENT_STEWARD",backoff=4,lastPresence=0,seen={},shareDetected=false}
+ function F:Metadata()
+  return {placeId=game.PlaceId,jobId=game.JobId,userId=player.UserId,username=player.Name,displayName=player.DisplayName,spaVersion="2.22.5"}
+ end
+ function F:Me()
+  for _,o in ipairs(self.operators) do if o.sessionId==self.sessionId then return o end end
+ end
+ function F:OperatorName(sid)
+  for _,o in ipairs(self.operators) do if o.sessionId==sid then return o.displayName end end
+  return tostring(sid)
+ end
+ function F:IsDirector() local me=self:Me(); return me and me.workstation=="RACE_DIRECTOR" end
+ function F:CanManage() return self.room and (self.room.hostSession==self.sessionId or self:IsDirector()) end
+ function F:Message(s,bad)
+  if self.footer and self.footer.Parent then self.footer.Text=tostring(s); self.footer.TextColor3=bad and C_RED or C_GREEN end
+ end
+ function F:Call(method,path,body,callback,requestId)
+  if not SPA_Connect.enabled or SPA_Connect.baseUrl=="" or not SPA_HTTP.available then callback(false,nil,"HTTP UNAVAILABLE",0); return end
+  if self.token and self.boundURL~=SPA_Connect.baseUrl then self:Forget("SERVER CHANGED · JOIN REQUIRED"); callback(false,nil,"SERVER CHANGED",0); return end
+  local gen=self.generation or 0
+  local headers={["Content-Type"]="application/json",["Accept"]="application/json",["X-Client-ID"]=SPA_Connect.clientId}
+  if self.token then headers["X-SPA-FIA-SESSION"]=self.token end
+  if method=="POST" then headers["X-Request-ID"]=requestId or HttpService:GenerateGUID(false) end
+  SPA_HTTP:Request({Url=SPA_Connect.baseUrl..path,Method=method,Headers=headers,Body=body,Priority=1,NoRetry=true},function(r)
+   if gen~=(self.generation or 0) then return end
+   callback(r.ok,r.data,r.apiError or r.error,r.status)
+  end)
+ end
+ function F:Path(suffix) return "/v1/race-rooms/"..self.roomId..(suffix or "") end
+ function F:Forget(reason)
+  self.generation=(self.generation or 0)+1; self.token=nil; self.sessionId=nil; self.room=nil; self.pending=nil
+  self.operators={}; self.incidents={}; self.timeline={}; self.cursor=0; self.busy=false; self.polling=false; self.syncing=false; self.detail=nil
+  self.pendingReports={}; self.sharedEvents={}; self.joinCode=nil; self.observerCode=nil; self.status=reason or "OFFLINE"
+  if self.timer then pcall(task.cancel,self.timer); self.timer=nil end
+  self:Refresh()
+ end
+ function F:Adopt(d)
+  assert(type(d)=="table" and type(d.roomId)=="string" and d.roomId:match("^SPA%-RC%-%x+$") and type(d.sessionId)=="string"
+   and type(d.fiaSessionToken)=="string" and #d.fiaSessionToken==64 and d.fiaSessionToken:match("^%x+$"),"INVALID FIA SESSION")
+  self.roomId=d.roomId; self.sessionId=d.sessionId; self.token=d.fiaSessionToken; self.boundURL=SPA_Connect.baseUrl
+  self.joinCode=d.joinCode; self.observerCode=d.observerCode; self.status="SYNCING"; self.cursor=0; self.backoff=4
+  self:Resync(); self:Schedule(4)
+ end
+ function F:Submit(path,body,done)
+  if self.busy then self:Message("REQUEST IN PROGRESS",true); return end
+  if self.pending then self:Message("Previous write unconfirmed. Use RETRY LAST ACTION with the same request ID.",true); return end
+  self.pending={path=path,body=body,done=done,id=HttpService:GenerateGUID(false)}; self:Retry()
+ end
+ function F:Retry()
+  local p=self.pending; if not p or self.busy then return end; self.busy=true
+  self:Call("POST",p.path,p.body,function(ok,d,err,status)
+   self.busy=false
+   if ok then
+    self.pending=nil; self:Message("✓ SAVED")
+    if p.done then p.done(d) elseif self.token then self:Resync() end
+   elseif status==401 or status==410 then self.pending=nil; self:Forget(status==410 and "ROOM CLOSED" or "SESSION EXPIRED · JOIN REQUIRED")
+   elseif status==409 then self.pending=nil; self:Message("CONFLICT · Refreshing current revision; review before retrying.",true); self:Resync()
+   elseif status and status>=400 and status<500 then self.pending=nil; self:Message(err or "PERMISSION DENIED",true)
+   else self.status="CONNECTION LOST"; self:Message("Write not confirmed. RETRY LAST ACTION is safe and idempotent.",true) end
+   self:Refresh()
+  end,p.id)
+ end
+ function F:Action(action,extra)
+  if not self.room then return end
+  local body=table.clone(extra or {}); body.roomRevision=self.room.revision
+  self:Submit(self:Path("/"..action),body,function(d)
+   if d.joinCode then self.joinCode=d.joinCode; self.observerCode=d.observerCode end
+   if action=="end" then self:Forget("ROOM CLOSED"); self:Render() else self:Resync() end
+  end)
+ end
+ function F:IncidentAction(action,extra)
+  if not self.detail or not self.room then return end
+  local b=table.clone(extra or {}); b.roomRevision=self.room.revision; b.incidentRevision=self.detail.revision
+  local iid=self.detail.incidentId
+  self:Submit(self:Path("/incidents/"..iid.."/"..action),b,function() self:Resync(); self:LoadIncident(iid) end)
+ end
+ function F:Resync()
+  if not self.token or self.syncing then return end; self.syncing=true
+  self:Call("GET",self:Path("/state"),nil,function(ok,d,err,status)
+   self.syncing=false
+   if ok and type(d.room)=="table" and type(d.incidents)=="table" and type(d.operators)=="table" and type(d.nextCursor)=="number" then
+    self.room=d.room; self.operators=d.operators; self.incidents={}
+    for _,i in ipairs(d.incidents) do self.incidents[i.incidentId]=i; self:ApplyDecision(i) end
+    self.cursor=d.nextCursor; self.status="LIVE"; self.backoff=4; self:Refresh()
+    if self.panel and self.panel.Visible and self.mode~="incident" and self.mode~="new" and self.mode~="confirm" then self:Render() end
+   elseif status==401 or status==410 then self:Forget(status==410 and "ROOM CLOSED" or "SESSION EXPIRED · JOIN REQUIRED")
+   else self.status="CONNECTION LOST"; self:Message(err or "STATE UNAVAILABLE",true); self:Refresh() end
+  end)
+ end
+ function F:ApplyDecision(incident)
+  local d=incident.decision
+  if type(d)~="table" or type(d.decisionId)~="string" or self.applied[d.decisionId] then return end
+  local permitted={NO_ACTION=true,RACING_INCIDENT=true,WARNING=true,PLUS_5=true,PLUS_10=true,DSQ=true,CUSTOM_REVIEW=true}
+  if not permitted[d.kind] or type(d.targetUserId)~="number" or d.targetUserId%1~=0 or d.targetUserId<0 then return end
+  self.applied[d.decisionId]=true; self.applying=true
+  if d.kind=="PLUS_5" or d.kind=="PLUS_10" then PENALTY_OFFSET[d.targetUserId]=(PENALTY_OFFSET[d.targetUserId] or 0)+(d.kind=="PLUS_5" and 5 or 10)
+  elseif d.kind=="DSQ" then DSQ_DRIVERS[d.targetUserId]=true end
+  if d.kind=="PLUS_5" or d.kind=="PLUS_10" or d.kind=="DSQ" then table.insert(APPLIED_SANCTIONS,{uid=d.targetUserId,name="UID "..d.targetUserId,reason="FIA "..d.kind,type=d.kind=="DSQ" and "DSQ" or "PENALTY",decisionId=d.decisionId,time=os.date("%H:%M:%S")}) end
+  SPA_RaceControl:AddEvent("FIA_DECISION",{category="SANCIONES",severity="INFO",uid=d.targetUserId,title="⚖ FIA DECISION",description=incident.incidentId.." · "..d.kind.." · UID "..d.targetUserId})
+  self.applying=false
+  SPA_Connect:Notify("FIA DECISION · "..d.kind.."\nDriver "..d.targetUserId,"⚖")
+  if buildAppliedSanctionsList then pcall(buildAppliedSanctionsList) end
+  local me=self:Me()
+  if me and me.workstation~="OBSERVER" and self.room then
+   self:Call("POST",self:Path("/incidents/"..incident.incidentId.."/ack"),{roomRevision=self.room.revision,incidentRevision=incident.revision},function() end)
+  end
+ end
+ function F:Event(e)
+  if type(e.id)~="number" or type(e.action)~="string" then return end
+  if self.seen[e.id] then return end; self.seen[e.id]=true
+  table.insert(self.timeline,e); if #self.timeline>200 then local old=table.remove(self.timeline,1); self.seen[old.id]=nil end
+  if e.data and e.data.incident then local i=e.data.incident; self.incidents[i.incidentId]=i; self:ApplyDecision(i) end
+  if e.action=="RACE_CONTROL_MESSAGE" and e.data then SPA_Connect:Notify("RACE CONTROL · "..tostring(e.data.title).."\n"..tostring(e.data.message),"⚑","IMPORTANT") end
+  if e.action=="INCIDENT_CREATED" or e.action=="DECISION_PROPOSED" or e.action=="ROOM_JOIN" then
+   if not self.lastNotify or os.clock()-self.lastNotify>8 then self.lastNotify=os.clock(); SPA_Connect:Notify("FIA NETWORK · "..e.action.."\n"..tostring(e.target),"⚑") end
+  end
+  if self.mode=="incident" and self.detail and e.target==self.detail.incidentId then self:LoadIncident(self.detail.incidentId,true) end
+ end
+ function F:Schedule(seconds)
+  if self.timer then pcall(task.cancel,self.timer) end
+  if self.closed or not self.token then return end
+  self.timer=task.delay(math.max(3,seconds),function() self.timer=nil; self:Tick() end)
+ end
+ function F:Tick()
+  if not self.token or self.closed then return end
+  if self.polling or self.syncing then self:Schedule(4); return end
+  self.polling=true
+  self:Call("GET",self:Path("/events?after="..self.cursor),nil,function(ok,d,err,status)
+   self.polling=false
+   if ok and type(d.events)=="table" and type(d.nextCursor)=="number" and d.nextCursor>=self.cursor then
+    self.room=d.room; self.operators=d.operators or self.operators
+    for _,e in ipairs(d.events) do self:Event(e) end
+    self.cursor=d.nextCursor; self.status="LIVE"; self.backoff=4
+    if os.clock()-self.lastPresence>=15 then
+     self.lastPresence=os.clock()
+     self:Call("POST",self:Path("/heartbeat"),{},function(success,_,errorCode,code)
+      if code==401 or code==410 then self:Forget("SESSION ENDED · JOIN REQUIRED")
+      elseif not success then self.status="DEGRADED"; self:Message(errorCode or "PRESENCE FAILED",true) end
+     end)
+    end
+    if not self.pending and not self.busy then
+     if self.shareDetected and #self.pendingReports>0 then local evidence=table.remove(self.pendingReports,1); self:Action("incidents",{evidence=evidence})
+     elseif self:IsDirector() and #self.sharedEvents>0 then local state=table.remove(self.sharedEvents,1); self:Action("session",{sessionState=state}) end
+    end
+   elseif status==401 or status==410 then self:Forget(status==410 and "ROOM CLOSED" or "SESSION EXPIRED · JOIN REQUIRED"); return
+   else self.status="CONNECTION LOST"; self.backoff=math.min(60,self.backoff*2) end
+   self:Refresh()
+   if self.panel.Visible and (self.mode=="incidents" or self.mode=="operators" or self.mode=="timeline") then self:Render() end
+   self:Schedule(self.status=="LIVE" and (self.panel.Visible and 4 or 8) or self.backoff)
+  end)
+ end
+ function F:Capture(event)
+  if not self.token or self.applying then return end
+  if self:IsDirector() and ({RACE_START=true,RACE_FINISH=true,QUALY_START=true,QUALY_FINISH=true})[event.type] then
+   if #self.sharedEvents<8 then table.insert(self.sharedEvents,({RACE_START="RACE",RACE_FINISH="FINISHED",QUALY_START="QUALY",QUALY_FINISH="IDLE"})[event.type]) end
+  end
+  local me=self:Me()
+  if not self.shareDetected or not me or me.workstation=="OBSERVER" or not ({CRASH=true,CORNER_CUT=true,BOOST=true,SANCTION_PROPOSED=true})[event.type] then return end
+  if #self.pendingReports>=20 then return end
+  local drivers=event.uid and {event.uid} or {}
+  table.insert(self.pendingReports,{lap=math.max(0,math.floor(tonumber(event.lap) or 0)),turn="REVIEW",drivers=drivers,eventType=event.type,
+   notes=tostring(event.description or event.reason or "Local event"):sub(1,1000),timestamp=os.date("!%Y-%m-%dT%H:%M:%SZ"),raceState=RACE_STATE})
+ end
+ function F:FindRoom()
+  if game.JobId=="" then self:Message("JobId unavailable. A live server identity is needed; it is not authentication.",true); return end
+  self:Call("GET","/v1/race-rooms/current?placeId="..tostring(game.PlaceId).."&jobId="..HttpService:UrlEncode(game.JobId),nil,function(ok,d,err)
+   if ok then self.roomId=d.room and d.room.roomId; self.status=self.roomId and "ROOM AVAILABLE" or "NO ACTIVE ROOM"; self:Render()
+   else self.status="OFFLINE"; self:Message(err or "OFFLINE",true); self:Refresh() end
+  end)
+ end
+ function F:Leave()
+  if not self.token then return end
+  self:Call("POST",self:Path("/leave"),{},function() self:Forget("LEFT ROOM"); self:Render() end)
+ end
+ function F:LoadIncident(iid,quiet)
+  self:Call("GET",self:Path("/incidents/"..iid),nil,function(ok,d,err)
+   if ok then self.detail=d
+    if quiet and self.mode=="incident" then self:DetailLabels() else self.mode="incident"; self:Render() end
+   else self:Message(err or "INCIDENT UNAVAILABLE",true) end
+  end)
+ end
+ function F:Confirm(message,fn)
+  self.mode="confirm"; SPA_V220:Clear(self.content); self:Label(message,100)
+  self:Button("CONFIRM",fn); self:Button("CANCEL",function() self.mode="room"; self:Render() end)
+ end
+ function F:Label(s,height) self.order=(self.order or 0)+1; return SPA_V220:Label(self.content,s,height or 54,self.order) end
+ function F:Button(s,fn) self.order=(self.order or 0)+1; return SPA_V220:Button(self.content,s,fn,self.order) end
+ function F:Input(s,value,height)
+  self.order=(self.order or 0)+1; local b=SPA_V220:Input(self.content,s,height or 44,height and height>44); b.LayoutOrder=self.order; b.Text=value or ""; return b
+ end
+ function F:Refresh()
+  if not self.card or not self.card.Parent then return end
+  local n=0; for _,o in ipairs(self.operators) do if o.status~="OFFLINE" then n+=1 end end
+  self.card.Text="⚑ FIA NETWORK · "..self.status..(self.roomId and ("\n"..self.roomId.." · "..n.." FIA ONLINE") or "")
+  if self.header then self.header.Text="ROOM: "..(self.roomId or "—").." · SYNC: "..self.status.." · FIA: "..n end
+ end
+ function F:RoomView()
+  self:Label("ONE RACE. ONE CONTROL ROOM.\nNames and server identity are unverified metadata. Protect your join codes.",70)
+  self:Button("OPEN LOCAL TELEMETRY / ONBOARD",function() SPA_ControlCenter:Go("ONBOARD") end)
+  if not self.token then
+   self:Button("DETECT RACE ROOM",function() self:FindRoom() end)
+   if not self.roomId then self:Button("CREATE RACE ROOM",function() self:Submit("/v1/race-rooms",self:Metadata(),function(d) self:Adopt(d) end) end)
+   else
+    self:Label("🔒 FIA AUTHORIZATION REQUIRED")
+    for _,station in ipairs({"INCIDENT_STEWARD","TELEMETRY","OBSERVER","RACE_DIRECTOR"}) do self:Button((self.joinStation==station and "✓ " or "")..station,function() self.joinStation=station; self:Render() end) end
+    local code=self:Input("ENTER FIA / OBSERVER CODE · 6 digits")
+    self:Button("CONNECT",function() local value=code.Text; code.Text=""; self:Submit(self:Path("/join"),{metadata=self:Metadata(),code=value,workstation=self.joinStation},function(d) self:Adopt(d) end) end)
+   end
+   return
+  end
+  if not self.room then self:Button("RESYNC",function() self:Resync() end); return end
+  local me=self:Me(); self:Label("SHARED SESSION: "..self.room.sessionState.."\nWORKSTATION: "..(me and me.workstation or "SYNCING").."\nHOST: "..(self.room.hostSession==self.sessionId and "YOU" or self.room.hostSession),90)
+  if self.joinCode then self:Label("PRIVATE FIA JOIN CODE: "..self.joinCode.."\nOBSERVER CODE: "..tostring(self.observerCode).."\nExpires after 30 minutes. Share privately.",90) end
+  for _,station in ipairs({"RACE_DIRECTOR","INCIDENT_STEWARD","TELEMETRY","OBSERVER"}) do
+   if me and (me.clearance=="FIA" or station=="OBSERVER") then self:Button("CHANGE WORKSTATION → "..station,function() self:Action("workstation",{workstation=station}) end) end
+  end
+  if me and me.workstation~="OBSERVER" then
+   self:Button("SHARE DETECTED INCIDENTS: "..(self.shareDetected and "ON" or "OFF"),function() self.shareDetected=not self.shareDetected; if not self.shareDetected then self.pendingReports={} end; self:Render() end)
+  end
+  if self:IsDirector() then
+   for _,state in ipairs({"IDLE","QUALY","RACE","FINISHED"}) do self:Button("SHARED SESSION → "..state,function() self:Confirm("Set shared Race Control state to "..state.."? Local timing remains under its existing controls.",function() self.mode="room"; self:Action("session",{sessionState=state}) end) end) end
+   local title=self:Input("Race Control title"); local message=self:Input("Race Control message",nil,90)
+   self:Button("PUBLISH RACE CONTROL MESSAGE",function() self:Action("race-control",{title=title.Text,message=message.Text}) end)
+   self:Button("PUBLISH CURRENT RESULTS",function()
+    local results={}; for pos,uid in ipairs(CURRENT_STANDINGS_ORDER or {}) do
+     local cached=HUD_RANK_CACHE and HUD_RANK_CACHE.byUid and HUD_RANK_CACHE.byUid[uid]
+     if #results<100 then table.insert(results,{userId=uid,position=pos,laps=cached and cached.lap.lapsMade or 0,penaltySeconds=math.max(0,tonumber(PENALTY_OFFSET[uid]) or 0),dsq=DSQ_DRIVERS[uid]==true}) end
+    end
+    self:Confirm("Publish current classification, completed laps, penalty seconds and DSQ status?",function() self.mode="room"; self:Action("results",{results=results}) end)
+   end)
+  end
+  if self:CanManage() then
+   self:Button("ROTATE FIA / OBSERVER CODES",function() self:Confirm("Rotate codes? Existing sessions stay connected.",function() self.mode="room"; self:Action("rotate-code") end) end)
+   self:Button("REVOKE OTHER FIA SESSIONS",function() self:Confirm("Disconnect all other operators and rotate codes? Your session is retained for recovery.",function() self.mode="room"; self:Action("revoke-sessions",{confirm=true}) end) end)
+   for _,mode in ipairs({"DIRECTOR_CONFIRMATION","MAJORITY","UNANIMOUS"}) do self:Button("DECISION MODE → "..mode,function() self:Action("settings",{decisionMode=mode,directorLimit=self.room.directorLimit}) end) end
+   local slots=self:Input("Race Director slots (1–8)",tostring(self.room.directorLimit))
+   self:Button("SET DIRECTOR SLOTS",function() self:Action("settings",{decisionMode=self.room.decisionMode,directorLimit=tonumber(slots.Text)}) end)
+   self:Button("END RACE ROOM",function() self:Confirm("END COLLABORATIVE SESSION? This disconnects every FIA operator.",function()
+    SPA_V220:Clear(self.content); local verify=self:Input("Type "..self.roomId.." to confirm closure")
+    self:Button("FINAL CONFIRM · CLOSE ROOM",function() self:Action("end",{confirm=true,confirmation=verify.Text}) end)
+   end) end)
+  end
+  self:Label("SHARED RESULTS (position / UserId / laps / penalty seconds / DSQ)",40)
+  for _,row in ipairs(self.room.results or {}) do self:Label(row.position.." / "..row.userId.." / "..row.laps.." / +"..row.penaltySeconds.."s"..(row.dsq and " / DSQ" or ""),35) end
+  self:Button("LEAVE ROOM",function() self:Leave() end)
+ end
+ function F:IncidentsView()
+  local counts={}; local rows={}; for _,i in pairs(self.incidents) do counts[i.status]=(counts[i.status] or 0)+1; table.insert(rows,i) end
+  table.sort(rows,function(a,b) return a.createdAt>b.createdAt end)
+  self:Label("NEW "..(counts.NEW or 0).." · REVIEW "..(counts.UNDER_REVIEW or 0).." · AWAITING "..(counts.AWAITING_DECISION or 0).." · CLOSED "..(counts.CLOSED or 0),60)
+  local me=self:Me(); if me and me.workstation~="OBSERVER" then self:Button("NEW INCIDENT REPORT",function() self.mode="new"; self:Render() end) end
+  for _,i in ipairs(rows) do self:Button(i.incidentId.." · LAP "..i.lap.." · "..i.turn.."\n"..i.status..(i.lease and (" · REVIEWING "..self:OperatorName(i.lease.operator)) or ""),function() self:LoadIncident(i.incidentId) end) end
+ end
+ function F:NewIncidentView()
+  local lap=self:Input("LAP","0"); local turn=self:Input("TURN","T1"); local drivers=self:Input("Driver UserIds separated by commas"); local notes=self:Input("Evidence notes",nil,100)
+  self:Button("CREATE INCIDENT · NO AUTOMATIC SANCTION",function()
+   local ids={}; for n in drivers.Text:gmatch("%d+") do table.insert(ids,tonumber(n)) end
+   self:Action("incidents",{evidence={lap=tonumber(lap.Text),turn=turn.Text,drivers=ids,eventType="MANUAL",notes=notes.Text,raceState=RACE_STATE,timestamp=os.date("!%Y-%m-%dT%H:%M:%SZ")}})
+   self.mode="incidents"
+  end)
+ end
+ function F:DetailLabels()
+  local i=self.detail; if not i or not self.detailStatus or not self.detailStatus.Parent then return end
+  self.detailStatus.Text=i.incidentId.." · "..i.status.." · REV "..i.revision.."\nREVIEW: "..(i.lease and self:OperatorName(i.lease.operator) or "AVAILABLE").."\n"..(i.decision and ("CONFIRMED: "..i.decision.kind.." · "..self:OperatorName(i.decision.operator)) or (i.proposal and ("AWAITING DECISION: "..i.proposal.kind) or "NO PROPOSAL"))
+  local lines={}; for _,n in ipairs(i.notes or {}) do table.insert(lines,self:OperatorName(n.operator)..": "..n.note) end
+  for _,v in ipairs(i.votes or {}) do table.insert(lines,"VOTE · "..self:OperatorName(v.operator)..": "..v.choice) end
+  local totals={}; local voters=0
+  for _,o in ipairs(self.operators) do if o.workstation=="INCIDENT_STEWARD" and o.status~="OFFLINE" then voters+=1 end end
+  for _,v in ipairs(i.votes or {}) do totals[v.choice]=(totals[v.choice] or 0)+1 end
+  for kind,n in pairs(totals) do table.insert(lines,kind.." · "..n.." / "..voters) end
+  self.detailNotes.Text=table.concat(lines,"\n")
+ end
+ function F:DetailView()
+  local i=self.detail; if not i then return end
+  self.detailStatus=self:Label("",100); self:Label("EVIDENCE\n"..HttpService:JSONEncode(i.evidence),140); self.detailNotes=self:Label("",100); self:DetailLabels()
+  local me=self:Me(); if not me or (me.workstation~="RACE_DIRECTOR" and me.workstation~="INCIDENT_STEWARD") then return end
+  self:Button("CLAIM REVIEW (60s lease, renewed by presence)",function() self:IncidentAction("claim") end)
+  self:Button("RELEASE REVIEW",function() self:IncidentAction("release") end)
+  if self:IsDirector() then self:Button("TAKE OVER REVIEW",function() self:Confirm("Take over another steward's review? This is audited.",function() self:IncidentAction("claim",{force=true,confirm=true}) end) end) end
+  local note=self:Input("FIA NOTE · max 1000 characters",nil,90)
+  self:Button("ADD NOTE",function() self:IncidentAction("note",{note=note.Text}) end)
+  local target=self:Input("Driver UserId",tostring((i.drivers or {})[1] or 0)); local reason=self:Input("Decision reason",nil,80)
+  for _,kind in ipairs({"NO_ACTION","RACING_INCIDENT","WARNING","PLUS_5","PLUS_10","DSQ","CUSTOM_REVIEW"}) do self:Button("PROPOSE "..kind,function() self:IncidentAction("proposal",{proposal={kind=kind,targetUserId=tonumber(target.Text),reason=reason.Text}}) end) end
+  self:Button("VOTE APPROVE",function() self:IncidentAction("vote",{choice="APPROVE"}) end)
+  self:Button("VOTE REJECT",function() self:IncidentAction("vote",{choice="REJECT"}) end)
+  for _,kind in ipairs({"NO_ACTION","RACING_INCIDENT","WARNING","PLUS_5","PLUS_10","DSQ","CUSTOM_REVIEW"}) do self:Button("VOTE "..kind,function() self:IncidentAction("vote",{choice=kind}) end) end
+  if self:IsDirector() then
+   for _,outcome in ipairs({"CONFIRM","REJECT","RETURN_TO_REVIEW"}) do self:Button(outcome,function() self:Confirm(outcome.." this proposal?",function() self:IncidentAction("decision",{outcome=outcome}) end) end) end
+   self:Button("CLOSE INCIDENT",function() self:IncidentAction("status",{status="CLOSED"}) end)
+  end
+ end
+ function F:Render()
+  if not self.panel or not self.panel.Visible then return end
+  SPA_V220:Clear(self.content); self.order=0; self.header=self:Label("",65); self:Refresh()
+  self:Button("RETRY LAST ACTION",function() self:Retry() end)
+  if self.token then for _,v in ipairs({{"room","RACE ROOM"},{"incidents","INCIDENTS"},{"timeline","FIA TIMELINE"},{"operators","OPERATORS"}}) do self:Button(v[2],function() self.mode=v[1]; self:Render() end) end end
+  if self.mode=="room" or not self.token then self:RoomView()
+  elseif self.mode=="incidents" then self:IncidentsView()
+  elseif self.mode=="new" then self:NewIncidentView()
+  elseif self.mode=="incident" then self:DetailView()
+  elseif self.mode=="timeline" then
+   self:Button("LOAD HISTORY · NEXT PAGE",function() self:Call("GET",self:Path("/events?after="..tostring(self.historyCursor or 0)),nil,function(ok,d) if ok then self.historyCursor=d.hasMore and d.nextCursor or 0; for _,e in ipairs(d.events) do self:Event(e) end; self:Render() end end) end)
+   for n=#self.timeline,1,-1 do local e=self.timeline[n]; self:Label(e.id.." · "..e.action.."\n"..self:OperatorName(e.actor).." → "..e.target..(e.data and e.data.message and ("\n"..e.data.title..": "..e.data.message) or ""),64) end
+  elseif self.mode=="operators" then
+   for _,o in ipairs(self.operators) do
+    local review=""; for _,i in pairs(self.incidents) do if i.lease and i.lease.operator==o.sessionId then review="\nREVIEWING "..i.incidentId end end
+    self:Label(o.displayName.." · "..o.workstation.."\n"..o.status..review,70)
+    if self.room and self.room.hostSession==self.sessionId and o.sessionId~=self.sessionId and o.status~="OFFLINE" and o.clearance=="FIA" then self:Button("TRANSFER HOST → "..o.displayName,function() self:Confirm("Transfer room ownership to "..o.displayName.."?",function() self.mode="room"; self:Action("transfer-host",{sessionId=o.sessionId,confirm=true}) end) end) end
+   end
+  end
+ end
+ function F:Open()
+  SPA_ControlCenter:Hide(); mainFrame.Visible=false; self.panel.Visible=true; self.mode="room"; self:Render()
+  if self.token then self:Resync() else self:FindRoom() end
+ end
+ function F:Init()
+  self.panel,self.content,self.footer=SPA_V220:Panel(SPA_ControlCenter.gui,"SPA FIA NETWORK · COLLABORATIVE RACE CONTROL")
+  local home=SPA_V220:Button(self.panel,"⌂ HOME",function() self.panel.Visible=false; SPA_ControlCenter:Open() end)
+  home.Size=UDim2.new(0,100,0,30); home.Position=UDim2.new(1,-116,0,7)
+  self.card=SPA_V220:Button(SPA_ControlCenter.content,"⚑ FIA NETWORK",function() self:Open() end,5); self:Refresh()
+ end
+ return F
+end)()
+
+do
+ local oldEvent=SPA_RaceControl.AddEvent
+ function SPA_RaceControl:AddEvent(kind,data)
+  local result=oldEvent(self,kind,data)
+  if result then local ok=pcall(SPA_FIA.Capture,SPA_FIA,result); if not ok then warn("[SPA FIA] LOCAL_EVENT_CAPTURE_FAILED") end end
+  return result
+ end
+ local oldHide=SPA_ControlCenter.Hide
+ function SPA_ControlCenter:Hide() oldHide(self); if SPA_FIA.panel then SPA_FIA.panel.Visible=false end end
+ local oldConfigure=SPA_Connect.Configure
+ function SPA_Connect:Configure(url,enabled)
+  assert(not SPA_FIA.token or url==self.baseUrl,"Leave FIA Room before changing API URL")
+  return oldConfigure(self,url,enabled)
+ end
+ local oldStop=SPA_Connect.Stop
+ function SPA_Connect:Stop()
+  SPA_FIA.closed=true; if SPA_FIA.timer then pcall(task.cancel,SPA_FIA.timer); SPA_FIA.timer=nil end
+  local stopped=false; local function finish() if not stopped then stopped=true; SPA_FIA:Forget("OFFLINE"); oldStop(self) end end
+  if SPA_FIA.token then SPA_FIA:Call("POST",SPA_FIA:Path("/leave"),{},finish); task.delay(2,finish) else finish() end
+ end
+end
+SPA_V220:Stage("FIA NETWORK",function() SPA_FIA:Init() end)
+
+-- V2.22.1 TIMING UI / MANUAL BOXES
+SPA_PitsControl = {}
+function SPA_PitsControl:CanEdit()
+	if SPA_FIA and SPA_FIA.token and not SPA_FIA:IsDirector() then
+		showNotification("RACE DIRECTOR REQUIRED · MANUAL PIT",C_RED,"⚑",20); return false
+	end
+	return true
+end
+function SPA_PitsControl:Adjust(uid,delta)
+	local pl=Players:GetPlayerByUserId(uid)
+	if not pl or (delta~=1 and delta~=-1) then return false end
+	if not self:CanEdit() then return false end
+	ensurePlayerData(pl); local pd=pitData[uid]; local old=pd.pitStopsMade or 0
+	local value=math.max(0,old+delta); if value==old then return false end
+	pd.pitStopsMade=value -- Never modify status, lastPitTouch, limiter or physical state.
+	SPA_RaceControl:AddEvent("MANUAL_PIT",{category="BOXES",uid=uid,name=getDisplayName(pl),operator=player.Name,operatorId=player.UserId,oldValue=old,newValue=value,title=delta>0 and "MANUAL PIT +1" or "MANUAL PIT -1",description=getDisplayName(pl).." · "..old.." → "..value.." · "..player.Name})
+	HUD_LAST_SIGNATURE=nil; HUD_RANK_CACHE.signature=nil
+	SPA_LapsControl:Refresh(); if SPA_LapsControl.refreshHUD then SPA_LapsControl.refreshHUD() end
+	return true
+end
+function SPA_Timing:Describe(uid)
+	local s=self.states[uid]; local last=self.last[uid]; local f=fastLapData[uid] or {}
+	local lines={s and s.stage or "WAITING_META"}
+	for i=1,3 do
+		local value=s and s["sector"..i.."Time"]
+		table.insert(lines,"S"..i.."  "..(value and string.format("%.3f",value) or "—"))
+	end
+	table.insert(lines,"CURRENT  "..(s and s.lapStart and s.stage~="INVALID" and fmtTime(math.max(0,tick()-s.lapStart)) or "—"))
+	table.insert(lines,"BEST LAP  "..(f.bestTime and fmtTime(f.bestTime) or "—"))
+	if last then table.insert(lines,("LAP COMPLETE · S1 %.3f · S2 %.3f · S3 %.3f\nFINAL %.3f · LAP %s"):format(last[1],last[2],last[3],last.finalSplit,fmtTime(last.lapTime))) end
+	table.insert(lines,"PIT STOPS  "..tostring(pitData[uid] and pitData[uid].pitStopsMade or 0))
+	return table.concat(lines,"\n")
+end
+function SPA_Timing:RefreshUI()
+	if not self.statusLabel then return end
+	local mode=self:Mode()
+	self.statusLabel.Text="TIMING MODE · "..(mode=="INCOMPLETE" and "INCOMPLETE SECTOR CONFIGURATION · LEGACY ACTIVE" or mode)
+	self.statusLabel.TextColor3=mode=="INCOMPLETE" and C_YELLOW or C_GREEN
+	for i,label in ipairs(self.gateLabels) do label.Text="SECTOR "..i.." · "..(self.gates[i] and self.gates[i].Parent and "✓" or "NOT SET") end
+	if self.panel.Visible then
+		local active={}
+		for uid,st in pairs(PlayerState or {}) do
+			if st.player then
+				active[uid]=true; local label=self.driverLabels[uid]
+				if not label then label=SPA_V220:Label(self.content,"",230,uid%1000000); self.driverLabels[uid]=label end
+				label.Text=getDisplayName(st.player).."\n"..self:Describe(uid)
+			end
+		end
+		for uid,label in pairs(self.driverLabels) do if not active[uid] then label:Destroy(); self.driverLabels[uid]=nil end end
+	end
+	if SPA_Onboard.active and SPA_Onboard.current and self.onboardLabel then
+		self.onboardLabel.Visible=true; local s=self.states[SPA_Onboard.current.UserId]; local last=self.last[SPA_Onboard.current.UserId]
+		self.onboardLabel.Text=last and ("S1 %.3f · S2 %.3f · S3 %.3f\nLAP %s"):format(last[1],last[2],last[3],fmtTime(last.lapTime)) or (s and s.stage or "WAITING_META")
+	elseif self.onboardLabel then self.onboardLabel.Visible=false end
+end
+function SPA_Timing:AddOnboardShortcut()
+	SPA_V220:Button(onboardScroll,"⏱ CURRENT LAP / SECTORS / BEST LAP",function() mainFrame.Visible=false; self.panel.Visible=true; self:RefreshUI() end,-1)
+end
+function SPA_Timing:BuildUI()
+	self.gateLabels={}; self.driverLabels={}
+	self.statusLabel=SPA_V220:Label(configScroll,"",56,160)
+	SPA_V220:Label(configScroll,"LOOK FORWARD ALONG THE TRACK · placement rotates automatically. META closes the lap, not S3.",60,161)
+	for i=1,3 do
+		self.gateLabels[i]=SPA_V220:Label(configScroll,"",28,162+i*3)
+		SPA_V220:Button(configScroll,"SET SECTOR "..i.." WP",function() self:SetGate(i,GetWaypointPlacementCFrame()); self:RefreshUI() end,163+i*3)
+		SPA_V220:Button(configScroll,"CLEAR SECTOR "..i,function() self:SetGate(i,nil); self:RefreshUI() end,164+i*3)
+	end
+	self.panel,self.content=SPA_V220:Panel(SPA_ControlCenter.gui,"TRACK TIMING · S1 / S2 / S3 / META")
+	SPA_V220:Button(self.content,"CLOSE",function() self.panel.Visible=false; SPA_ControlCenter:Open() end,-2)
+	SPA_V220:Button(SPA_ControlCenter.content,"⏱ TRACK TIMING / SECTORS",function() SPA_ControlCenter:Hide(); self.panel.Visible=true; self:RefreshUI() end,6)
+	self:AddOnboardShortcut()
+	local oldHide=SPA_ControlCenter.Hide
+	function SPA_ControlCenter:Hide() oldHide(self); SPA_Timing.panel.Visible=false end
+	self.onboardLabel=SPA_V220:Label(mainGui,"",44); self.onboardLabel.Size=UDim2.new(0.7,0,0,44); self.onboardLabel.AnchorPoint=Vector2.new(0.5,0); self.onboardLabel.Position=UDim2.fromScale(0.5,0.22); self.onboardLabel.Visible=false
+	self:RefreshUI()
+end
+SPA_V220:Stage("TRACK TIMING UI",function() SPA_Timing:BuildUI() end)
+-- END V2.22.1 TIMING UI
+
+-- V2.22.1 RESPONSIVE GUI: safe insets, event-driven sizing, independent X/Y scrolling.
+SPA_Mobile = { watched=setmetatable({},{__mode="k"}), adapted=setmetatable({},{__mode="k"}), wrappers={}, modals={} }
+function SPA_Mobile:Compact()
+	local camera=Workspace.CurrentCamera
+	return UserInputService.TouchEnabled or (camera and camera.ViewportSize.X<800)
+end
+function SPA_Mobile:Scroll(scroll)
+	scroll.Active=true; scroll.ScrollingEnabled=true; scroll.ClipsDescendants=true
+	scroll.ElasticBehavior=Enum.ElasticBehavior.WhenScrollable
+	scroll.VerticalScrollBarInset=Enum.ScrollBarInset.ScrollBar
+	scroll.ScrollBarThickness=self:Compact() and 8 or 10
+end
+function SPA_Mobile:Wrap(frame,minWidth)
+	-- Outer X scrolling preserves dense desktop editors without shrinking their controls.
+	-- Existing inner Y lists remain the only vertical scroller.
+	local children=frame:GetChildren()
+	local outer=Instance.new("ScrollingFrame"); outer.Name="SPA_HorizontalViewport"
+	outer.Size=UDim2.fromScale(1,1); outer.BackgroundTransparency=1; outer.BorderSizePixel=0
+	outer.ScrollingDirection=Enum.ScrollingDirection.X; outer.CanvasSize=UDim2.new(); outer.Parent=frame; self:Scroll(outer)
+	local body=Instance.new("Frame"); body.Name="SPA_ResponsiveBody"; body.BackgroundTransparency=1; body.Parent=outer
+	for _,child in ipairs(children) do child.Parent=body end
+	local item={frame=frame,outer=outer,body=body,minWidth=minWidth or 640}; table.insert(self.wrappers,item)
+	local function resize()
+		if not frame.Parent then return end
+		local width=math.max(1,frame.AbsoluteSize.X); local content=self:Compact() and math.max(width,item.minWidth) or width
+		body.Size=UDim2.new(0,content,1,-10); outer.CanvasSize=UDim2.fromOffset(content,0)
+		outer.CanvasPosition=Vector2.new(math.clamp(outer.CanvasPosition.X,0,math.max(0,content-width)),0)
+	end
+	item.resize=resize; frame:GetPropertyChangedSignal("AbsoluteSize"):Connect(resize)
+	frame.ChildAdded:Connect(function(child) if child~=outer then child.Parent=body end end)
+	resize()
+end
+function SPA_Mobile:Adapt(obj)
+	self.watched[obj]=true
+	if obj:IsA("ScrollingFrame") then self:Scroll(obj) end
+	if not self:Compact() or self.adapted[obj] then return end
+	if obj:IsA("GuiObject") then self.adapted[obj]={size=obj.Size,automatic=obj.AutomaticSize} end
+	if obj:IsA("Frame") and obj.Parent and obj.Parent~=towerContainer and obj.Parent:IsA("ScrollingFrame") and obj.Size.Y.Scale==0 and obj.Size.Y.Offset>0 and obj.Size.Y.Offset<48 then
+		for _,child in ipairs(obj:GetChildren()) do
+			if child:IsA("TextButton") or child:IsA("ImageButton") then obj.Size=UDim2.new(obj.Size.X.Scale,obj.Size.X.Offset,0,64); break end
+		end
+	end
+	if obj:IsA("TextButton") or obj:IsA("TextBox") then
+		local parent=obj.Parent
+		local list=parent and parent:FindFirstChildOfClass("UIListLayout")
+		if list and obj.Size.Y.Scale==0 and obj.Size.Y.Offset<44 then obj.Size=UDim2.new(obj.Size.X.Scale,obj.Size.X.Offset,0,44) end
+		obj.TextWrapped=true
+	end
+	if obj:IsA("TextBox") and obj.MultiLine and obj.Parent and obj.Parent:IsA("ScrollingFrame") then
+		-- Reports and long Track Codes grow inside the existing scroll, not behind clipped text.
+		obj.AutomaticSize=Enum.AutomaticSize.Y
+	end
+end
+function SPA_Mobile:Watch(gui)
+	if self.watched[gui] then return end; self.watched[gui]=true
+	gui.ScreenInsets=Enum.ScreenInsets.CoreUISafeInsets
+	gui.ClipToDeviceSafeArea=true
+	local function visit(obj) self:Adapt(obj); for _,child in ipairs(obj:GetChildren()) do visit(child) end end
+	for _,child in ipairs(gui:GetChildren()) do visit(child) end
+	gui.DescendantAdded:Connect(function(obj)
+		task.defer(function() if obj.Parent then self:Adapt(obj) end end)
+	end)
+end
+function SPA_Mobile:Modal(panel)
+	if not panel then return end
+	table.insert(self.modals,{panel=panel,size=panel.Size,position=panel.Position})
+end
+function SPA_Mobile:Resize()
+	local compact=self:Compact()
+	if compact then
+		for obj in pairs(self.watched) do if obj.Parent then self:Adapt(obj) end end
+	else
+		for obj,saved in pairs(self.adapted) do
+			if obj.Parent then obj.Size=saved.size; if saved.automatic then obj.AutomaticSize=saved.automatic end end
+			self.adapted[obj]=nil
+		end
+	end
+	for _,item in ipairs(self.modals) do
+		if item.panel.Parent then
+			item.panel.Size=compact and UDim2.new(1,-16,1,-76) or item.size
+			item.panel.Position=compact and UDim2.fromScale(0.5,0.48) or item.position
+		end
+	end
+	if compact then
+		tabBar.Size=UDim2.new(1,0,0,48); tabBar.Position=UDim2.fromOffset(0,41)
+		tabBar.ScrollingDirection=Enum.ScrollingDirection.X; tabBar.AutomaticCanvasSize=Enum.AutomaticSize.X
+		tabBar.CanvasSize=UDim2.new(); tabSep.Visible=false
+		local layout=tabBar:FindFirstChildOfClass("UIListLayout"); if layout then layout.FillDirection=Enum.FillDirection.Horizontal end
+		for _,btn in pairs(tabButtons) do btn.Size=UDim2.fromOffset(112,44) end
+		for _,frame in pairs(tabFrames) do frame.Size=UDim2.new(1,-12,1,-99); frame.Position=UDim2.fromOffset(6,93) end
+	elseif self.sidebar then
+		tabBar.Size=self.sidebar.size; tabBar.Position=self.sidebar.position; tabBar.ScrollingDirection=Enum.ScrollingDirection.Y; tabBar.AutomaticCanvasSize=Enum.AutomaticSize.Y; tabSep.Visible=true
+		local layout=tabBar:FindFirstChildOfClass("UIListLayout"); if layout then layout.FillDirection=Enum.FillDirection.Vertical end
+		for _,btn in pairs(tabButtons) do btn.Size=UDim2.new(1,0,0,38) end
+		for frame,saved in pairs(self.tabSizes) do frame.Size=saved.size; frame.Position=saved.position end
+	end
+	for _,item in ipairs(self.wrappers) do item.resize() end
+	self:Tower()
+	if SPA_Onboard then SPA_Onboard:Paint() end
+end
+function SPA_Mobile:Tower()
+	if not towerContainer or not towerLayout then return end
+	local camera=Workspace.CurrentCamera; if not camera then return end
+	local area=camera.ViewportSize; local content=towerLayout.AbsoluteContentSize.Y+8
+	local width=math.min(math.round(TOWER_WIDTH*TOWER_SCALE),math.max(80,area.X-20))
+	local x=math.clamp(area.X*towerConfig.posX+towerConfig.offsetX,8,math.max(8,area.X-width-8))
+	local y=math.clamp(area.Y*towerConfig.posY+towerConfig.offsetY,8,math.max(8,area.Y-100))
+	towerContainer.Position=UDim2.fromOffset(x,y)
+	towerContainer.Size=UDim2.fromOffset(width,math.min(content,math.max(80,area.Y-y-60)))
+	towerContainer.CanvasSize=UDim2.fromOffset(0,content)
+end
+function SPA_Mobile:Init()
+	self.sidebar={size=tabBar.Size,position=tabBar.Position}; self.tabSizes={}
+	for _,frame in pairs(tabFrames) do self.tabSizes[frame]={size=frame.Size,position=frame.Position} end
+	self:Modal(mainFrame); self:Modal(SPA_V220.ccPanel)
+	for _,frame in pairs(tabFrames) do self:Wrap(frame) end
+	if SPA_V220.ccFrames then for _,frame in pairs(SPA_V220.ccFrames) do self:Wrap(frame) end end
+	for _,gui in ipairs(playerGui:GetChildren()) do if gui:IsA("ScreenGui") and gui.Name:match("^SPA") then self:Watch(gui) end end
+	self:Watch(hudGui); self:Watch(towerGui)
+	self.guiConnection=playerGui.ChildAdded:Connect(function(gui) if gui:IsA("ScreenGui") and gui.Name:match("^SPA") then task.defer(function() if gui.Parent then self:Watch(gui) end end) end end)
+	if towerLayout then self.towerConnection=towerLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function() self:Tower() end) end
+	local function bindCamera()
+		if self.cameraConnection then self.cameraConnection:Disconnect() end
+		local camera=Workspace.CurrentCamera
+		if camera then self.cameraConnection=camera:GetPropertyChangedSignal("ViewportSize"):Connect(function() self:Resize() end) end
+		self:Resize()
+	end
+	self.currentCameraConnection=Workspace:GetPropertyChangedSignal("CurrentCamera"):Connect(bindCamera)
+	self.touchConnection=UserInputService:GetPropertyChangedSignal("TouchEnabled"):Connect(function() self:Resize() end)
+	mainGui.Destroying:Connect(function()
+		if self.cameraConnection then self.cameraConnection:Disconnect() end
+		self.currentCameraConnection:Disconnect(); self.touchConnection:Disconnect()
+		self.guiConnection:Disconnect(); if self.towerConnection then self.towerConnection:Disconnect() end
+	end)
+	bindCamera()
+end
+SPA_V220:Stage("RESPONSIVE MOBILE UI",function() SPA_Mobile:Init() end)
+-- END V2.22.1 RESPONSIVE GUI
