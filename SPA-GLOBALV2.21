@@ -1,11 +1,18 @@
--- SPA-GLOBAL V2.22.4
+-- SPA-GLOBAL V2.23
+-- V2.22.8: scalable rain density, intensity presets, track wetness and storm effects.
+-- First-launch transmission calibration, fixed-speed audio and Discord Race Control remain intact.
 -- V2.22.4: Brookhaven Drift calibrated from PhysicalWheel friction values.
 -- Stable multi-wheel reactive detection; RAW is never displayed as a Drift level.
 -- KNOWN LIMITATION: physical 2.0 is shared by Drift 1.4/1.5; no verified secondary signal.
 -- FIA COLLABORATIVE RACE CONTROL · ONE RACE. ONE CONTROL ROOM.
 -- TRACK TIMING & MOBILE CONTROL HOTFIX · V2.22.1
-SPA_V222 = { version = "2.22.4" }
-SPA_V221 = { version = "2.22.4", connect = {}, services = {} }
+SPA_VERSION = "2.23"
+SPA_V222 = { version = SPA_VERSION }
+SPA_V221 = { version = SPA_VERSION, connect = {}, services = {} }
+SPA_Session = SPA_Session or { generation = 0, sessionId = nil, state = "IDLE", startedAt = nil, finishedAt = nil, archive = {}, MAX_ARCHIVE = 5 }
+SPA_Scheduler = SPA_Scheduler or { jobs = {} }
+function SPA_Scheduler:Register(name,interval,step) self.jobs[name]={interval=interval,step=step,active=true,last=0} end
+function SPA_Scheduler:SetActive(name,active) if self.jobs[name] then self.jobs[name].active=active==true end end
 -- Endpoint público HTTPS; vacío mantiene SPA offline. Nunca poner secretos aquí.
 SPA_CONNECT_BASE_URL = SPA_CONNECT_BASE_URL or ""
 -- CONTROL CENTER / TUTORIAL MODE / SPA TRACK SYSTEM
@@ -67,8 +74,31 @@ HUD_LAST_SIGNATURE       = nil
 HUD_RANK_CACHE           = HUD_RANK_CACHE or { signature = nil, byUid = {}, standings = {}, qualy = {} }
 DSQ_DRIVERS             = DSQ_DRIVERS or {}
 groundEffectState       = groundEffectState or {}
-SPA_ENGINE_SOUND_ID     = "rbxassetid://7621764624"
-SPA_ENGINE_VOLUME       = 3.0
+-- ============================================================
+-- SPA VEHICLE AUDIO IDS
+-- Paste only your own Roblox audio asset IDs in this section.
+-- ============================================================
+SPA_IDLE_SOUND_ID       = SPA_IDLE_SOUND_ID or "rbxassetid://105052546255484"
+SPA_DRIVE_SOUND_ID      = SPA_DRIVE_SOUND_ID or "rbxassetid://131453640492630"
+SPA_SHIFT_SOUND_ID      = SPA_SHIFT_SOUND_ID or "rbxassetid://116482222395784"
+SPA_SKID_SOUND_ID       = SPA_SKID_SOUND_ID or ""
+SPA_IDLE_VOLUME         = SPA_IDLE_VOLUME or 1.0
+SPA_DRIVE_VOLUME        = SPA_DRIVE_VOLUME or 3.0
+SPA_SHIFT_VOLUME        = SPA_SHIFT_VOLUME or 1.2
+SPA_SKID_VOLUME         = SPA_SKID_VOLUME or 1.5
+SPA_ENGINE_START_SPEED  = SPA_ENGINE_START_SPEED or 30
+SPA_VEHICLE_AUDIO_ENABLED = SPA_VEHICLE_AUDIO_ENABLED ~= false
+SPA_SHIFT_SOUNDS_ENABLED  = SPA_SHIFT_SOUNDS_ENABLED ~= false
+SPA_SKID_FX_ENABLED       = SPA_SKID_FX_ENABLED ~= false
+SPA_SKID_SMOKE_ENABLED    = SPA_SKID_SMOKE_ENABLED ~= false
+SPA_EFFECT_MODE          = (SPA_EFFECT_MODE=="OFF" or SPA_EFFECT_MODE=="NORMAL" or SPA_EFFECT_MODE=="RAIN") and SPA_EFFECT_MODE or "NORMAL"
+SPA_RAIN_INTENSITY       = (SPA_RAIN_INTENSITY=="LIGHT" or SPA_RAIN_INTENSITY=="HEAVY" or SPA_RAIN_INTENSITY=="STORM") and SPA_RAIN_INTENSITY or "HEAVY"
+SPA_RAIN_DENSITY_MULTIPLIER = math.clamp(tonumber(SPA_RAIN_DENSITY_MULTIPLIER) or 10,1,20)
+SPA_TRACK_DRYING_SECONDS = math.clamp(tonumber(SPA_TRACK_DRYING_SECONDS) or 300,180,480)
+SPA_THUNDER_SOUND_ID     = SPA_THUNDER_SOUND_ID or ""
+SPA_THUNDER_VOLUME       = math.clamp(tonumber(SPA_THUNDER_VOLUME) or 1.5,0,5)
+SPA_LEAGUE_NAME         = SPA_LEAGUE_NAME or ""
+SPA_DISCORD_WEBHOOK_URL = SPA_DISCORD_WEBHOOK_URL or "https://discord.com/api/webhooks/1558431352947347498/8SO_3uoe1yRbv9CVbUga-9F_Ebc_3w0I-6QBazQexP2A9wOMtjpK2D34c8htOhEpd0SE"
 QUALY_STANDINGS         = {}
 OVERTAKE_COUNT          = {}
 CRASH_LEVE_COUNT        = {}
@@ -92,6 +122,7 @@ local NOTIFICATION_COOLDOWN   = 10
 local NOTIFICATION_DURATION   = 5
 ENABLE_PERF_DIAGNOSTICS       = false
 ENABLE_NITRO_DEBUG             = false
+ENABLE_DRIFT_DEBUG             = false
 SPA_PERF = SPA_PERF or { samples = {}, lastLog = 0, spikeMs = 5, lastSpike = {} }
 SPA_PERF.lastSpike = SPA_PERF.lastSpike or {}
 function SPA_PerfMark(moduleName, startedAt, extra)
@@ -113,6 +144,49 @@ function SPA_PerfMark(moduleName, startedAt, extra)
 		end
 		warn("[SPA PERF] " .. table.concat(parts, " "))
 	end
+end
+
+-- V2.22.8: auditoría competitiva agrupada; nunca guarda secretos ni datos visuales.
+SPA_AUDIT_CONFIG = SPA_AUDIT_CONFIG or { pending = {}, sequence = 0 }
+SPA_COMPETITIVE_CONFIG = SPA_COMPETITIVE_CONFIG or {
+	["Max Vueltas"]=true,["Max Boxes"]=true,["Activar Modo Qualy"]=true,["Vueltas Qualy"]=true,
+	["Detección Vueltas"]=true,["Detección Boxes"]=true,["Solo Vehículos"]=true,["Radio Checkpoint"]=true,
+	["Activar choques + repeticiones (CPU+)"]=true,["Corner cuts antes de sanción"]=true,
+	["Choques leves antes de sanción"]=true,["Gap (s) para marcar ventaja por corte"]=true,
+	["Segundos de penalización al confirmar"]=true,["Activar DRS"]=true,["Vuelta inicial DRS"]=true,
+	["GAP DRS (s)"]=true,["Bonus DRS"]=true,["Sanciones DRS"]=true,["Activar OT"]=true,
+	["GAP OT (s)"]=true,["Control de velocidad en boxes"]=true,["Reducción en boxes"]=true,
+	["Detección CC activa"]=true,["Debounce CC"]=true,["Ancho CC"]=true,["Alto CC"]=true,["Grosor CC"]=true,
+	["Vehicle Audio"]=true,["Idle Volume"]=true,["Drive Volume"]=true,["Drive Start Speed"]=true,
+	["Shift Sounds"]=true,["Shift Volume"]=true,["Skid FX"]=true,["Skid Volume"]=true,["Skid Smoke"]=true,
+}
+function SPA_AuditConfigChange(label, oldValue, newValue, immediate)
+	if not SPA_COMPETITIVE_CONFIG[label] or tostring(oldValue)==tostring(newValue) then return end
+	SPA_AUDIT_CONFIG.sequence += 1
+	local seq=SPA_AUDIT_CONFIG.sequence
+	local pending=SPA_AUDIT_CONFIG.pending[label]
+	if not pending then pending={oldValue=oldValue}; SPA_AUDIT_CONFIG.pending[label]=pending end
+	pending.newValue=newValue; pending.sequence=seq
+	local function publish()
+		local current=SPA_AUDIT_CONFIG.pending[label]
+		if not current or current.sequence~=seq then return end
+		SPA_AUDIT_CONFIG.pending[label]=nil
+		if SPA_RaceControl then SPA_RaceControl:AddEvent("CONFIG_CHANGED",{
+			category="CONFIG",severity="INFO",name=player and player.Name or "Operator",operator=player and player.Name or "Operator",
+			configuration=label,oldValue=current.oldValue,newValue=current.newValue,title="⚙ CONFIG CHANGE",
+			description=("%s: %s → %s"):format(label,tostring(current.oldValue),tostring(current.newValue)),
+		}) end
+	end
+	if immediate then publish() else task.delay(0.75,publish) end
+end
+function SPA_AuditWaypoint(kind, cf)
+	if not SPA_RaceControl or not cf then return end
+	local p=cf.Position
+	SPA_RaceControl:AddEvent("WAYPOINT_CONFIGURED",{
+		category="CONFIG",severity="INFO",name=player and player.Name or "Operator",operator=player and player.Name or "Operator",
+		waypoint=tostring(kind),position={x=math.round(p.X*10)/10,y=math.round(p.Y*10)/10,z=math.round(p.Z*10)/10},
+		title="📍 WAYPOINT CONFIGURED",description=("%s · X %.1f Y %.1f Z %.1f"):format(tostring(kind),p.X,p.Y,p.Z),
+	})
 end
 local notifiedPlayers         = {}
 local lastSpeeds              = {}
@@ -664,6 +738,7 @@ function SPA_Timing:SetGate(index,cf)
 	local old=self.gates[index]
 	local p=cf and createWall("SPA_SECTOR_"..index,C_BLUE,cf,Vector3.new(wpCfg.LAP.width,wpCfg.LAP.height,wpCfg.LAP.thickness)) or nil
 	self.gates[index]=p; if old then old:Destroy() end
+	if cf and SPA_AuditWaypoint then SPA_AuditWaypoint("SECTOR "..tostring(index),cf) end
 	self:Reset(nil,true)
 end
 function SPA_Timing:Cross(part,a,b,detection)
@@ -693,6 +768,12 @@ function SPA_Timing:Record(pl,now,lapTime)
 		if lapTime<best.time then
 			best.time=lapTime; best.uid=uid; best.name=getDisplayName(pl)
 			if RACE_STATE=="RACE" then GLOBAL_FASTEST_LAP=RACE_GLOBAL_FASTEST end
+			SPA_RaceControl:AddEvent(RACE_STATE=="QUALY" and "PROVISIONAL_POLE" or "GLOBAL_FASTEST_LAP",{
+				category=RACE_STATE=="QUALY" and "QUALY" or "CARRERA",severity="INFO",uid=uid,
+				name=getDisplayName(pl),lap=ld.lapsMade,time=fmtTime(lapTime),timeSeconds=lapTime,
+				title=RACE_STATE=="QUALY" and "PROVISIONAL POLE" or "GLOBAL FASTEST LAP",
+				description=getDisplayName(pl).." — "..fmtTime(lapTime),
+			})
 			if ENABLE_CHAT_EVENTS and announceRaceEvent then announceRaceEvent(("🟣 VUELTA RÁPIDA — %s %s"):format(getDisplayName(pl),fmtTime(lapTime))) end
 		end
 	end
@@ -853,7 +934,7 @@ logoText = Instance.new("TextLabel")
 logoText.Size = UDim2.new(1,0,0,50)
 logoText.Position = UDim2.new(0,0,0,40)
 logoText.BackgroundTransparency = 1
-logoText.Text = "SPA-GLOBAL V2.21"
+logoText.Text = "SPA-GLOBAL V" .. SPA_VERSION
 logoText.TextScaled = true
 logoText.TextColor3 = Color3.fromRGB(255, 255, 255)
 logoText.Font = Enum.Font.GothamBlack
@@ -1397,7 +1478,7 @@ titleTxt = Instance.new("TextLabel")
 titleTxt.Size = UDim2.new(0.7,0,1,0)
 titleTxt.Position = UDim2.new(0,14,0,0)
 titleTxt.BackgroundTransparency = 1
-titleTxt.Text = "SPA-GLOBAL V2.21  —  RACE CONTROL"
+titleTxt.Text = "SPA-GLOBAL V" .. SPA_VERSION .. "  —  RACE CONTROL"
 titleTxt.Font = Enum.Font.GothamBlack
 titleTxt.TextColor3 = C_WHITE
 titleTxt.TextSize = 14
@@ -1431,12 +1512,22 @@ SPA_RaceControl = {
 	nextId = 0,
 	rebuildFn = nil,
 	onEventFn = nil,
+	listeners = {},
+	nextListener = 0,
 	lastPositions = {},
 	pendingPositions = {},
 	rejoiningPositions = {},
 	POSITION_DEBOUNCE = 0.75,
 	suppressNextPositionChange = false,
 }
+
+function SPA_RaceControl:Subscribe(callback)
+	assert(type(callback)=="function","Race Control subscriber must be a function")
+	self.nextListener+=1
+	local id=self.nextListener
+	self.listeners[id]=callback
+	return {Disconnect=function() self.listeners[id]=nil end}
+end
 
 function SPA_RaceControl:AddEvent(eventType, data)
 	local ok, event = pcall(function()
@@ -1447,6 +1538,8 @@ function SPA_RaceControl:AddEvent(eventType, data)
 			type = tostring(eventType or "EVENT"),
 			timestamp = tick(),
 			clockText = os.date("%H:%M:%S"),
+			sessionGeneration = SPA_Session and SPA_Session.generation or 0,
+			sessionId = SPA_Session and SPA_Session.sessionId or nil,
 		}
 		for key, value in pairs(data) do
 			if key ~= "id" and key ~= "timestamp" and key ~= "clockText" then item[key] = value end
@@ -1454,6 +1547,10 @@ function SPA_RaceControl:AddEvent(eventType, data)
 		tinsert(self.events, 1, item)
 		while #self.events > self.MAX_EVENTS do table.remove(self.events) end
 		if self.onEventFn then pcall(self.onEventFn, item) end
+		for _,listener in pairs(self.listeners) do
+			local listenerOK,listenerError=pcall(listener,item)
+			if not listenerOK then warn("[SPA_RaceControl] Subscriber error:",listenerError) end
+		end
 		return item
 	end)
 	if ok then return event end
@@ -2216,7 +2313,9 @@ function _setupUI1()  -- [SPAV4] global: libera registros del ámbito principal
 			spdBox.FocusLost:Connect(function()
 				local n=tonumber(spdBox.Text:gsub("%D",""))
 				if not customPlayerData[uid] then customPlayerData[uid]={name="",color=C_WHITE,imageId=""} end
+				local oldValue=customPlayerData[uid].speedLimit
 				customPlayerData[uid].speedLimit=n; spdBox.Text=n and tostring(n) or ""
+				if tostring(oldValue)~=tostring(n) then SPA_RaceControl:AddEvent("DRIVER_SPEED_LIMIT_CHANGED",{category="CONFIG",severity="INFO",uid=uid,name=getDisplayName(plr),operator=player.Name,oldValue=oldValue,newValue=n,title="DRIVER SPEED LIMIT",description=getDisplayName(plr)..": "..tostring(oldValue or "GLOBAL").." → "..tostring(n or "GLOBAL")}) end
 			end)
 			-- 2) Turbo máximo
 			mkLimL("⚡ Turbo máx", 102)
@@ -2686,9 +2785,15 @@ SPA_Crash = {
 	prevVel   = {},
 	pairCD    = {},
 	wallCD    = {},
+	candidates= {},
+	states    = {},
+	CELL_SIZE = 50,
+	CANDIDATE_WINDOW = 0.35,
 	log       = {},
 	scratch   = { impacted = {}, impactedList = {}, processed = {} },
 	rebuildFn = nil,
+	uiDirty   = true,
+	uiVisible = false,
 }
 
 local function _crashInVehicle(p)
@@ -2730,6 +2835,41 @@ local function _crashSeverity(delta)
 	else return "LEVE", C_YELLOW end
 end
 
+function SPA_Crash:RefreshUI()
+	self.uiDirty=true
+	if self.uiVisible and self.rebuildFn then self.rebuildFn(); self.uiDirty=false end
+end
+
+function SPA_Crash:RecordPair(uidA,a,uidB,b,dist,impactMag)
+	local key=uidA<uidB and (uidA.."_"..uidB) or (uidB.."_"..uidA); local now=tick()
+	if self.pairCD[key] and now-self.pairCD[key]<self.COOLDOWN_PAIR then return false end
+	self.pairCD[key]=now
+	local tipo=_crashType(a.vel,a.pos,b.pos); local sev,sevColor=_crashSeverity(impactMag)
+	local nA=getDisplayName(a.player); local nB=getDisplayName(b.player)
+	local kmhA=mfloor(a.vel.Magnitude*0.28*3.6*CAL_FACTOR+0.5); local kmhB=mfloor(b.vel.Magnitude*0.28*3.6*CAL_FACTOR+0.5)
+	table.insert(self.log,1,{time=os.date("%H:%M:%S"),type=tipo,sev=sev,sevColor=sevColor,nameA=nA,nameB=nB,speedA=kmhA,speedB=kmhB,delta=mfloor(impactMag),dist=mfloor(dist),wall=false})
+	if #self.log>self.MAX_LOG then table.remove(self.log) end
+	SPA_RaceControl:AddEvent("CRASH",{category="INCIDENTES",severity="WARN",uid=uidA,uidA=uidA,uidB=uidB,name=nA.." ↔ "..nB,severityName=sev,title="💥 INCIDENTE",description=nA.." ↔ "..nB.." — "..tipo.." — ΔV "..tostring(mfloor(impactMag)),lap=lapData[uidA] and lapData[uidA].lapsMade or 0,speed=kmhA,evidence="PAIR_DISTANCE_CLOSING_DV"})
+	if SPA_VehicleAudio then SPA_VehicleAudio:OnCrash(uidA,sev); SPA_VehicleAudio:OnCrash(uidB,sev) end
+	if _rpCapture then _rpCapture(uidA,nA,uidB,nB,impactMag,(a.pos+b.pos)*0.5) end
+	self.states[uidA]={state="CONFIRMED",at=now}; self.states[uidB]={state="CONFIRMED",at=now}
+	task.defer(function() self.states[uidA]={state="COOLDOWN",untilAt=now+self.COOLDOWN_PAIR}; self.states[uidB]={state="COOLDOWN",untilAt=now+self.COOLDOWN_PAIR} end)
+	self:RefreshUI(); return true
+end
+
+function SPA_Crash:RecordWall(uid,a,hit,impactMag)
+	local now=tick(); if self.wallCD[uid] and now-self.wallCD[uid]<self.COOLDOWN_WALL then return false end
+	self.wallCD[uid]=now
+	local sev,sevColor=_crashSeverity(impactMag); local nA=getDisplayName(a.player); local kmhA=mfloor(a.prevVel.Magnitude*0.28*3.6*CAL_FACTOR+0.5)
+	table.insert(self.log,1,{time=os.date("%H:%M:%S"),type="MURO",sev=sev,sevColor=sevColor,nameA=nA,nameB=nil,speedA=kmhA,speedB=0,delta=mfloor(impactMag),dist=hit.Distance,wall=true})
+	if #self.log>self.MAX_LOG then table.remove(self.log) end
+	SPA_RaceControl:AddEvent("CRASH",{category="INCIDENTES",severity="WARN",uid=uid,name=nA,severityName=sev,title="💥 INCIDENTE",description=nA.." — MURO — ΔV "..tostring(mfloor(impactMag)),lap=lapData[uid] and lapData[uid].lapsMade or 0,speed=kmhA,evidence="STATIC_RAYCAST_NORMAL_DV"})
+	if SPA_VehicleAudio then SPA_VehicleAudio:OnCrash(uid,sev) end
+	if _rpCapture then _rpCapture(uid,nA,nil,nil,impactMag,a.pos) end
+	self.states[uid]={state="CONFIRMED",at=now}; task.defer(function() self.states[uid]={state="COOLDOWN",untilAt=now+self.COOLDOWN_WALL} end)
+	self:RefreshUI(); return true
+end
+
 function _setupCollisionDetection()
 	local _tCrash = 0
 	RunService.Heartbeat:Connect(function(dt)
@@ -2737,102 +2877,51 @@ function _setupCollisionDetection()
 		_tCrash += dt
 		if _tCrash < 0.1 then return end   -- 10 Hz — menos carga que antes (era 20 Hz)
 		_tCrash = 0
-		local perfCrashStart = ENABLE_PERF_DIAGNOSTICS and os.clock() or nil
-
-		local impacted = SPA_Crash.scratch.impacted; table.clear(impacted)
-		local impactedList = SPA_Crash.scratch.impactedList; table.clear(impactedList)
-
-		for uid, st in pairs(PlayerState) do
-			if FIA_EXCLUDED[uid] then continue end
-			if pitData[uid] and pitData[uid].status == "En Boxes" then continue end
-			local vel = (st.inVehicle and st.seat) and st.seat.AssemblyLinearVelocity or nil
-			if not vel then SPA_Crash.prevVel[uid] = nil; continue end
-			local prev = SPA_Crash.prevVel[uid] or vel
-			local delta = (vel - prev).Magnitude
-			SPA_Crash.prevVel[uid] = vel
-			local speed = vel.Magnitude
-			if delta < SPA_Crash.THRESHOLD then continue end
-			if speed < SPA_Crash.MIN_SPEED and prev.Magnitude < SPA_Crash.MIN_SPEED then continue end
-			local ld = lapData[uid]
-			if ld and ld.lastLapTouch and (tick() - ld.lastLapTouch) < SPA_Crash.GRACE_LAP then continue end
-			if not st.root then continue end
-			impacted[uid] = { delta=delta, pos=st.position or st.root.Position, vel=vel, player=st.player }
-			impactedList[#impactedList + 1] = { uid = uid, data = impacted[uid] }
-		end
-
-		local processed = SPA_Crash.scratch.processed; table.clear(processed)
-		for i1, itemA in ipairs(impactedList) do
-			local uid1, d1 = itemA.uid, itemA.data
-			if processed[uid1] then continue end
-			local paired = false
-			for i2 = i1 + 1, #impactedList do
-				local itemB = impactedList[i2]
-				local uid2, d2 = itemB.uid, itemB.data
-				if processed[uid2] then continue end
-				local dist = (d1.pos - d2.pos).Magnitude
-				if dist > SPA_Crash.RADIUS then continue end
-				local k = uid1 < uid2 and (uid1.."_"..uid2) or (uid2.."_"..uid1)
-				if SPA_Crash.pairCD[k] and (tick()-SPA_Crash.pairCD[k]) < SPA_Crash.COOLDOWN_PAIR then
-					processed[uid1]=true; processed[uid2]=true; paired=true; break
-				end
-				SPA_Crash.pairCD[k] = tick()
-				processed[uid1]=true; processed[uid2]=true; paired=true
-				local tipo = _crashType(d1.vel, d1.pos, d2.pos)
-				local closingSpeed = (d1.vel - d2.vel).Magnitude
-				local impactMag = math.max(d1.delta, d2.delta, closingSpeed * 0.6)
-				local sev, sevColor = _crashSeverity(impactMag)
-				local nA = getDisplayName(d1.player)
-				local nB = getDisplayName(d2.player)
-				local kmhA = mfloor(d1.vel.Magnitude * 0.28 * 3.6 * CAL_FACTOR + 0.5)
-				local kmhB = mfloor(d2.vel.Magnitude * 0.28 * 3.6 * CAL_FACTOR + 0.5)
-				-- Sin notificación push — solo log
-				table.insert(SPA_Crash.log, 1, {
-					time=os.date("%H:%M:%S"), type=tipo, sev=sev, sevColor=sevColor,
-					nameA=nA, nameB=nB, speedA=kmhA, speedB=kmhB,
-					delta=mfloor(math.max(d1.delta,d2.delta)), dist=mfloor(dist), wall=false,
-				})
-				if #SPA_Crash.log > SPA_Crash.MAX_LOG then table.remove(SPA_Crash.log) end
-				SPA_RaceControl:AddEvent("CRASH", { category = "INCIDENTES", severity = "WARN", name = nA .. " ↔ " .. nB, title = "💥 INCIDENTE", description = nA .. " ↔ " .. nB .. " — " .. tipo .. " — ΔV " .. tostring(mfloor(impactMag)), lap = lapData[uid1] and lapData[uid1].lapsMade or 0, speed = kmhA })
-				if SPA_Crash.rebuildFn then SPA_Crash.rebuildFn() end
-				if sev == "LEVE" and PENALTY_CONFIG and proposeSanction then
-					CRASH_LEVE_COUNT = CRASH_LEVE_COUNT or {}
-					for _, uidX in ipairs({uid1, uid2}) do
-						CRASH_LEVE_COUNT[uidX] = (CRASH_LEVE_COUNT[uidX] or 0) + 1
-						if CRASH_LEVE_COUNT[uidX] == PENALTY_CONFIG.crashLeves then
-							proposeSanction(uidX, "Choques leves acumulados",
-								("%d choques leves (límite: %d)"):format(CRASH_LEVE_COUNT[uidX], PENALTY_CONFIG.crashLeves))
-						end
-					end
-				end
-				break
+		local perfCrashStart = ENABLE_PERF_DIAGNOSTICS and os.clock() or nil; local now=tick(); local buckets={}
+		for uid,st in pairs(PlayerState) do
+			local vel=st.inVehicle and st.velocity; local pos=st.vehiclePosition
+			if FIA_EXCLUDED[uid] or not vel or not pos or (pitData[uid] and pitData[uid].status=="En Boxes") then SPA_Crash.prevVel[uid]=nil; SPA_Crash.candidates[uid]=nil; SPA_Crash.states[uid]={state="IDLE"}; continue end
+			local prevVel=SPA_Crash.prevVel[uid] or vel; local prevPos=SPA_Crash.prevPos and SPA_Crash.prevPos[uid] or pos
+			SPA_Crash.prevVel[uid]=vel; SPA_Crash.prevPos=SPA_Crash.prevPos or {}; SPA_Crash.prevPos[uid]=pos
+			local data={uid=uid,player=st.player,pos=pos,prevPos=prevPos,vel=vel,prevVel=prevVel,delta=(vel-prevVel).Magnitude,seat=st.seat}
+			local crashState=SPA_Crash.states[uid]
+			if not crashState or (crashState.state=="COOLDOWN" and now>=(crashState.untilAt or 0)) then SPA_Crash.states[uid]={state="IDLE"} end
+			local cell=math.floor(pos.X/SPA_Crash.CELL_SIZE)..":"..math.floor(pos.Z/SPA_Crash.CELL_SIZE); buckets[cell]=buckets[cell] or {}; buckets[cell][#buckets[cell]+1]=data
+			local vertical=mabs((vel-prevVel).Y); local moved=(pos-prevPos).Magnitude; local ld=lapData[uid]
+			if data.delta>=SPA_Crash.THRESHOLD and math.max(vel.Magnitude,prevVel.Magnitude)>=SPA_Crash.MIN_SPEED and vertical<data.delta*0.68 and moved<80 and not (ld and ld.lastLapTouch and now-ld.lastLapTouch<SPA_Crash.GRACE_LAP) then
+				data.state="CANDIDATE"; data.at=now; data.expires=now+SPA_Crash.CANDIDATE_WINDOW; SPA_Crash.candidates[uid]=data; SPA_Crash.states[uid]=data
+				if SPA_Replay and SPA_Replay.Activate then SPA_Replay:Activate(uid,now+SPA_Replay.POST_SEC) end
 			end
-			if not paired then
-				processed[uid1] = true
-				if SPA_Crash.wallCD[uid1] and (tick()-SPA_Crash.wallCD[uid1]) < SPA_Crash.COOLDOWN_WALL then continue end
-				SPA_Crash.wallCD[uid1] = tick()
-				local nA = getDisplayName(d1.player)
-				local kmhA = mfloor(d1.vel.Magnitude * 0.28 * 3.6 * CAL_FACTOR + 0.5)
-				local sev, sevColor = _crashSeverity(d1.delta)
-				-- Sin notificación push — solo log
-				table.insert(SPA_Crash.log, 1, {
-					time=os.date("%H:%M:%S"), type="MURO", sev=sev, sevColor=sevColor,
-					nameA=nA, nameB=nil, speedA=kmhA, speedB=0,
-					delta=mfloor(d1.delta), dist=0, wall=true,
-				})
-				if #SPA_Crash.log > SPA_Crash.MAX_LOG then table.remove(SPA_Crash.log) end
-				SPA_RaceControl:AddEvent("CRASH", { category = "INCIDENTES", severity = "WARN", uid = uid1, name = nA, title = "💥 INCIDENTE", description = nA .. " — MURO — ΔV " .. tostring(mfloor(d1.delta)), lap = lapData[uid1] and lapData[uid1].lapsMade or 0, speed = kmhA })
-				if SPA_Crash.rebuildFn then SPA_Crash.rebuildFn() end
-				if sev == "LEVE" and PENALTY_CONFIG and proposeSanction then
-					CRASH_LEVE_COUNT = CRASH_LEVE_COUNT or {}
-					CRASH_LEVE_COUNT[uid1] = (CRASH_LEVE_COUNT[uid1] or 0) + 1
-					if CRASH_LEVE_COUNT[uid1] == PENALTY_CONFIG.crashLeves then
-						proposeSanction(uid1, "Choques leves acumulados",
-							("%d choques leves (límite: %d)"):format(CRASH_LEVE_COUNT[uid1], PENALTY_CONFIG.crashLeves))
+		end
+		SPA_PerfMark("CrashCandidate",perfCrashStart)
+		local perfConfirmStart=ENABLE_PERF_DIAGNOSTICS and os.clock() or nil; local processed={}
+		for uid,a in pairs(SPA_Crash.candidates) do
+			if a.expires<now then SPA_Crash.candidates[uid]=nil; SPA_Crash.states[uid]={state="IDLE"}; continue end
+			local cx,cz=math.floor(a.pos.X/SPA_Crash.CELL_SIZE),math.floor(a.pos.Z/SPA_Crash.CELL_SIZE); local confirmed=false
+			for dx=-1,1 do for dz=-1,1 do
+				for _,b in ipairs(buckets[(cx+dx)..":"..(cz+dz)] or {}) do
+					if b.uid==uid or processed[b.uid] then continue end
+					local dist=(a.pos-b.pos).Magnitude; if dist>SPA_Crash.RADIUS or dist<0.01 then continue end
+					local dir=(b.pos-a.pos).Unit; local closing=(a.prevVel-b.prevVel):Dot(dir); local priorDist=(a.prevPos-b.prevPos).Magnitude
+					if b.delta>=SPA_Crash.THRESHOLD*0.35 and closing>=6 and priorDist>=dist-0.5 then
+						local impact=math.max(a.delta,b.delta,(a.prevVel-b.prevVel).Magnitude*0.6)
+						if SPA_Crash:RecordPair(uid,a,b.uid,b,dist,impact) then processed[uid]=true; processed[b.uid]=true; SPA_Crash.candidates[b.uid]=nil; confirmed=true end
+						break
 					end
+				end
+				if confirmed then break end
+			end end; if confirmed then SPA_Crash.candidates[uid]=nil; continue end
+			local motion=a.pos-a.prevPos
+			if motion.Magnitude>=0.5 and motion.Magnitude<=30 then
+				local params=RaycastParams.new(); params.FilterType=Enum.RaycastFilterType.Exclude; params.FilterDescendantsInstances={a.player.Character,_telGetRootModel(a.seat)}; params.IgnoreWater=true
+				local ray=Workspace:Raycast(a.prevPos,motion.Unit*(motion.Magnitude+2),params)
+				if ray and ray.Instance and ray.Instance:IsA("BasePart") and ray.Instance.Anchored and ray.Instance.CanCollide and a.prevVel.Magnitude>0 then
+					local opposed=ray.Normal:Dot(a.prevVel.Unit)<-0.45
+					if opposed and ray.Distance<=motion.Magnitude+2 and SPA_Crash:RecordWall(uid,a,ray,a.delta) then processed[uid]=true; SPA_Crash.candidates[uid]=nil end
 				end
 			end
 		end
-		SPA_PerfMark("Crash", perfCrashStart)
+		SPA_PerfMark("CrashConfirm",perfConfirmStart); SPA_PerfMark("Crash",perfCrashStart)
 	end)
 
 	-- ── UI de la pestaña CHOQUES ─────────────────────────────────
@@ -2915,6 +3004,11 @@ function _setupCollisionDetection()
 
 	SPA_Crash.rebuildFn = rebuildChoquesUI
 	rebuildChoquesUI()
+	SPA_Crash.uiVisible=choquesFrame.Visible
+	choquesFrame:GetPropertyChangedSignal("Visible"):Connect(function()
+		SPA_Crash.uiVisible=choquesFrame.Visible
+		if choquesFrame.Visible and SPA_Crash.uiDirty then rebuildChoquesUI(); SPA_Crash.uiDirty=false end
+	end)
 end
 
 
@@ -2929,6 +3023,7 @@ SPA_Analysis = {
 	FLY_TIME      = 2.8,  -- segundos en el aire sin vehículo = posible vuelo/noclip
 	data          = {},   -- [uid] = {maxSpeed, airTime, lastPos, lastPosTick, flags, anomalies, status}
 	rebuildFn     = nil,
+	uiDirty      = true,
 }
 
 local function _analHasFlag(flags, f)
@@ -2961,27 +3056,20 @@ function _setupAnalysisDetection()
 		local now   = tick()
 		local dirty = false
 
-		-- Construir set de UIDs activos para limpieza
-		local activeUids = {}
-		for _, p in ipairs(Players:GetPlayers()) do activeUids[p.UserId] = true end
 		for uid in pairs(SPA_Analysis.data) do
-			if not activeUids[uid] then SPA_Analysis.data[uid] = nil; dirty = true end
+			if not PlayerState[uid] then SPA_Analysis.data[uid] = nil; dirty = true end
 		end
 
-		for _, p in ipairs(Players:GetPlayers()) do
+		for uid,st in pairs(PlayerState) do
+			local p=st.player
 			if p == player then continue end  -- no analizarse a uno mismo
-			local uid  = p.UserId
-			local char = p.Character
-			if not char then continue end
-			local hrp  = char:FindFirstChild("HumanoidRootPart")
-			local hum  = char:FindFirstChildOfClass("Humanoid")
+			local hrp=st.root; local hum=st.humanoid
 			if not hrp or not hum then continue end
 
 			local d       = _initData(uid)
 			local pos     = hrp.Position
-			local speed   = hrp.AssemblyLinearVelocity.Magnitude
-			local seat    = hum.SeatPart
-			local inVeh   = seat and (seat:IsA("VehicleSeat") or seat:IsA("Seat")) and seat.Occupant == hum
+			local speed   = st.characterSpeed or 0
+			local inVeh=st.inVehicle
 
 			-- ── Velocidad máxima vista ──────────────────────────────
 			if speed > d.maxSpeed then d.maxSpeed = speed; dirty = true end
@@ -3031,7 +3119,10 @@ function _setupAnalysisDetection()
 			if d.status ~= prev then dirty = true end
 		end
 
-		if dirty and SPA_Analysis.rebuildFn then SPA_Analysis.rebuildFn() end
+		if dirty then
+			SPA_Analysis.uiDirty=true
+			if SPA_Analysis.rebuildFn and tabFrames["ANÁLISIS"] and tabFrames["ANÁLISIS"].Visible then SPA_Analysis.rebuildFn(); SPA_Analysis.uiDirty=false end
+		end
 	end)
 
 	-- ── UI de la pestaña ANÁLISIS ─────────────────────────────────
@@ -3084,6 +3175,7 @@ function _setupAnalysisDetection()
 	_analHintLbl.Parent = _analHint
 
 	local function rebuildAnalUI()
+		SPA_Analysis.uiDirty=false
 		-- Solo replays: limpiar todo excepto UIListLayout y tarjetas de replay
 		for _, c in ipairs(analScroll:GetChildren()) do
 			if not c:GetAttribute("IsReplayCard") and not c:IsA("UIListLayout") then
@@ -3115,15 +3207,8 @@ function _setupAnalysisDetection()
 
 	SPA_Analysis.rebuildFn = rebuildAnalUI
 	rebuildAnalUI()
-
-	-- Refresh periódico de la UI (incluso cuando no hay dirty)
-	task.spawn(function()
-		while analFrame.Parent do
-			task.wait(2)
-			if tabFrames["ANÁLISIS"] and tabFrames["ANÁLISIS"].Visible then
-				rebuildAnalUI()
-			end
-		end
+	analFrame:GetPropertyChangedSignal("Visible"):Connect(function()
+		if analFrame.Visible and (SPA_Analysis.uiDirty or (SPA_Replay and SPA_Replay.uiDirty)) then rebuildAnalUI(); if SPA_Replay then SPA_Replay.uiDirty=false end end
 	end)
 end
 
@@ -3157,25 +3242,34 @@ SPA_Telemetry = {
 	turboCache   = {},
 	-- [DRIFT FIX] conexiones activas por uid (para desconectar al salir del vehículo)
 	driftConns   = {},
+	current      = {},
+	rootBySeat   = setmetatable({},{__mode="k"}),
 }
 
 function _telGetRootModel(seat)
 	if not seat then return nil end
-	-- Resolver el coche antes que modelos agrupadores del mapa.
+	local cachedRoot=SPA_Telemetry.rootBySeat[seat]
+	if cachedRoot and cachedRoot.Parent and (seat==cachedRoot or seat:IsDescendantOf(cachedRoot)) then return cachedRoot end
+	-- Puntuar ancestros y preferir el modelo de vehículo completo, no un submodelo de rueda/asiento.
 	local assembly = seat.AssemblyRootPart
 	local cur = seat.Parent
-	local nearest
+	local nearest,best,bestScore=nil,nil,-math.huge
 	while cur and cur ~= Workspace do
 		if cur:IsA("Model") then
 			nearest = nearest or cur
-			if cur:FindFirstChild("Body") or cur:FindFirstChild("Wheels")
-				or (assembly and assembly ~= seat and assembly:IsDescendantOf(cur)) then
-				return cur
-			end
+			local score=0
+			if seat:IsDescendantOf(cur) then score+=3 end
+			if assembly and assembly:IsDescendantOf(cur) then score+=2 end
+			if cur:FindFirstChild("Wheels",true) then score+=4 end
+			if cur:FindFirstChild("Body",true) then score+=3 end
+			if cur:FindFirstChild("Chassis",true) then score+=3 end
+			if cur:FindFirstChild("PhysicalWheel",true) then score+=3 end
+			if #cur:GetChildren()<2 then score-=4 end
+			if score>bestScore then best,bestScore=cur,score end
 		end
 		cur = cur.Parent
 	end
-	return nearest or seat
+	return (bestScore>=7 and best) or nearest or seat
 end
 
 -- PhysicalWheel calibration supplied for V2.22.4. Never round RAW before matching.
@@ -3248,12 +3342,40 @@ end
 
 -- Read-only reactive Drift: one initial scan, then wheel/property lifecycle signals.
 function _telReadDriftFriction(part)
-	local ok,raw=pcall(function()
-		local properties=part.CustomPhysicalProperties
-		return properties and properties.Friction
-	end)
-	if ok and type(raw)=="number" and raw==raw and mabs(raw)~=math.huge then return raw end
-	return nil
+	local okCustom,custom=pcall(function() return part.CustomPhysicalProperties end)
+	if okCustom and custom and type(custom.Friction)=="number" and custom.Friction==custom.Friction then return custom.Friction,"CUSTOM" end
+	local okCurrent,current=pcall(function() return part.CurrentPhysicalProperties end)
+	if okCurrent and current and type(current.Friction)=="number" and current.Friction==current.Friction then return current.Friction,"CURRENT" end
+	return nil,"UNAVAILABLE"
+end
+
+function SPA_Telemetry:IsDriftWheel(part,root)
+	if not part or not part:IsA("BasePart") then return false,nil end
+	local name=part.Name:lower()
+	if name=="physicalwheel" or name:find("physicalwheel",1,true) then return true,"PHYSICALWHEEL" end
+	local inWheels=false; local node=part.Parent
+	while node and node~=root do if node.Name:lower()=="wheels" then inWheels=true; break end; node=node.Parent end
+	if not inWheels then return false,nil end
+	local rear=name:find("rear",1,true) or name:find("back",1,true) or name=="rl" or name=="rr" or name:find("leftrear",1,true) or name:find("rightrear",1,true)
+	local customOk,custom=pcall(function() return part.CustomPhysicalProperties end)
+	if rear and customOk and custom then return true,"REAR_PHYSICAL" end
+	return false,nil
+end
+
+function SPA_Telemetry:DiscoverDriftWheels(seat,vehicleRoot)
+	local root=vehicleRoot or _telGetRootModel(seat); local found={}
+	if not root then return found end
+	local anchor=(root:IsA("Model") and root.PrimaryPart) or seat
+	for _,part in ipairs(root:GetDescendants()) do
+		local valid,evidence=self:IsDriftWheel(part,root)
+		if valid then
+			local raw,source=_telReadDriftFriction(part); local localZ=0
+			pcall(function() localZ=anchor.CFrame:PointToObjectSpace(part.Position).Z end)
+			local n=part.Name:lower(); local rear=n:find("rear",1,true) or n:find("back",1,true) or n=="rl" or n=="rr" or localZ>0.2
+			found[#found+1]={part=part,raw=raw,source=source,role=rear and "REAR" or "OTHER",evidence=evidence,localZ=localZ}
+		end
+	end
+	return found
 end
 
 function _telDriftCancelTimer(state)
@@ -3271,24 +3393,34 @@ function _telDriftRefresh(state)
 		local _,_,_,_,physical=_telPhysicalToDrift(raw)
 		if physical then
 			local group=groups[physical]
-			if not group then group={count=0,raw=raw}; groups[physical]=group end
+			if not group then group={count=0,raw=raw,wheel=wheel}; groups[physical]=group end
 			group.count+=1; group.raw=math.min(group.raw,raw) -- actual observation, not an average
 			if not largest or group.count>largest.count then largest=group end
 		end
 	end
 	local recent=state.lastChanged and state.wheels[state.lastChanged]
 	local _,_,_,_,recentPhysical=_telPhysicalToDrift(recent and recent.raw)
-	local consensus=largest and largest.count==total
-	local chosen=consensus and largest.raw or nil
-	if recentPhysical then chosen=recent.raw
-	elseif not chosen and largest and largest.count>total/2 then chosen=largest.raw end
+	local chosen,chosenWheel=nil,nil; local authority="UNRESOLVED"
+	if recentPhysical then chosen=recent.raw; chosenWheel=recent; authority="RECENT_CHANGED" end
+	if not chosen then
+		local rearGroups,rearLargest={},nil
+		for _,wheel in pairs(state.wheels) do
+			local _,_,_,_,physical=_telPhysicalToDrift(wheel.raw)
+			if wheel.role=="REAR" and physical then
+				local g=rearGroups[physical] or {count=0,raw=wheel.raw,wheel=wheel}; rearGroups[physical]=g; g.count+=1
+				if not rearLargest or g.count>rearLargest.count then rearLargest=g end
+			end
+		end
+		if rearLargest then chosen=rearLargest.raw; chosenWheel=rearLargest.wheel; authority="REAR_CLUSTER" end
+	end
+	if not chosen and largest then chosen=largest.raw; chosenWheel=largest.wheel; authority="STABLE_CLUSTER" end
 
 	if total==0 then
 		_telDriftCancelTimer(state); state.pendingSince=nil; state.pending=false; state.stableRaw=nil
 		SPA_Telemetry.latestDrift[state.key]=nil
 		return
 	end
-	if not consensus then
+	if chosen and recent and recentPhysical then
 		-- Contradictory updates coalesce for 100 ms. Unknowns retain the previous
 		-- same-vehicle display for at most 150 ms, without issuing stale alerts.
 		state.pendingSince=state.pendingSince or tick()
@@ -3309,8 +3441,9 @@ function _telDriftRefresh(state)
 	-- An unknown but uniform RAW is retained as RAW; the matcher still returns N/A.
 	if not chosen and rawMin~=math.huge and rawMax-rawMin<=SPA_Telemetry.DRIFT_EPSILON then chosen=rawMin end
 	SPA_Telemetry.latestDrift[state.key]=chosen
-	local _,status=_telPhysicalToDrift(chosen)
+	local resolved,status,low,high=_telPhysicalToDrift(chosen)
 	state.stableRaw=status~="UNKNOWN" and chosen or nil
+	state.diagnostics={root=state.root and state.root:GetFullName() or "N/A",wheelCount=total,raw=chosen,source=chosenWheel and chosenWheel.source or nil,role=chosenWheel and chosenWheel.role or authority,resolved=resolved,low=low,high=high,status=status,authority=authority}
 end
 
 local function _telStopDrift(uid)
@@ -3331,24 +3464,34 @@ local function _telWatchDrift(uid,seat)
 	SPA_Telemetry.driftConns[uid]=state
 	local root=_telGetRootModel(seat)
 	if not root then return end
+	state.root=root
+	local vc=VehicleCache and VehicleCache[uid]
 	local function remove(part)
 		local wheel=state.wheels[part]
 		if not wheel then return end
 		for _,connection in ipairs(wheel.connections) do connection:Disconnect() end
 		state.wheels[part]=nil
+		if vc and vc.driftWheels then for i=#vc.driftWheels,1,-1 do if vc.driftWheels[i].part==part then table.remove(vc.driftWheels,i) end end end
 		if state.lastChanged==part then state.lastChanged=nil end
 		_telDriftRefresh(state)
 	end
-	local function attach(part)
-		if state.wheels[part] or not part:IsA("BasePart") or not part.Name:lower():find("physicalwheel",1,true) then return end
-		local wheel={raw=_telReadDriftFriction(part),connections={}}
+	local function attach(part,record)
+		local valid,evidence=SPA_Telemetry:IsDriftWheel(part,root)
+		if state.wheels[part] or not valid then return end
+		local raw,source=_telReadDriftFriction(part); local role=record and record.role
+		if not role then
+			local n=part.Name:lower(); local anchor=(root:IsA("Model") and root.PrimaryPart) or seat; local localZ=0; pcall(function() localZ=anchor.CFrame:PointToObjectSpace(part.Position).Z end)
+			role=(n:find("rear",1,true) or n:find("back",1,true) or n=="rl" or n=="rr" or localZ>0.2) and "REAR" or "OTHER"
+			record={part=part,raw=raw,source=source,role=role,evidence=evidence,localZ=localZ}; if vc then vc.driftWheels=vc.driftWheels or {}; vc.driftWheels[#vc.driftWheels+1]=record end
+		end
+		local wheel={raw=raw,source=source,role=role,evidence=evidence,connections={}}
 		state.wheels[part]=wheel
 		table.insert(wheel.connections,part:GetPropertyChangedSignal("CustomPhysicalProperties"):Connect(function()
 			if SPA_Telemetry.driftConns[uid]~=state or state.wheels[part]~=wheel then return end
-			local previous=wheel.raw; local raw=_telReadDriftFriction(part); wheel.raw=raw
+			local previous=wheel.raw; local nextRaw,nextSource=_telReadDriftFriction(part); wheel.raw=nextRaw; wheel.source=nextSource
 			local _,oldStatus,_,_,oldMatch=_telPhysicalToDrift(previous)
-			local _,newStatus,_,_,newMatch=_telPhysicalToDrift(raw)
-			if oldMatch~=newMatch or oldStatus~=newStatus or (raw and previous and mabs(raw-previous)>0.001) then
+			local _,newStatus,_,_,newMatch=_telPhysicalToDrift(nextRaw)
+			if oldMatch~=newMatch or oldStatus~=newStatus or (nextRaw and previous and mabs(nextRaw-previous)>0.001) then
 				state.lastChanged=part
 				_telDriftRefresh(state)
 			end
@@ -3370,7 +3513,9 @@ local function _telWatchDrift(uid,seat)
 	table.insert(state,root.AncestryChanged:Connect(function()
 		if not root:IsDescendantOf(Workspace) then stop() end
 	end))
-	for _,part in ipairs(root:GetDescendants()) do attach(part) end
+	local discovered=SPA_Telemetry:DiscoverDriftWheels(seat,root)
+	if vc and vc.vehicleRoot==root then vc.driftWheels=discovered end
+	for _,record in ipairs(discovered) do attach(record.part,record) end
 	_telDriftRefresh(state)
 end
 
@@ -3389,6 +3534,12 @@ function _telGetDrift(seat,uid)
 	local value,status,lower,upper=_telPhysicalToDrift(raw)
 	if state.pending then return _telFormatDrift(value,status),nil,nil,"TRANSITION" end
 	return _telFormatDrift(value,status),lower,upper,status
+end
+
+function SPA_Telemetry:Diagnostics(uid)
+	local state=self.driftConns[uid]; local d=state and state.diagnostics
+	if not d then return "DRIFT · UNRESOLVED · no cached wheel evidence" end
+	return ("DRIFT · %s\nRoot: %s\nWheels: %d · RAW: %s · Source: %s · Role: %s\nResolved: %s · Range: %s/%s"):format(tostring(d.status),tostring(d.root),d.wheelCount or 0,tostring(d.raw),tostring(d.source or "N/A"),tostring(d.role or "N/A"),tostring(d.resolved or "N/A"),tostring(d.low or "N/A"),tostring(d.high or "N/A"))
 end
 
 function _telGetSusp(seat)
@@ -3444,37 +3595,40 @@ SPA_Tires = {
 	STABLE_TIME  = 2.0,   -- segundos de estabilidad antes de disparar notificación
 	_stableTimer = {},    -- [uid] = {cpd=compound, since=tick()}
 	scanCache   = {},     -- [root] = {at=timestamp, value=compound}
+	uiDirty    = true,
+	frame      = nil,
 }
 
 function _tirGetCompound(seat)
 	local root = _telGetRootModel(seat)
 	if not root then return nil end
-	local now = tick()
 	local cached = SPA_Tires.scanCache[root]
-	if cached and now - cached.at < 1 then return cached.value end
-	local result = nil
-	for _, part in ipairs(root:GetDescendants()) do
-		if result then break end
-		if part:IsA("BasePart") then
-			local nm = part.Name:lower()
-			if nm:find("physicalwheel") or nm:find("wheel") then
-				-- MeshPart con TextureID
-				if part:IsA("MeshPart") and part.TextureID and part.TextureID ~= "" then
-					local id = part.TextureID:match("%d+")
-					if id and SPA_Tires.COMPOUNDS[id] then result = SPA_Tires.COMPOUNDS[id]; break end
-				end
-				-- Decal / Texture hijo
-				for _, child in ipairs(part:GetChildren()) do
-					if (child:IsA("Decal") or child:IsA("Texture")) and child.Texture and child.Texture ~= "" then
-						local id = child.Texture:match("%d+")
-						if id and SPA_Tires.COMPOUNDS[id] then result = SPA_Tires.COMPOUNDS[id]; break end
+	if not cached or cached.invalid then
+		if cached and cached.connections then for _,conn in ipairs(cached.connections) do pcall(function() conn:Disconnect() end) end end
+		cached={sources={},connections={},invalid=false}
+		local function invalidate() cached.invalid=true end
+		cached.connections[#cached.connections+1]=root.DescendantAdded:Connect(invalidate)
+		cached.connections[#cached.connections+1]=root.DescendantRemoving:Connect(invalidate)
+		for _,part in ipairs(root:GetDescendants()) do
+			if part:IsA("BasePart") then
+				local nm=part.Name:lower()
+				if nm:find("physicalwheel",1,true) or nm:find("wheel",1,true) then
+					if part:IsA("MeshPart") then cached.sources[#cached.sources+1]={object=part,property="TextureID"}; cached.connections[#cached.connections+1]=part:GetPropertyChangedSignal("TextureID"):Connect(invalidate) end
+					for _,child in ipairs(part:GetChildren()) do
+						if child:IsA("Decal") or child:IsA("Texture") then cached.sources[#cached.sources+1]={object=child,property="Texture"}; cached.connections[#cached.connections+1]=child:GetPropertyChangedSignal("Texture"):Connect(invalidate) end
 					end
 				end
 			end
 		end
+		SPA_Tires.scanCache[root]=cached
 	end
-	SPA_Tires.scanCache[root] = { at = now, value = result }
-	return result
+	for _,source in ipairs(cached.sources) do
+		if source.object.Parent then
+			local ok,value=pcall(function() return source.object[source.property] end); local id=ok and value and tostring(value):match("%d+")
+			if id and SPA_Tires.COMPOUNDS[id] then return SPA_Tires.COMPOUNDS[id] end
+		end
+	end
+	return nil
 end
 
 function _tirLogChange(p, oldCpd, newCpd, inPit)
@@ -3496,7 +3650,9 @@ function _tirLogChange(p, oldCpd, newCpd, inPit)
 	if #SPA_Tires.log > SPA_Tires.MAX_LOG then table.remove(SPA_Tires.log) end
 	local locStr = inPit and "PIT" or "PISTA"
 	showNotification(newCpd.icon .. "  " .. getDisplayName(p) .. "  →  " .. newCpd.name .. "  [" .. locStr .. "]", newCpd.color, newCpd.icon, 164)
-	if SPA_Tires.rebuildFn then SPA_Tires.rebuildFn() end
+	SPA_Tires.uiDirty=true
+	SPA_RaceControl:AddEvent("TYRE_CHANGED",{category="CARRERA",severity="INFO",uid=uid,name=getDisplayName(p),title="TYRE CHANGED",description=(oldCpd and oldCpd.name or "N/A").." → "..newCpd.name,lap=lap})
+	if SPA_Tires.rebuildFn and SPA_Tires.frame and SPA_Tires.frame.Visible then SPA_Tires.rebuildFn(); SPA_Tires.uiDirty=false end
 end
 
 -- ════════════════════════════════════════════════════════════════
@@ -3509,51 +3665,65 @@ SPA_Replay = {
 	RADIUS     = 20,    -- [OPT] radio más selectivo: menos comparaciones, menos lag
 	BUF_SEC    = 5.0,   -- segundos de historia en el ring buffer
 	POST_SEC   = 3.0,   -- [POST] segundos que se siguen grabando después del impacto
-	BUF_HZ     = 12,    -- [OPT] menos muestras/segundo para reducir CPU y memoria
+	BUF_HZ     = 15,
+	PRE_HZ     = 4,
+	HIFI_HZ    = 15,
 	MIN_DV     = 8,     -- Δv mínimo para capturar (capta rozones)
 	COOLDOWN   = 3,     -- segundos entre capturas del mismo par
 	MAX_EVENTS = 15,    -- eventos máximos guardados en ANÁLISIS
 	buffers    = {},    -- [uid] → tabla de muestras {pos,vel,t}
+	hifi       = {},
+	active     = {},
 	pairCD     = {},    -- ["uidA_uidB"] = tick() última captura
 	events     = {},    -- lista de eventos capturados
 	rebuildFn  = nil,
+	uiDirty    = true,
 }
 
--- Empuja una muestra al buffer del jugador (tabla simple con límite)
-function _rpBufPush(uid, pos, vel, rot)
-	local b = SPA_Replay.buffers[uid]
-	if not b then b = {}; SPA_Replay.buffers[uid] = b end
-	local maxN = math.ceil(SPA_Replay.BUF_SEC * SPA_Replay.BUF_HZ)
-	local now = tick()
-	local last = b[#b]
-	if last and (pos - last.pos).Magnitude < 0.03 and (vel - last.vel).Magnitude < 0.1 then
-		last.t = now; last.pos = pos; last.vel = vel; last.rot = rot
-		return
-	end
-	-- rot = CFrame de rotación del vehículo (sin traslación), para replay fiel
-	b[#b + 1] = { pos = pos, vel = vel, rot = rot, t = now }
-	if #b > maxN then table.remove(b, 1) end
+function _rpRingPush(ring,sample,capacity)
+	if not ring then ring={data={},head=0,count=0,capacity=capacity} end
+	ring.capacity=capacity
+	local last=ring.count>0 and ring.data[ring.head] or nil
+	if last and (sample.pos-last.pos).Magnitude<0.03 and (sample.vel-last.vel).Magnitude<0.1 then ring.data[ring.head]=sample; return ring end
+	ring.head=ring.head%capacity+1; ring.data[ring.head]=sample; ring.count=math.min(ring.count+1,capacity)
+	return ring
 end
 
--- Devuelve copia del buffer actual (orden cronológico)
+function _rpRingSnap(ring)
+	local out={}; if not ring or ring.count==0 then return out end
+	local first=(ring.head-ring.count+ring.capacity)%ring.capacity+1
+	for i=0,ring.count-1 do out[#out+1]=ring.data[(first+i-1)%ring.capacity+1] end
+	return out
+end
+
+function _rpBufPush(uid,pos,vel,rot,hifi)
+	local source=hifi and SPA_Replay.hifi or SPA_Replay.buffers; local hz=hifi and SPA_Replay.HIFI_HZ or SPA_Replay.PRE_HZ
+	source[uid]=_rpRingPush(source[uid],{pos=pos,vel=vel,rot=rot,t=tick()},math.ceil(SPA_Replay.BUF_SEC*hz))
+end
+
 function _rpBufSnap(uid)
-	local src = SPA_Replay.buffers[uid]
-	if not src then return {} end
-	local snap = {}
-	for i, s in ipairs(src) do snap[i] = s end
+	local snap=_rpRingSnap(SPA_Replay.buffers[uid]); local high=_rpRingSnap(SPA_Replay.hifi[uid])
+	for _,sample in ipairs(high) do snap[#snap+1]=sample end
+	table.sort(snap,function(a,b) return a.t<b.t end)
 	return snap
+end
+
+function SPA_Replay:Activate(uid,untilAt)
+	self.active[uid]=math.max(self.active[uid] or 0,untilAt or (tick()+self.POST_SEC))
 end
 
 -- Captura un evento de contacto y lo guarda en events
 function _rpCapture(uidA, nameA, uidB, nameB, dv, posImp)
 	local now = tick()
-	local key = uidA < uidB and (uidA .. "_" .. uidB) or (uidB .. "_" .. uidA)
+	local key = uidB and (uidA < uidB and (uidA .. "_" .. uidB) or (uidB .. "_" .. uidA)) or (uidA.."_WALL")
 	if SPA_Replay.pairCD[key] and now - SPA_Replay.pairCD[key] < SPA_Replay.COOLDOWN then return end
 	SPA_Replay.pairCD[key] = now
+	SPA_Replay:Activate(uidA,now+SPA_Replay.POST_SEC+0.25); if uidB then SPA_Replay:Activate(uidB,now+SPA_Replay.POST_SEC+0.25) end
 
 	-- [POST FIX] Guardamos el buffer PRE impacto ahora y, tras POST_SEC,
 	-- añadimos solo las muestras posteriores al impacto para ver qué pasó después.
 	local impactAt = now
+	local generation=SPA_Session and SPA_Session.generation or 0
 	local preA = _rpBufSnap(uidA)
 	local preB = uidB and _rpBufSnap(uidB) or {}
 
@@ -3568,6 +3738,7 @@ function _rpCapture(uidA, nameA, uidB, nameB, dv, posImp)
 	end
 
 	task.delay(SPA_Replay.POST_SEC, function()
+		if SPA_Session and SPA_Session.generation~=generation then return end
 		local postA = _rpBufSnap(uidA)
 		local postB = uidB and _rpBufSnap(uidB) or {}
 		local ev = {
@@ -3583,7 +3754,8 @@ function _rpCapture(uidA, nameA, uidB, nameB, dv, posImp)
 		}
 		table.insert(SPA_Replay.events, 1, ev)
 		if #SPA_Replay.events > SPA_Replay.MAX_EVENTS then table.remove(SPA_Replay.events) end
-		if SPA_Replay.rebuildFn then SPA_Replay.rebuildFn() end
+		SPA_Replay.uiDirty=true
+		if SPA_Replay.rebuildFn and tabFrames["ANÁLISIS"] and tabFrames["ANÁLISIS"].Visible then SPA_Replay.rebuildFn(); SPA_Replay.uiDirty=false end
 	end)
 end
 
@@ -3745,68 +3917,24 @@ end
 
 function _setupReplayDetection()
 
-	-- ── 1) Ring buffer: muestrear todos los jugadores a BUF_HZ ───
-	local _tBuf = 0
+	-- Prebuffer ligero para todos; alta fidelidad solo durante candidatos confirmables.
+	local _tBuf,_tPre = 0,0
 	RunService.Heartbeat:Connect(function(dt)
 		if not ENABLE_CRASH_SYSTEM then return end
-		_tBuf += dt
-		if _tBuf < 1 / SPA_Replay.BUF_HZ then return end
-		_tBuf = 0
-		local perfReplayStart = ENABLE_PERF_DIAGNOSTICS and os.clock() or nil
+		_tBuf += dt; _tPre += dt
+		if _tBuf < 1/SPA_Replay.HIFI_HZ then return end
+		_tBuf=0; local now=tick(); local doPre=_tPre>=1/SPA_Replay.PRE_HZ; if doPre then _tPre=0 end
+		local perfPreStart = doPre and ENABLE_PERF_DIAGNOSTICS and os.clock() or nil; local perfHiStart=ENABLE_PERF_DIAGNOSTICS and os.clock() or nil
 		for uid, st in pairs(PlayerState) do
-			if not st.inVehicle or not st.seat then continue end
-			local seat = st.seat
-			-- [ROT FIX] capturar rotación real del vehículo para replay fiel
-			local rotOnly = nil
-			do
-				local ok_cf, cf = pcall(function() return seat.CFrame end)
-				if ok_cf and cf then
-					rotOnly = CFrame.fromMatrix(Vector3.zero, cf.XVector, cf.YVector, cf.ZVector)
-				end
-			end
-			_rpBufPush(uid, seat.Position, seat.AssemblyLinearVelocity, rotOnly)
+			if not st.inVehicle or not st.vehiclePosition or not st.velocity or not st.seatCFrame then continue end
+			local cf=st.seatCFrame; local rotOnly=CFrame.fromMatrix(Vector3.zero,cf.XVector,cf.YVector,cf.ZVector)
+			if doPre then _rpBufPush(uid,st.vehiclePosition,st.velocity,rotOnly,false) end
+			if (SPA_Replay.active[uid] or 0)>=now then _rpBufPush(uid,st.vehiclePosition,st.velocity,rotOnly,true) else SPA_Replay.active[uid]=nil end
 		end
-			SPA_PerfMark("Replay", perfReplayStart)
+		SPA_PerfMark("ReplayPrebuffer",perfPreStart); SPA_PerfMark("ReplayHiFi",perfHiStart)
 	end)
 
-	-- ── 2) Proximidad + pequeño‑Δv (0.1 s) ───────────────────────
-	local _tPrx, _prevV = 0, {}
-	RunService.Heartbeat:Connect(function(dt)
-		if not ENABLE_CRASH_SYSTEM then return end
-		_tPrx += dt
-		if _tPrx < 0.15 then return end  -- [OPT] revisar proximidad menos veces
-		_tPrx = 0
-		local curV, curP, uid2P = {}, {}, {}
-		for uid, st in pairs(PlayerState) do
-			if not st.inVehicle or not st.seat or not st.root then continue end
-			uid2P[uid] = st.player
-			curV[uid]  = st.seat.AssemblyLinearVelocity
-			-- [PRECISION FIX] usar seat.Position (centro del coche) para posición exacta
-			curP[uid]  = st.seat.Position
-		end
-		for uidA, vA in pairs(curV) do
-			local prev = _prevV[uidA]
-			if not prev then continue end
-			local dvA = (vA - prev).Magnitude
-			if dvA < SPA_Replay.MIN_DV then continue end
-			local pA = curP[uidA]
-			if not pA then continue end
-			for uidB, pB in pairs(curP) do
-				if uidB == uidA then continue end
-				if (pA - pB).Magnitude <= SPA_Replay.RADIUS then
-					local pa = uid2P[uidA]; local pb = uid2P[uidB]
-					if pa and pb then
-						_rpCapture(uidA, getDisplayName(pa), uidB, getDisplayName(pb), dvA, pA)
-					end
-				end
-			end
-		end
-		_prevV = curV
-		-- [FIX] NO borrar buffers al salir — los snapshots ya están capturados
-		-- y si borramos los buffers los eventos grabados pueden quedar buggeados
-	end)
-
-	-- ── 3) UI en pestaña ANÁLISIS ─────────────────────────────────
+	-- UI en pestaña ANÁLISIS
 	local analFrame = tabFrames["ANÁLISIS"]
 	if not analFrame then return end
 	local analScroll = analFrame:FindFirstChildOfClass("ScrollingFrame")
@@ -4003,6 +4131,7 @@ function _setupReplayDetection()
 
 	-- Reconstruye la sección de replays en analScroll
 	local function rebuildCards()
+		SPA_Replay.uiDirty=false
 		for _, c in ipairs(analScroll:GetChildren()) do
 			if c:GetAttribute("IsReplayCard") then c:Destroy() end
 		end
@@ -4035,8 +4164,13 @@ function _setupReplayDetection()
 end
 
 
--- V2.18: audio acotado y detección observacional; sin nuevos Heartbeats.
+-- V2.22.8: audio, calibración y efectos visuales; sin nuevos Heartbeats.
+SPA_MANAGED_AUDIO = {SPA_IDLE_SOUND=true,SPA_DRIVE_SOUND=true,SPA_SHIFT_SOUND=true,SPA_SKID_SOUND=true}
 SPA_AudioRetry = { MAX_ATTEMPTS = 5, INTERVAL = 0.5, initialized = false }
+
+function SPA_AudioRetry:IsManaged(sound)
+	return sound and sound:IsA("Sound") and (SPA_MANAGED_AUDIO[sound.Name] or sound:GetAttribute("SPAManagedAudio")==true)
+end
 
 function SPA_AudioRetry:IsVehicle(seat, root, character)
 	if not seat or not seat.Parent or not root or not root.Parent or not root:IsA("Model") then return false end
@@ -4055,95 +4189,718 @@ function SPA_AudioRetry:Log(uid, message)
 	end
 end
 
-function SPA_AudioRetry:Exhaust(uid, vc)
-	if vc.audioState == "EXHAUSTED" then return end
-	vc.audioState = "EXHAUSTED"; vc.audioReady = false
-	if vc.audioConn then vc.audioConn:Disconnect(); vc.audioConn = nil end
-	-- Cancelar también una carga pendiente: no debe empezar a sonar tras agotarse.
-	if vc.engineSound and vc.engineSound.Parent and vc.audioOwnsSound then
-		vc.engineSound:Stop()
+function SPA_AudioRetry:IsOriginalDrivingSound(sound)
+	if not sound or not sound:IsA("Sound") or self:IsManaged(sound) then return false end
+	local name=string.lower(sound.Name)
+	for _,excluded in ipairs({"horn","bocina","siren","radio","music","ui","door","alarm","lock","beep"}) do
+		if name:find(excluded,1,true) then return false end
 	end
-	self:Log(uid, "EXHAUSTED seat=" .. tostring(vc.seatId))
+	for _,driving in ipairs({"engine","motor","vehicle","drive","acceleration","accelerate","rpm","exhaust","transmission","gear","skid","tire","tyre"}) do
+		if name:find(driving,1,true) then return true end
+	end
+	return false
 end
 
-function SPA_AudioRetry:MarkReady(uid, vc)
-	if vc.audioState == "READY" then return end
-	vc.audioState = "READY"; vc.audioReady = true
+function SPA_AudioRetry:RemoveOriginalDrivingSound(sound)
+	if not self:IsOriginalDrivingSound(sound) then return end
+	pcall(function() sound:Stop(); sound:Destroy() end)
+end
+
+function SPA_AudioRetry:TakeControl(uid,st,vc)
+	if vc.audioScanned then return true end
+	if not self:IsVehicle(st.seat,vc.vehicleRoot,st.character) then vc.audioLastError="asiento sin vehículo físico válido"; return false end
+	vc.audioScanned=true
+	for _,obj in ipairs(vc.vehicleRoot:GetDescendants()) do self:RemoveOriginalDrivingSound(obj) end
 	if not vc.audioConn then
-		vc.audioConn = vc.vehicleRoot.DescendantAdded:Connect(function(obj)
-			if obj:IsA("Sound") and obj ~= vc.engineSound then obj:Destroy() end
+		vc.audioConn=vc.vehicleRoot.DescendantAdded:Connect(function(obj)
+			if SPA_AudioRetry:IsManaged(obj) then
+				if obj.Name=="SPA_IDLE_SOUND" then vc.idleSound=vc.idleSound or obj end
+				if obj.Name=="SPA_DRIVE_SOUND" then vc.driveSound=vc.driveSound or obj end
+				if obj.Name=="SPA_SHIFT_SOUND" then vc.shiftSound=vc.shiftSound or obj end
+				if obj.Name=="SPA_SKID_SOUND" then vc.skidSound=vc.skidSound or obj end
+			elseif SPA_AudioRetry:IsOriginalDrivingSound(obj) then
+				task.defer(function() if obj.Parent then SPA_AudioRetry:RemoveOriginalDrivingSound(obj) end end)
+			end
 		end)
 	end
-	self:Log(uid, "READY")
-end
-
-function SPA_AudioRetry:Attempt(st, vc)
-	if not self:IsVehicle(st.seat, vc.vehicleRoot, st.character) then
-		vc.audioLastError = "asiento sin vehículo físico válido"
-		return
-	end
-	-- Una sola búsqueda y limpieza por identidad, incluso si falla la carga.
-	if not vc.audioScanned then
-		vc.audioScanned = true
-		local sounds = {}
-		for _, obj in ipairs(vc.vehicleRoot:GetDescendants()) do
-			if obj:IsA("Sound") then
-				sounds[#sounds + 1] = obj
-				if obj.Name == "SPA_ENGINE_SOUND" and obj.SoundId == SPA_ENGINE_SOUND_ID
-					and obj.Parent and obj.Parent:IsA("BasePart") then
-					vc.engineSound = vc.engineSound or obj
-				end
-			end
-		end
-		for _, sound in ipairs(sounds) do
-			if sound ~= vc.engineSound then sound:Destroy() end
-		end
-	end
-	local sound = vc.engineSound
-	if not sound or not sound.Parent then
-		sound = Instance.new("Sound")
-		vc.engineSound = sound; vc.audioOwnsSound = true
-		sound.Name = "SPA_ENGINE_SOUND"
-		sound.SoundId = SPA_ENGINE_SOUND_ID
-		sound.Volume = SPA_ENGINE_VOLUME
-		sound.Looped = true
-		sound.Parent = st.seat
-	end
-	sound.SoundId = SPA_ENGINE_SOUND_ID
-	sound.Volume = SPA_ENGINE_VOLUME
-	sound.Looped = true
-	sound:Play()
-	vc.audioLastError = nil
+	vc.audioReady=true; vc.audioState="READY"; vc.audioLastError=nil
+	self:Log(uid,"READY · original driving audio replaced")
+	return true
 end
 
 function SPA_AudioRetry:Step(uid, st, vc, now)
-	if not self.initialized or not vc or vc.cleaned or vc.audioState == "EXHAUSTED" then return end
-	if vc.audioState == "READY" then
-		-- READY no recrea sonidos. Si se destruye, queda detenido hasta cambiar identidad.
-		if not vc.engineSound or not vc.engineSound.Parent then self:Exhaust(uid, vc) end
+	if not self.initialized or not vc or vc.cleaned or vc.audioState=="READY" then return end
+	if vc.attemptCount>0 and now-vc.lastAttempt<self.INTERVAL then return end
+	vc.attemptCount+=1; vc.lastAttempt=now; vc.audioState="ATTEMPTING"
+	local ok,err=xpcall(function()
+		if self:TakeControl(uid,st,vc) and SPA_VehicleAudio then SPA_VehicleAudio:Build(uid,vc) end
+	end,debug.traceback)
+	if not ok then
+		vc.audioLastError=tostring(err); vc.audioState=vc.attemptCount>=self.MAX_ATTEMPTS and "EXHAUSTED" or "PENDING"
+		self:Log(uid,"error="..tostring(err))
+	end
+end
+
+-- Dynamic engine, simulated gearbox and persistent skid effects. This module is
+-- stepped from HB-SPEED, so it adds no independent Heartbeat connection.
+SPA_VehicleAudio = {
+	START_SPEED=30,STOP_SPEED=27,SHIFT_COUNT=8,SHIFT_COOLDOWN=0.20,
+	SKID_MIN_SPEED=35,SKID_MIN_ANGLE=22,GROUND_INTERVAL=0.12,EMIT_INTERVAL=0.10,
+}
+
+-- V2.22.8: scalable weather uses one camera emitter and the existing wheel emitters.
+-- No vehicle physics properties are read or written by these modules.
+SPA_WeatherFX = {
+	mode="CLEAR",intensity=SPA_RAIN_INTENSITY,trackWetness=0,densityCurrent=0,densityTarget=0,
+	originalLighting=nil,color=nil,atmosphere=nil,clouds=nil,rainPart=nil,rainAttachment=nil,rainEmitter=nil,
+	generation=0,lastStepAt=nil,lastWetness=0,nextThunderAt=0,lightningActive=false,
+}
+
+SPA_StormFX = { thunder=nil }
+
+function SPA_WeatherFX:IntensityMultiplier(intensity)
+	local scale=({LIGHT=0.3,HEAVY=1,STORM=1.4})[intensity or self.intensity] or 1
+	return SPA_RAIN_DENSITY_MULTIPLIER*scale
+end
+
+function SPA_WeatherFX:WetnessStatus()
+	local wetness=math.clamp(self.trackWetness or 0,0,1)
+	if wetness>=0.9 then return "SOAKED" elseif wetness>=0.65 then return "VERY WET" elseif wetness>=0.35 then return "WET" elseif wetness>0.02 then return "DAMP" end
+	return "DRY"
+end
+
+function SPA_WeatherFX:AddEvent(kind,data)
+	if not SPA_RaceControl then return end
+	data=type(data)=="table" and data or {}
+	data.category=data.category or "WEATHER"; data.severity=data.severity or "INFO"
+	data.operator=data.operator or (player and player.Name or "Operator")
+	data.name=data.name or data.operator; data.weather=data.weather or self.intensity
+	data.wetness=math.floor(math.clamp(self.trackWetness or 0,0,1)*100+0.5)
+	SPA_RaceControl:AddEvent(kind,data)
+end
+
+function SPA_WeatherFX:CaptureLighting()
+	if self.originalLighting then return end
+	local lighting=game:GetService("Lighting")
+	self.originalLighting={
+		Brightness=lighting.Brightness,ExposureCompensation=lighting.ExposureCompensation,
+		Ambient=lighting.Ambient,OutdoorAmbient=lighting.OutdoorAmbient,
+		FogColor=lighting.FogColor,FogStart=lighting.FogStart,FogEnd=lighting.FogEnd,
+	}
+end
+
+function SPA_WeatherFX:Owned(parent,name,className)
+	local found=parent:FindFirstChild(name)
+	if found and found:IsA(className) and found:GetAttribute("SPAWeatherOwned")==true then return found end
+	local object=Instance.new(className); object.Name=name; object:SetAttribute("SPAWeatherOwned",true); object.Parent=parent
+	return object
+end
+
+function SPA_WeatherFX:Ensure()
+	local lighting=game:GetService("Lighting")
+	if not self.color or not self.color.Parent then
+		self.color=self:Owned(lighting,"SPA_RAIN_COLOR","ColorCorrectionEffect")
+		self.color.Brightness=0; self.color.Contrast=0; self.color.Saturation=0; self.color.TintColor=Color3.new(1,1,1)
+	end
+	self.color.Enabled=true
+	if not self.atmosphere or not self.atmosphere.Parent then
+		self.atmosphere=self:Owned(lighting,"SPA_RAIN_ATMOSPHERE","Atmosphere")
+		self.atmosphere.Density=0; self.atmosphere.Haze=0; self.atmosphere.Glare=0
+	end
+	local terrain=Workspace.Terrain
+	if not self.clouds or not self.clouds.Parent then
+		self.clouds=self:Owned(terrain,"SPA_RAIN_CLOUDS","Clouds")
+		self.clouds.Cover=0; self.clouds.Density=0; self.clouds.Color=Color3.new(1,1,1)
+	end
+	if not self.rainPart or not self.rainPart.Parent then
+		self.rainPart=Instance.new("Part"); self.rainPart.Name="SPA_RAIN_CAMERA_FX"; self.rainPart:SetAttribute("SPAWeatherOwned",true)
+		self.rainPart.Size=Vector3.new(54,1,54); self.rainPart.Transparency=1; self.rainPart.Anchored=true
+		self.rainPart.CanCollide=false; self.rainPart.CanTouch=false; self.rainPart.CanQuery=false; self.rainPart.Parent=Workspace
+		self.rainAttachment=nil
+		self.rainEmitter=Instance.new("ParticleEmitter"); self.rainEmitter.Name="SPA_RAIN_CAMERA_DROPS"; self.rainEmitter.Parent=self.rainPart
+		self.rainEmitter.Texture="rbxasset://textures/particles/sparkles_main.dds"
+		self.rainEmitter.Enabled=false; self.rainEmitter.Rate=0; self.rainEmitter.Lifetime=NumberRange.new(0.38,0.62)
+		self.rainEmitter.Speed=NumberRange.new(75,105); self.rainEmitter.Acceleration=Vector3.new(0,-45,0)
+		self.rainEmitter.EmissionDirection=Enum.NormalId.Bottom; self.rainEmitter.SpreadAngle=Vector2.new(8,8)
+		self.rainEmitter.Shape=Enum.ParticleEmitterShape.Box; self.rainEmitter.ShapeStyle=Enum.ParticleEmitterShapeStyle.Volume
+		self.rainEmitter.LightInfluence=1; self.rainEmitter.LockedToPart=false
+		self.rainEmitter.Color=ColorSequence.new(Color3.fromRGB(220,230,235),Color3.fromRGB(245,248,250))
+		self.rainEmitter.Transparency=NumberSequence.new({NumberSequenceKeypoint.new(0,0.35),NumberSequenceKeypoint.new(0.8,0.55),NumberSequenceKeypoint.new(1,1)})
+		self.rainEmitter.Size=NumberSequence.new({NumberSequenceKeypoint.new(0,0.07),NumberSequenceKeypoint.new(1,0.03)})
+	end
+end
+
+function SPA_WeatherFX:Tween(instance,properties,duration)
+	if not instance or not instance.Parent then return nil end
+	local ok,tween=pcall(function()
+		return TweenService:Create(instance,TweenInfo.new(duration or 1,Enum.EasingStyle.Quad,Enum.EasingDirection.InOut),properties)
+	end)
+	if ok and tween then tween:Play(); return tween end
+	return nil
+end
+
+function SPA_WeatherFX:ApplyRainTargets(duration)
+	if not self.originalLighting then return end
+	self:Ensure(); self.color.Enabled=true
+	local lighting=game:GetService("Lighting"); local original=self.originalLighting
+	local profile=({
+		LIGHT={dark=0.80,exposure=-0.18,mix=0.24,fog=120,fogEnd=1100,colorBright=-0.04,contrast=0.07,saturation=-0.16,atmosphere=0.18,haze=0.8,cover=0.68,cloudDensity=0.42},
+		HEAVY={dark=0.68,exposure=-0.32,mix=0.40,fog=90,fogEnd=850,colorBright=-0.08,contrast=0.12,saturation=-0.28,atmosphere=0.28,haze=1.35,cover=0.90,cloudDensity=0.62},
+		STORM={dark=0.52,exposure=-0.48,mix=0.58,fog=65,fogEnd=650,colorBright=-0.13,contrast=0.17,saturation=-0.38,atmosphere=0.36,haze=1.85,cover=1,cloudDensity=0.82},
+	})[self.intensity]
+	self:Tween(lighting,{
+		Brightness=math.max(0,original.Brightness*profile.dark),ExposureCompensation=original.ExposureCompensation+profile.exposure,
+		Ambient=original.Ambient:Lerp(Color3.fromRGB(82,92,104),profile.mix),OutdoorAmbient=original.OutdoorAmbient:Lerp(Color3.fromRGB(96,107,120),profile.mix),
+		FogColor=original.FogColor:Lerp(Color3.fromRGB(155,170,184),profile.mix),FogStart=math.min(original.FogStart,profile.fog),FogEnd=math.min(original.FogEnd,profile.fogEnd),
+	},duration or 3)
+	self:Tween(self.color,{Brightness=profile.colorBright,Contrast=profile.contrast,Saturation=profile.saturation,TintColor=Color3.fromRGB(200,214,226)},duration or 3)
+	self:Tween(self.atmosphere,{Density=profile.atmosphere,Haze=profile.haze,Glare=0,Color=Color3.fromRGB(190,205,216),Decay=Color3.fromRGB(96,110,126)},duration or 3)
+	self:Tween(self.clouds,{Cover=profile.cover,Density=profile.cloudDensity,Color=Color3.fromRGB(182,192,202)},duration or 3)
+end
+
+function SPA_WeatherFX:SetIntensity(intensity)
+	assert(intensity=="LIGHT" or intensity=="HEAVY" or intensity=="STORM","Rain intensity must be LIGHT, HEAVY or STORM")
+	if self.intensity==intensity then return false end
+	local previous=self.intensity; self.intensity=intensity; SPA_RAIN_INTENSITY=intensity
+	if self.mode=="RAIN" then
+		self.densityTarget=self:IntensityMultiplier(intensity); self:ApplyRainTargets(3)
+		self:AddEvent("RAIN_INTENSITY_CHANGED",{oldValue=previous,newValue=intensity,title="🌧 RAIN INTENSITY",description=("Rain intensity: %s → %s"):format(previous,intensity)})
+		if intensity=="STORM" then
+			self.nextThunderAt=tick()+math.random(18,50)
+			self:AddEvent("STORM_STARTED",{oldValue=previous,newValue=intensity,title="⛈ STORM STARTED",description="Storm conditions are now active."})
+		end
+	end
+	if SPA_ControlCenter and SPA_ControlCenter.RefreshEffects then SPA_ControlCenter:RefreshEffects() end
+	return true
+end
+
+function SPA_WeatherFX:SetMode(mode)
+	assert(mode=="CLEAR" or mode=="RAIN","Invalid weather mode")
+	if self.mode==mode then return false end
+	local perfStart=ENABLE_PERF_DIAGNOSTICS and os.clock() or nil
+	self.generation+=1; local generation=self.generation; local lighting=game:GetService("Lighting")
+	if mode=="RAIN" then
+		self:CaptureLighting(); self:Ensure(); self.mode="RAIN"; self.intensity=SPA_RAIN_INTENSITY
+		self.densityTarget=self:IntensityMultiplier(); self.lastStepAt=tick(); self:ApplyRainTargets(3)
+		self.rainEmitter.Enabled=true
+		self.nextThunderAt=self.intensity=="STORM" and tick()+math.random(18,50) or 0
+	else
+		self.mode="CLEAR"; self.densityTarget=0; self.nextThunderAt=0
+		if self.originalLighting then self:Tween(lighting,self.originalLighting,3) end
+		self:Tween(self.color,{Brightness=0,Contrast=0,Saturation=0,TintColor=Color3.new(1,1,1)},3)
+		self:Tween(self.atmosphere,{Density=0,Haze=0,Glare=0},3)
+		self:Tween(self.clouds,{Cover=0,Density=0},3)
+		task.delay(3.05,function()
+			if self.generation==generation and self.mode=="CLEAR" and self.color and self.color.Parent then self.color.Enabled=false end
+		end)
+	end
+	SPA_PerfMark("WeatherFX",perfStart,mode)
+	return true
+end
+
+function SPA_WeatherFX:WetnessEvents(previous,current)
+	local upward=current>previous
+	local thresholds=upward and {0.25,0.50,0.75,1.00} or {0.75,0.50,0.25,0}
+	for _,threshold in ipairs(thresholds) do
+		local crossed=upward and previous<threshold and current>=threshold or (not upward and previous>threshold and current<=threshold)
+		if crossed then
+			self:AddEvent("TRACK_WETNESS",{level=math.floor(threshold*100+0.5),direction=upward and "RISING" or "DRYING",title="💧 TRACK WETNESS",description=("Track wetness %s: %d%%"):format(upward and "reached" or "fell to",math.floor(threshold*100+0.5))})
+		end
+	end
+end
+
+function SPA_StormFX:Flash()
+	if SPA_WeatherFX.mode~="RAIN" or SPA_WeatherFX.intensity~="STORM" or SPA_WeatherFX.lightningActive then return end
+	SPA_WeatherFX.lightningActive=true
+	local lighting=game:GetService("Lighting"); local color=SPA_WeatherFX.color
+	local oldExposure=lighting.ExposureCompensation; local oldBrightness=color and color.Brightness or 0
+	lighting.ExposureCompensation=oldExposure+0.85
+	if color and color.Parent then color.Brightness=math.min(0.22,oldBrightness+0.30) end
+	if type(SPA_THUNDER_SOUND_ID)=="string" and SPA_THUNDER_SOUND_ID:match("^rbxassetid://%d+$") then
+		local soundService=game:GetService("SoundService")
+		if not self.thunder or not self.thunder.Parent then
+			self.thunder=Instance.new("Sound"); self.thunder.Name="SPA_STORM_THUNDER"; self.thunder:SetAttribute("SPAWeatherOwned",true); self.thunder.Parent=soundService
+		end
+		self.thunder.SoundId=SPA_THUNDER_SOUND_ID; self.thunder.Volume=SPA_THUNDER_VOLUME; self.thunder.PlaybackSpeed=1.0; self.thunder.TimePosition=0; self.thunder:Play()
+	end
+	task.delay(math.random(8,20)/100,function()
+		if SPA_WeatherFX.mode=="RAIN" and SPA_WeatherFX.intensity=="STORM" then
+			lighting.ExposureCompensation=oldExposure
+			if color and color.Parent then color.Brightness=oldBrightness end
+		end
+		SPA_WeatherFX.lightningActive=false
+	end)
+end
+
+function SPA_WeatherFX:Step()
+	local now=tick(); local dt=math.clamp(now-(self.lastStepAt or now),0,0.25); self.lastStepAt=now
+	local perfStart=ENABLE_PERF_DIAGNOSTICS and os.clock() or nil
+	local densityDelta=self.densityTarget-self.densityCurrent
+	local densityStep=SPA_RAIN_DENSITY_MULTIPLIER*1.4*dt/3
+	self.densityCurrent+=math.clamp(densityDelta,-densityStep,densityStep)
+	local previous=self.trackWetness
+	if self.mode=="RAIN" then
+		local soakSeconds=({LIGHT=180,HEAVY=90,STORM=60})[self.intensity] or 90
+		self.trackWetness=math.clamp(previous+dt/soakSeconds,0,1)
+	else
+		self.trackWetness=math.clamp(previous-dt/SPA_TRACK_DRYING_SECONDS,0,1)
+	end
+	if self.trackWetness~=previous then self:WetnessEvents(previous,self.trackWetness) end
+	if self.rainPart and self.rainPart.Parent then
+		local camera=Workspace.CurrentCamera
+		if camera then self.rainPart.CFrame=CFrame.new(camera.CFrame.Position+Vector3.new(0,12,0)) end
+		if self.rainEmitter then
+			local onboard=SPA_Onboard and SPA_Onboard.active and 1.3 or 1
+			self.rainEmitter.Rate=math.min(1800,115*self.densityCurrent*onboard)
+			self.rainEmitter.Enabled=SPA_EFFECT_MODE~="OFF" and self.densityCurrent>0.05 and self.rainEmitter.Rate>1
+		end
+	end
+	if self.mode=="RAIN" and self.intensity=="STORM" and self.nextThunderAt>0 and now>=self.nextThunderAt then
+		self.nextThunderAt=now+math.random(18,50); SPA_StormFX:Flash()
+	end
+	if SPA_ControlCenter and SPA_ControlCenter.initialized and SPA_ControlCenter.panel and SPA_ControlCenter.panel.Visible and now-(self.lastHomeRefresh or 0)>=0.25 then
+		self.lastHomeRefresh=now; SPA_ControlCenter:RefreshEffects()
+	end
+	SPA_PerfMark("RainFX",perfStart)
+end
+
+function SPA_WeatherFX:Cleanup()
+	self.generation+=1; self.mode="CLEAR"; self.densityTarget=0; self.densityCurrent=0; self.nextThunderAt=0
+	local lighting=game:GetService("Lighting")
+	if self.originalLighting then
+		for property,value in pairs(self.originalLighting) do pcall(function() lighting[property]=value end) end
+	end
+	for _,object in ipairs({self.color,self.atmosphere,self.clouds,self.rainPart}) do
+		if object and object.Parent and object:GetAttribute("SPAWeatherOwned")==true then pcall(function() object:Destroy() end) end
+	end
+	if SPA_StormFX.thunder and SPA_StormFX.thunder.Parent and SPA_StormFX.thunder:GetAttribute("SPAWeatherOwned")==true then pcall(function() SPA_StormFX.thunder:Destroy() end) end
+	SPA_StormFX.thunder=nil
+	self.color=nil; self.atmosphere=nil; self.clouds=nil; self.rainPart=nil; self.rainAttachment=nil; self.rainEmitter=nil
+end
+
+SPA_Effects = { VALID={OFF=true,NORMAL=true,RAIN=true},RAIN_MAX_RATE=180,RAIN_MAX_BURST=80 }
+
+function SPA_Effects:LOD(uid,vc,now)
+	if now-(vc.lastFxLodCheck or 0)<0.25 then return vc.fxLod or 1 end
+	vc.lastFxLodCheck=now
+	if SPA_Onboard and SPA_Onboard.active and SPA_Onboard.current and SPA_Onboard.current.UserId==uid then vc.fxLod=1; return 1 end
+	local camera=Workspace.CurrentCamera
+	local distance=(camera and vc.seat and vc.seat.Parent) and (camera.CFrame.Position-vc.seat.Position).Magnitude or 0
+	vc.fxDistance=distance
+	vc.fxLod=distance<=125 and 1 or (distance<=250 and 0.75 or (distance<=400 and 0.40 or (distance<=600 and 0.15 or 0)))
+	return vc.fxLod
+end
+
+function SPA_Effects:ApplyVehicle(vc)
+	if not vc then return end
+	vc.skidStrongActive=false
+	for _,emitter in ipairs(vc.skidEmitters or {}) do
+		if emitter and emitter.Parent then emitter.Enabled=false; emitter.Rate=0 end
+	end
+end
+
+function SPA_Effects:SetMode(mode)
+	assert(self.VALID[mode]==true,"Effect mode must be OFF, NORMAL or RAIN")
+	if SPA_EFFECT_MODE==mode then return false end
+	local perfStart=ENABLE_PERF_DIAGNOSTICS and os.clock() or nil
+	local previous=SPA_EFFECT_MODE; SPA_EFFECT_MODE=mode
+	local weatherChanged=SPA_WeatherFX:SetMode(mode=="RAIN" and "RAIN" or "CLEAR")
+	for _,vc in pairs(VehicleCache or {}) do self:ApplyVehicle(vc) end
+	if weatherChanged then
+		local kind=mode=="RAIN" and "RAIN_STARTED" or (previous=="RAIN" and "RAIN_STOPPED" or "WEATHER_CHANGED")
+		SPA_WeatherFX:AddEvent(kind,{oldValue=previous,newValue=mode,previous=previous,mode=mode,title=mode=="RAIN" and "🌧 RAIN STARTED" or (previous=="RAIN" and "🌤 RAIN STOPPED" or "🌦 WEATHER CHANGE"),description=("Vehicle & Weather Effects: %s → %s"):format(previous,mode)})
+	end
+	if SPA_ControlCenter and SPA_ControlCenter.RefreshEffects then SPA_ControlCenter:RefreshEffects() end
+	showNotification(("Vehicle & Weather Effects: %s"):format(mode),mode=="RAIN" and C_BLUE or (mode=="NORMAL" and C_GREEN or C_GRAY),"🌦",5)
+	SPA_PerfMark("VehicleFX",perfStart,previous.."->"..mode)
+	return true
+end
+
+function SPA_Effects:SetRainIntensity(intensity)
+	local changed=SPA_WeatherFX:SetIntensity(intensity)
+	if changed then showNotification(("Rain intensity: %s"):format(intensity),intensity=="STORM" and C_RED or C_BLUE,intensity=="STORM" and "⛈" or "🌧",5) end
+	return changed
+end
+
+if SPA_EFFECT_MODE=="RAIN" then SPA_WeatherFX:SetMode("RAIN") end
+
+function SPA_VehicleAudio:ValidSoundId(value)
+	return type(value)=="string" and value:match("^rbxassetid://%d+$")~=nil
+end
+
+function SPA_VehicleAudio:ManagedSound(parent,name,soundId,looped,volume,vc,ownerKey)
+	if not parent then return nil end
+	local sound=parent:FindFirstChild(name)
+	if sound and not sound:IsA("Sound") then sound=nil end
+	if not sound then
+		sound=Instance.new("Sound"); sound.Name=name; sound.Parent=parent
+	end
+	sound:SetAttribute("SPAManagedAudio",true); vc[ownerKey]=true
+	sound.SoundId=self:ValidSoundId(soundId) and soundId or ""
+	sound.Looped=looped==true; sound.Volume=volume or 0; sound.PlaybackSpeed=1.0
+	return sound
+end
+
+function SPA_VehicleAudio:BuildThresholds(vc,topSpeed)
+	if vc.shiftTop and math.abs(vc.shiftTop-topSpeed)<0.05 and vc.gearThresholds then return end
+	vc.shiftTop=topSpeed; vc.gearThresholds={}; vc.shiftThresholds=vc.gearThresholds
+	local startSpeed=tonumber(SPA_ENGINE_START_SPEED) or self.START_SPEED
+	local finish=math.max(startSpeed+8,topSpeed*0.95)
+	for index=1,self.SHIFT_COUNT do
+		vc.gearThresholds[index]=startSpeed+(finish-startSpeed)*(index/self.SHIFT_COUNT)
+	end
+end
+
+function SPA_VehicleAudio:ResetCalibration(vc)
+	if not vc then return end
+	vc.gearCalibrated=false; vc.calibrationActive=false; vc.calibrationArmed=false
+	vc.calibrationStartedAt=nil; vc.calibrationSamples={}; vc.calibrationPeakSpeed=0
+	vc.calibrationLowSpeed=nil; vc.detectedTopSpeed=nil; vc.gearThresholds=nil; vc.shiftThresholds=nil; vc.shiftTop=nil
+	vc.currentGear=1; vc.lastGear=1; vc.simGear=1; vc.previousSpeed=0; vc.lastShiftAt=0
+	vc.shiftRunReady=false; vc.audioStoppedSince=nil; vc.calibrationBlockedUntil=0
+end
+
+function SPA_VehicleAudio:CalibrationBlocked(uid,vc,now)
+	local drs=DRS_STATE and DRS_STATE[uid]; local ot=OT_STATE and OT_STATE[uid]
+	local pit=pitData and pitData[uid] and pitData[uid].status=="En Boxes"
+	local pitState=SPA_PitLimiter and SPA_PitLimiter.states and SPA_PitLimiter.states[uid]
+	return (drs and drs.active) or (ot and ot.active) or pit or (pitState and pitState.active)
+		or vc.nitrousWasActive==true or (vc.skidIntensity or 0)>=0.55
+		or now<(vc.skidForcedUntil or vc.forcedSkidUntil or 0) or now<(vc.calibrationBlockedUntil or 0)
+end
+
+function SPA_VehicleAudio:ObserveCalibration(uid,vc,now,speed,teleported)
+	if vc.gearCalibrated then return end
+	local startSpeed=tonumber(SPA_ENGINE_START_SPEED) or self.START_SPEED
+	if teleported then
+		table.clear(vc.calibrationSamples); vc.calibrationBlockedUntil=now+0.5
 		return
 	end
-	-- La reproducción se comprueba después de dar tiempo a la carga asíncrona.
-	if vc.audioState == "ATTEMPTING" then
-		local sound = vc.engineSound
-		if sound and sound.Parent and sound.IsLoaded and sound.IsPlaying then
-			self:MarkReady(uid, vc)
-			return
+	if speed<startSpeed then table.clear(vc.calibrationSamples); return end
+	vc.calibrationActive=true; vc.calibrationStartedAt=vc.calibrationStartedAt or now
+	if self:CalibrationBlocked(uid,vc,now) then table.clear(vc.calibrationSamples); return end
+	vc.calibrationLowSpeed=math.min(vc.calibrationLowSpeed or speed,speed)
+	vc.calibrationPeakSpeed=math.max(vc.calibrationPeakSpeed or 0,speed)
+	if vc.calibrationPeakSpeed-vc.calibrationLowSpeed>=25 then vc.calibrationArmed=true end
+	local samples=vc.calibrationSamples
+	samples[#samples+1]={speed=speed,time=now}
+	while samples[1] and now-samples[1].time>4.0 do table.remove(samples,1) end
+	if not vc.calibrationArmed or #samples<40 or now-samples[1].time<3.85 then return end
+	local bins={}
+	for _,sample in ipairs(samples) do
+		local bin=math.floor(sample.speed+0.5); bins[bin]=(bins[bin] or 0)+1
+	end
+	local bestBin,bestCount=nil,0
+	for bin in pairs(bins) do
+		local count=0
+		for offset=-2,2 do count+=bins[bin+offset] or 0 end
+		if count>bestCount then bestBin=bin; bestCount=count end
+	end
+	if not bestBin then return end
+	local total,inliers=0,0
+	for _,sample in ipairs(samples) do
+		if math.abs(sample.speed-bestBin)<=2 then total+=sample.speed; inliers+=1 end
+	end
+	if inliers/#samples<0.85 then return end
+	local candidate=inliers>0 and total/inliers or bestBin
+	local slope=math.abs(samples[#samples].speed-samples[1].speed)
+	if slope>2.5 or candidate<(vc.calibrationPeakSpeed or candidate)*0.95 then return end
+	vc.detectedTopSpeed=candidate; vc.gearCalibrated=true; vc.calibrationActive=false
+	vc.calibrationSamples={}; vc.currentGear=1; vc.lastGear=1; vc.simGear=1; vc.shiftRunReady=false
+	self:BuildThresholds(vc,candidate)
+	showNotification(("Transmisión calibrada · %.1f studs/s · 8 cambios"):format(candidate),C_GREEN,"⚙",6)
+end
+
+function SPA_VehicleAudio:GearAtSpeed(vc,speed)
+	local gear=1
+	for _,threshold in ipairs(vc.gearThresholds or {}) do if speed>=threshold then gear+=1 end end
+	return math.clamp(gear,1,self.SHIFT_COUNT+1)
+end
+
+function SPA_VehicleAudio:FindWheels(vc)
+	vc.skidWheels={}; vc.skidAttachments={}; vc.skidEmitters={}; vc.skidOwnedEmitters={}
+	if not vc.vehicleRoot then return end
+	local candidates={}
+	for _,obj in ipairs(vc.vehicleRoot:GetDescendants()) do
+		if obj:IsA("BasePart") then
+			local lower=string.lower(obj.Name)
+			if obj.Name=="PhysicalWheel" or lower:find("wheel",1,true) or lower:find("tire",1,true) then
+				candidates[#candidates+1]=obj
+			end
 		end
-		if now - vc.lastAttempt < self.INTERVAL then return end
-		if vc.attemptCount >= self.MAX_ATTEMPTS then self:Exhaust(uid, vc); return end
 	end
-	if vc.attemptCount > 0 and now - vc.lastAttempt < self.INTERVAL then return end
-	vc.attemptCount += 1; vc.lastAttempt = now; vc.audioState = "ATTEMPTING"
-	self:Log(uid, ("attempt=%d/%d"):format(vc.attemptCount, self.MAX_ATTEMPTS))
-	local ok, err = xpcall(function() self:Attempt(st, vc) end, debug.traceback)
-	if not ok then
-		vc.audioLastError = tostring(err)
-		self:Log(uid, "error=" .. tostring(err))
+	table.sort(candidates,function(a,b)
+		local an=string.lower(a:GetFullName()); local bn=string.lower(b:GetFullName())
+		local ar=(an:find("rear",1,true) or an:find("back",1,true) or an:match("[^%w]r[lr][^%w]*$")) and 0 or (a.Name=="PhysicalWheel" and 1 or 2)
+		local br=(bn:find("rear",1,true) or bn:find("back",1,true) or bn:match("[^%w]r[lr][^%w]*$")) and 0 or (b.Name=="PhysicalWheel" and 1 or 2)
+		if ar~=br then return ar<br end
+		return an<bn
+	end)
+	for _,wheel in ipairs(candidates) do
+		if #vc.skidWheels>=4 then break end
+		local duplicate=false
+		for _,existing in ipairs(vc.skidWheels) do
+			if existing==wheel then duplicate=true; break end
+		end
+		if not duplicate then
+			vc.skidWheels[#vc.skidWheels+1]=wheel
+			local attachment=wheel:FindFirstChild("SPA_SKID_ATTACHMENT")
+			if attachment and (not attachment:IsA("Attachment") or attachment:GetAttribute("SPAManagedSkid")~=true) then attachment=nil end
+			if not attachment then attachment=Instance.new("Attachment"); attachment.Name="SPA_SKID_ATTACHMENT"; attachment.Parent=wheel; attachment:SetAttribute("SPAManagedSkid",true); vc.audioOwnsSkidParts=true end
+			vc.audioOwnsSkidParts=true
+			attachment.Position=Vector3.new(0,-wheel.Size.Y*0.48,0)
+			local emitter=attachment:FindFirstChild("SPA_SKID_SMOKE")
+			if emitter and (not emitter:IsA("ParticleEmitter") or emitter:GetAttribute("SPAManagedSkid")~=true) then emitter=nil end
+			if not emitter then emitter=Instance.new("ParticleEmitter"); emitter.Name="SPA_SKID_SMOKE"; emitter.Parent=attachment; emitter:SetAttribute("SPAManagedSkid",true) end
+			vc.skidOwnedEmitters[#vc.skidOwnedEmitters+1]=emitter
+			emitter.Texture="rbxasset://textures/particles/smoke_main.dds"
+			emitter.Color=ColorSequence.new(Color3.fromRGB(225,225,225),Color3.fromRGB(115,115,115))
+			emitter.LightInfluence=0.25
+			emitter.Enabled=false; emitter.Rate=0; emitter.Lifetime=NumberRange.new(0.28,0.5); emitter.Speed=NumberRange.new(1,3)
+			emitter.SpreadAngle=Vector2.new(35,35); emitter.Drag=2; emitter.Acceleration=Vector3.new(0,2,0)
+			emitter.Transparency=NumberSequence.new({NumberSequenceKeypoint.new(0,0.35),NumberSequenceKeypoint.new(1,1)})
+			emitter.Size=NumberSequence.new({NumberSequenceKeypoint.new(0,0.45),NumberSequenceKeypoint.new(1,1.35)})
+			vc.skidAttachments[#vc.skidAttachments+1]=attachment; vc.skidEmitters[#vc.skidEmitters+1]=emitter
+		end
 	end
-	if vc.engineSound and vc.engineSound.Parent and vc.engineSound.IsLoaded and vc.engineSound.IsPlaying then
-		self:MarkReady(uid, vc)
+	vc.skidRayParams=RaycastParams.new(); vc.skidRayParams.FilterType=Enum.RaycastFilterType.Exclude
+	vc.skidRayParams.FilterDescendantsInstances={vc.vehicleRoot}; vc.skidRayParams.IgnoreWater=true
+	vc.wheels=vc.skidWheels
+end
+
+function SPA_VehicleAudio:Build(uid,vc)
+	if not vc or vc.vehicleAudioBuilt then return end
+	vc.vehicleAudioBuilt=true; self:ResetCalibration(vc)
+	vc.filteredSpeed=0; vc.lastAudioSpeed=0
+	vc.skidActive=false; vc.skidIntensity=0; vc.skidForcedUntil=0; vc.forcedSkidUntil=0; vc.forcedSkidIntensity=0
+	vc.fxLaunchArmed=false; vc.fxLaunchStartedAt=nil; vc.lastLaunchBurst=0; vc.lastBrakeBurst=0; vc.lastRainCrashBurst=0; vc.lastCrashAt=0
+	vc.idleSound=self:ManagedSound(vc.seat,"SPA_IDLE_SOUND",SPA_IDLE_SOUND_ID,true,0,vc,"audioOwnsIdle")
+	vc.driveSound=self:ManagedSound(vc.seat,"SPA_DRIVE_SOUND",SPA_DRIVE_SOUND_ID,true,0,vc,"audioOwnsDrive")
+	vc.shiftSound=self:ManagedSound(vc.seat,"SPA_SHIFT_SOUND",SPA_SHIFT_SOUND_ID,false,SPA_SHIFT_VOLUME,vc,"audioOwnsShift")
+	vc.skidSound=self:ManagedSound(vc.seat,"SPA_SKID_SOUND",SPA_SKID_SOUND_ID,true,0,vc,"audioOwnsSkid")
+	self:FindWheels(vc)
+end
+
+function SPA_VehicleAudio:Grounded(vc,now)
+	if now-(vc.lastSkidGroundCheck or 0)<self.GROUND_INTERVAL then return vc.skidGrounded==true end
+	vc.lastSkidGroundCheck=now; vc.skidGrounded=false
+	for _,wheel in ipairs(vc.skidWheels or {}) do
+		if wheel.Parent and Workspace:Raycast(wheel.Position,Vector3.new(0,-math.max(2,wheel.Size.Y+1),0),vc.skidRayParams) then
+			vc.skidGrounded=true; break
+		end
 	end
+	return vc.skidGrounded
+end
+
+function SPA_VehicleAudio:OnCrash(uid,severity)
+	local vc=VehicleCache and VehicleCache[uid]
+	if not vc then return end
+	local duration=severity=="FUERTE" and 1.25 or (severity=="MODERADO" and 0.8 or 0.4)
+	vc.skidForcedUntil=math.max(vc.skidForcedUntil or 0,tick()+duration); vc.forcedSkidUntil=vc.skidForcedUntil
+	vc.forcedSkidIntensity=severity=="FUERTE" and 1 or (severity=="MODERADO" and 0.8 or 0.6)
+	local now=tick(); vc.lastCrashAt=now
+	local raining=SPA_EFFECT_MODE=="RAIN"
+	if raining and (severity=="FUERTE" or severity=="MODERADO") and now-(vc.lastRainCrashBurst or 0)>=2 then
+		vc.lastRainCrashBurst=now; vc.rainCrashBurst=severity=="FUERTE" and 3 or 2
+	end
+	if not vc.gearCalibrated then
+		table.clear(vc.calibrationSamples or {}); vc.calibrationBlockedUntil=vc.skidForcedUntil
+	end
+end
+
+function SPA_VehicleAudio:PlayShift(vc)
+	vc.shiftDipUntil=tick()+0.14
+	if SPA_VEHICLE_AUDIO_ENABLED and SPA_SHIFT_SOUNDS_ENABLED and vc.shiftSound and self:ValidSoundId(SPA_SHIFT_SOUND_ID) then
+		vc.shiftSound.SoundId=SPA_SHIFT_SOUND_ID; vc.shiftSound.Volume=SPA_SHIFT_VOLUME
+		vc.shiftSound.PlaybackSpeed=1.0
+		vc.shiftSound.TimePosition=0; vc.shiftSound:Play()
+	end
+end
+
+function SPA_VehicleAudio:ObserveConfigured(uid,st,vc,value,now)
+	value=tonumber(value); if not value then return end
+	if not vc.configObserved then vc.configObserved=value; vc.configCandidate=value; vc.configCandidateAt=now; return end
+	if math.abs(value-(vc.configCandidate or value))>0.05 then vc.configCandidate=value; vc.configCandidateAt=now; return end
+	if now-(vc.configCandidateAt or now)<0.3 or math.abs(value-vc.configObserved)<=0.05 then return end
+	local old=vc.configObserved; vc.configObserved=value
+	local pit=pitData[uid] and pitData[uid].status=="En Boxes"
+	local drsState=DRS_STATE and DRS_STATE[uid]; local otState=OT_STATE and OT_STATE[uid]
+	local context=pit and "PIT" or ((drsState and (drsState.active or drsState.permitted)) and "DRS" or ((otState and (otState.active or otState.permitted)) and "OT" or "NORMAL"))
+	SPA_RaceControl:AddEvent("VEHICLE_SPEED_CONFIG_CHANGED",{category="CONFIG",severity="INFO",uid=uid,name=st.player and getDisplayName(st.player) or tostring(uid),oldValue=old,newValue=value,context=context,title="VEHICLE SPEED CONFIG",description=("%.2f → %.2f · %s"):format(old,value,context)})
+end
+
+function SPA_VehicleAudio:StepSkid(uid,st,vc,now,dt,speed)
+	local perfStart=ENABLE_PERF_DIAGNOSTICS and os.clock() or nil
+	local intensity=0; local slipAngle=0
+	if SPA_SKID_FX_ENABLED and st.seat and speed>=30 then
+		local velocity=st.seat.AssemblyLinearVelocity; local flat=Vector3.new(velocity.X,0,velocity.Z)
+		local look=st.seat.CFrame.LookVector; look=Vector3.new(look.X,0,look.Z)
+		local right=st.seat.CFrame.RightVector; right=Vector3.new(right.X,0,right.Z)
+		if flat.Magnitude>1 and look.Magnitude>0.1 then
+			local forward=math.abs(flat.Unit:Dot(look.Unit)); slipAngle=math.deg(math.acos(math.clamp(forward,-1,1)))
+			local lateralRatio=right.Magnitude>0.1 and math.abs(flat.Unit:Dot(right.Unit)) or 0
+			local angular=math.abs(st.seat.AssemblyAngularVelocity.Y)
+			intensity=math.clamp(math.max((slipAngle-15)/35,(lateralRatio-0.20)/0.65,(angular-0.55)/4.2),0,1)
+		end
+	end
+	if now<(vc.skidForcedUntil or vc.forcedSkidUntil or 0) then intensity=math.max(intensity,vc.forcedSkidIntensity or 0.6) end
+	vc.skidIntensity=(vc.skidIntensity or 0)+(intensity-(vc.skidIntensity or 0))*math.clamp(dt*(intensity>0 and 12 or 6),0,1)
+	intensity=vc.skidIntensity; vc.skidActive=intensity>0.04
+	local rain=SPA_EFFECT_MODE=="RAIN"; local visualMode=SPA_EFFECT_MODE~="OFF"
+	local wetness=SPA_WeatherFX and math.clamp(SPA_WeatherFX.trackWetness or 0,0,1) or 0
+	local wet=visualMode and (rain or wetness>0.02)
+	local densityMultiplier=rain and math.max(0,SPA_WeatherFX.densityCurrent or 0) or wetness*SPA_RAIN_DENSITY_MULTIPLIER
+	local target=(SPA_SKID_FX_ENABLED and intensity or 0)*SPA_SKID_VOLUME*(wet and 1.25 or 1)
+	vc.skidVolume=(vc.skidVolume or 0)+(target-(vc.skidVolume or 0))*math.clamp(dt*10,0,1)
+	if vc.skidSound then
+		vc.skidSound.SoundId=self:ValidSoundId(SPA_SKID_SOUND_ID) and SPA_SKID_SOUND_ID or ""
+		vc.skidSound.Volume=vc.skidVolume; vc.skidSound.PlaybackSpeed=1.0
+		if vc.skidVolume>0.01 and self:ValidSoundId(SPA_SKID_SOUND_ID) then if not vc.skidSound.IsPlaying then vc.skidSound:Play() end elseif vc.skidSound.IsPlaying and vc.skidVolume<0.005 then vc.skidSound:Stop() end
+	end
+	local grounded=self:Grounded(vc,now)
+	local lod=SPA_Effects:LOD(uid,vc,now)
+	local speedWake=wet and math.clamp((speed-8)/82,0,1) or 0
+	local rainIntensity=wet and math.clamp(speedWake*math.max(wetness,0.25)+intensity*0.7,0,1) or 0
+	local visualIntensity=wet and rainIntensity or intensity
+	local smokeActive=visualMode and SPA_SKID_FX_ENABLED and SPA_SKID_SMOKE_ENABLED and grounded and (wet and speed>8 or intensity>0.04)
+	local previousSpeed=vc.previousSpeed or speed; local deceleration=previousSpeed-speed
+	if speed<=3 then vc.fxLaunchArmed=true; vc.fxLaunchStartedAt=nil
+	elseif vc.fxLaunchArmed and not vc.fxLaunchStartedAt then vc.fxLaunchStartedAt=now end
+	local launchBurst=visualMode and vc.fxLaunchArmed and speed>=35 and now-(vc.fxLaunchStartedAt or now)<=2 and now-(vc.lastLaunchBurst or 0)>=3
+	local brakeBurst=wet and deceleration>=7 and speed>12 and now-(vc.lastBrakeBurst or 0)>=0.8 and now-(vc.lastCrashAt or 0)>=0.35
+	for index,emitter in ipairs(vc.skidEmitters or {}) do
+		if emitter.Parent then
+			local rate=wet and math.min(SPA_Effects.RAIN_MAX_RATE,(2+visualIntensity*16)*densityMultiplier)*lod or (18+intensity*150)*lod
+			emitter.Enabled=smokeActive and lod>0; emitter.Rate=smokeActive and rate or 0
+			local attachment=vc.skidAttachments and vc.skidAttachments[index]; local wheel=vc.skidWheels and vc.skidWheels[index]
+			if wet then
+				emitter.Color=ColorSequence.new(Color3.fromRGB(238,244,248),Color3.fromRGB(190,205,215))
+				emitter.Lifetime=NumberRange.new(0.38+speedWake*0.28+visualIntensity*0.12,0.68+speedWake*0.62+visualIntensity*0.28)
+				emitter.Speed=NumberRange.new(7+visualIntensity*7,12+visualIntensity*12)
+				emitter.SpreadAngle=Vector2.new(24+visualIntensity*18,24+visualIntensity*18)
+				emitter.Drag=0.8; emitter.Acceleration=Vector3.new(0,12+visualIntensity*9,0)
+				emitter.Orientation=Enum.ParticleOrientation.VelocityParallel
+				emitter.Transparency=NumberSequence.new({NumberSequenceKeypoint.new(0,0.2),NumberSequenceKeypoint.new(0.62,0.48),NumberSequenceKeypoint.new(1,1)})
+				emitter.Size=NumberSequence.new({NumberSequenceKeypoint.new(0,0.32+visualIntensity*0.25),NumberSequenceKeypoint.new(1,1.4+visualIntensity*1.8)})
+				if attachment and attachment.Parent and wheel and wheel.Parent then
+					local flat=Vector3.new(st.seat.AssemblyLinearVelocity.X,0,st.seat.AssemblyLinearVelocity.Z)
+					local backward=flat.Magnitude>1 and -flat.Unit or -st.seat.CFrame.LookVector
+					local sprayWorld=(Vector3.new(0,1,0)*0.78+backward*0.62).Unit
+					local sprayLocal=wheel.CFrame:VectorToObjectSpace(sprayWorld)
+					local base=Vector3.new(0,-wheel.Size.Y*0.48,0)
+					attachment.CFrame=CFrame.lookAt(base,base+sprayLocal); emitter.EmissionDirection=Enum.NormalId.Front
+				end
+			else
+				emitter.Color=ColorSequence.new(Color3.fromRGB(225,225,225),Color3.fromRGB(115,115,115))
+				emitter.Lifetime=NumberRange.new(0.45+intensity*0.35,0.8+intensity*0.75)
+				emitter.Speed=NumberRange.new(2+intensity*2,4+intensity*5)
+				emitter.SpreadAngle=Vector2.new(45+intensity*35,45+intensity*35)
+				emitter.Drag=1.5; emitter.Acceleration=Vector3.new(0,3+intensity*4,0)
+				emitter.Orientation=Enum.ParticleOrientation.FacingCamera
+				emitter.Transparency=NumberSequence.new({NumberSequenceKeypoint.new(0,0.12),NumberSequenceKeypoint.new(0.55,0.45),NumberSequenceKeypoint.new(1,1)})
+				emitter.Size=NumberSequence.new({NumberSequenceKeypoint.new(0,0.65+intensity*0.45),NumberSequenceKeypoint.new(1,2.8+intensity*2.4)})
+				if attachment and attachment.Parent and wheel and wheel.Parent then
+					attachment.CFrame=CFrame.new(0,-wheel.Size.Y*0.48,0); emitter.EmissionDirection=Enum.NormalId.Top
+				end
+			end
+		end
+	end
+	if smokeActive and intensity>=0.65 and not vc.skidStrongActive then
+		vc.skidStrongActive=true
+		local amount=wet and math.min(SPA_Effects.RAIN_MAX_BURST,math.floor((14+intensity*22)*densityMultiplier*lod)) or math.floor((14+intensity*22)*lod)
+		for _,emitter in ipairs(vc.skidEmitters or {}) do if emitter.Parent and amount>0 then emitter:Emit(amount) end end
+	elseif intensity<0.35 then
+		vc.skidStrongActive=false
+	end
+	if launchBurst then
+		vc.lastLaunchBurst=now; vc.fxLaunchArmed=false; vc.fxLaunchStartedAt=nil
+		local amount=wet and math.min(SPA_Effects.RAIN_MAX_BURST,math.floor((18+speedWake*24)*densityMultiplier*lod)) or math.floor(10*lod)
+		for _,emitter in ipairs(vc.skidEmitters or {}) do if emitter.Parent and amount>0 then emitter:Emit(amount) end end
+	elseif vc.fxLaunchStartedAt and now-vc.fxLaunchStartedAt>2 then vc.fxLaunchArmed=false; vc.fxLaunchStartedAt=nil end
+	if brakeBurst then
+		vc.lastBrakeBurst=now
+		local amount=math.min(SPA_Effects.RAIN_MAX_BURST,math.floor((16+math.min(deceleration,20)*2)*densityMultiplier*lod))
+		for _,emitter in ipairs(vc.skidEmitters or {}) do if emitter.Parent and amount>0 then emitter:Emit(amount) end end
+	end
+	if wet and smokeActive and vc.rainCrashBurst then
+		local amount=math.min(SPA_Effects.RAIN_MAX_BURST,math.floor((24+visualIntensity*28)*vc.rainCrashBurst*densityMultiplier*lod))
+		for _,emitter in ipairs(vc.skidEmitters or {}) do if emitter.Parent and amount>0 then emitter:Emit(amount) end end
+		vc.rainCrashBurst=nil
+	elseif not wet then vc.rainCrashBurst=nil end
+	SPA_PerfMark("SkidFX",perfStart)
+	SPA_PerfMark("VehicleFX",perfStart,SPA_EFFECT_MODE)
+end
+
+function SPA_VehicleAudio:Step(uid,st,vc,now,dt)
+	local perfStart=ENABLE_PERF_DIAGNOSTICS and os.clock() or nil
+	if not vc or vc.cleaned or not st.seat then return end
+	if not vc.vehicleAudioBuilt then self:Build(uid,vc) end
+	local velocity=st.seat.AssemblyLinearVelocity; local speed=velocity.Magnitude
+	for _,sound in ipairs({vc.idleSound,vc.driveSound,vc.shiftSound,vc.skidSound}) do if sound and sound.Parent then sound.PlaybackSpeed=1.0 end end
+	vc.filteredSpeed=(vc.filteredSpeed or speed)+(speed-(vc.filteredSpeed or speed))*math.clamp(dt*8,0,1)
+	local smoothSpeed=vc.filteredSpeed
+	local configured=nil
+	if SPA_RaceModes and SPA_RaceModes.Configured then
+		local ok,value=pcall(SPA_RaceModes.Configured,SPA_RaceModes,st,vc); if ok then configured=tonumber(value) end
+	end
+	if configured then self:ObserveConfigured(uid,st,vc,configured,now) end
+	local forwardVelocity=velocity:Dot(st.seat.CFrame.LookVector)
+	local startSpeed=tonumber(SPA_ENGINE_START_SPEED) or self.START_SPEED
+	local top=vc.detectedTopSpeed or math.max(startSpeed+60,vc.calibrationPeakSpeed or 0)
+	local idleFactor
+	if smoothSpeed<=10 then idleFactor=1 elseif smoothSpeed<startSpeed then idleFactor=1-(smoothSpeed-10)/math.max(startSpeed-10,1)*0.45 else idleFactor=0.55-math.clamp((smoothSpeed-startSpeed)/30,0,1)*0.50 end
+	local driveFactor=0
+	if smoothSpeed>=startSpeed-5 and smoothSpeed<startSpeed then driveFactor=(smoothSpeed-(startSpeed-5))/5*0.20
+	elseif smoothSpeed>=startSpeed and smoothSpeed<startSpeed+30 then driveFactor=0.20+(smoothSpeed-startSpeed)/30*0.40
+	elseif smoothSpeed>=startSpeed+30 then driveFactor=0.60+math.clamp((smoothSpeed-(startSpeed+30))/math.max(top-(startSpeed+30),1),0,1)*0.40 end
+	if not SPA_VEHICLE_AUDIO_ENABLED then idleFactor=0; driveFactor=0 end
+	local idleVolumeTarget=idleFactor*SPA_IDLE_VOLUME; local driveVolumeTarget=driveFactor*SPA_DRIVE_VOLUME
+	if now<(vc.shiftDipUntil or 0) then driveVolumeTarget*=0.70 end
+	vc.idleVolume=(vc.idleVolume or 0)+(idleVolumeTarget-(vc.idleVolume or 0))*math.clamp(dt*6,0,1)
+	vc.driveVolume=(vc.driveVolume or 0)+(driveVolumeTarget-(vc.driveVolume or 0))*math.clamp(dt*6,0,1)
+	for _,motor in ipairs({{vc.idleSound,SPA_IDLE_SOUND_ID,vc.idleVolume},{vc.driveSound,SPA_DRIVE_SOUND_ID,vc.driveVolume}}) do
+		local sound,id,volume=motor[1],motor[2],motor[3]
+		if sound and sound.Parent then
+			sound.SoundId=self:ValidSoundId(id) and id or ""; sound.Volume=volume; sound.PlaybackSpeed=1.0; sound.Looped=true
+			if self:ValidSoundId(id) then if not sound.IsPlaying then sound:Play() end elseif sound.IsPlaying then sound:Stop() end
+		end
+	end
+	self:StepSkid(uid,st,vc,now,dt,speed)
+	local previous=vc.previousSpeed or speed; local delta=speed-previous; local teleported=math.abs(delta)>45
+	self:ObserveCalibration(uid,vc,now,speed,teleported)
+	if vc.gearCalibrated and vc.shiftRunReady then
+		if teleported then
+			vc.lastGear=vc.currentGear; vc.currentGear=self:GearAtSpeed(vc,speed); vc.simGear=vc.currentGear
+		elseif forwardVelocity>0 and delta>0.2 and now-(vc.lastShiftAt or 0)>=self.SHIFT_COOLDOWN then
+			local threshold=vc.gearThresholds and vc.gearThresholds[vc.currentGear]
+			if threshold and previous<threshold and speed>=threshold then
+				vc.lastGear=vc.currentGear; vc.currentGear+=1; vc.simGear=vc.currentGear; vc.lastShiftAt=now; self:PlayShift(vc)
+			end
+		end
+		while vc.currentGear>1 and speed<(vc.gearThresholds[vc.currentGear-1]-2.5) do
+			vc.lastGear=vc.currentGear; vc.currentGear-=1; vc.simGear=vc.currentGear
+		end
+	end
+	if speed<=5 then
+		vc.audioStoppedSince=vc.audioStoppedSince or now
+		if now-vc.audioStoppedSince>=0.8 then
+			vc.lastGear=vc.currentGear; vc.currentGear=1; vc.simGear=1
+			if vc.gearCalibrated then vc.shiftRunReady=true end
+		end
+	else vc.audioStoppedSince=nil end
+	vc.previousSpeed=speed; vc.lastAudioSpeed=speed
+	SPA_PerfMark("VehicleAudio",perfStart)
+end
+
+function SPA_VehicleAudio:Cleanup(vc)
+	if not vc then return end
+	for _,entry in ipairs({{vc.idleSound,vc.audioOwnsIdle},{vc.driveSound,vc.audioOwnsDrive},{vc.shiftSound,vc.audioOwnsShift},{vc.skidSound,vc.audioOwnsSkid}}) do
+		if entry[1] and entry[1].Parent and entry[2] then pcall(function() entry[1]:Destroy() end) end
+	end
+	for _,attachment in ipairs(vc.skidAttachments or {}) do
+		if attachment and attachment.Parent and attachment:GetAttribute("SPAManagedSkid")==true then pcall(function() attachment:Destroy() end) end
+	end
+	vc.idleSound=nil; vc.driveSound=nil; vc.shiftSound=nil; vc.skidSound=nil; vc.skidAttachments={}; vc.skidEmitters={}; vc.skidOwnedEmitters={}; vc.wheels={}
 end
 
 SPA_NoClip = {
@@ -4992,7 +5749,10 @@ function _setupUI2()  -- [SPAV4] global: libera registros del ámbito principal
 		end
 		paint()
 		table.insert(SPA_V220.configRefresh, paint)
-		btn.MouseButton1Click:Connect(function() setter(not getter()); paint() end)
+		btn.MouseButton1Click:Connect(function()
+			local oldValue=getter(); setter(not oldValue); local newValue=getter(); paint()
+			SPA_AuditConfigChange(labelTxt,oldValue,newValue)
+		end)
 	end
 
 	local function mkConfigAdjustRow(parent, labelTxt, getter, setter, step, minV, maxV, onChange, order)
@@ -5018,7 +5778,8 @@ function _setupUI2()  -- [SPAV4] global: libera registros del ámbito principal
 		local pc=Instance.new("UICorner"); pc.CornerRadius=UDim.new(0,3); pc.Parent=plus
 		table.insert(SPA_V220.configRefresh, function() valLbl.Text=tostring(getter()) end)
 		local function apply(v)
-			setter(v); valLbl.Text=tostring(getter())
+			local oldValue=getter(); setter(v); local newValue=getter(); valLbl.Text=tostring(newValue)
+			SPA_AuditConfigChange(labelTxt,oldValue,newValue)
 			if onChange then onChange(v) end
 		end
 		minus.MouseButton1Click:Connect(function() apply(mclamp(getter()-step,minV,maxV)) end)
@@ -5040,7 +5801,7 @@ function _setupUI2()  -- [SPAV4] global: libera registros del ámbito principal
 		local bc=Instance.new("UICorner"); bc.CornerRadius=UDim.new(0,3); bc.Parent=btn
 		btn.MouseButton1Click:Connect(function()
 			local root=player.Character and player.Character:FindFirstChild("HumanoidRootPart")
-			if root then onWP(GetWaypointPlacementCFrame(root.CFrame)) end
+			if root then local cf=GetWaypointPlacementCFrame(root.CFrame); onWP(cf); SPA_AuditWaypoint(labelTxt,cf) end
 		end)
 	end
 
@@ -5087,7 +5848,8 @@ function _setupUI2()  -- [SPAV4] global: libera registros del ámbito principal
 		box.FocusLost:Connect(function()
 			local n=tonumber(box.Text)
 			if not n then box.Text=tostring(SPEED_LIMIT); return end
-			SPEED_LIMIT=mclamp(n,10,500); box.Text=tostring(SPEED_LIMIT)
+			local oldValue=SPEED_LIMIT; SPEED_LIMIT=mclamp(n,10,500); box.Text=tostring(SPEED_LIMIT)
+			if oldValue~=SPEED_LIMIT then SPA_RaceControl:AddEvent("SPEED_LIMIT_CHANGED",{category="CONFIG",severity="INFO",operator=player.Name,name=player.Name,oldValue=oldValue,newValue=SPEED_LIMIT,title="SPEED LIMIT CHANGED",description=tostring(oldValue).." → "..tostring(SPEED_LIMIT)}) end
 		end)
 	end
 
@@ -5096,41 +5858,15 @@ function _setupUI2()  -- [SPAV4] global: libera registros del ámbito principal
 	mkConfigToggleRow(configScroll, "Activar Modo Qualy",
 		function() return QUALY_MODE end,
 		function(v)
-			if v and RACE_STATE == "RACE" then
+			if v and SPA_Session.state == "RACE" then
 				showNotification("🚫 No se puede activar Qualy durante una carrera", C_RED, "🚫", 12)
 				return
 			end
-			QUALY_MODE = v
 			if v then
-				RACE_STATE = "QUALY"
-				QUALY_BEST_TIMES = {}
-				FINAL_QUALY_RESULTS = {}
-				FINAL_QUALY_GLOBAL_FASTEST = { time = math.huge, uid = nil, name = nil }
-				QUALY_FIA_STATUS = {}
-				QUALY_NAMES = {}
-				QUALY_GLOBAL_FASTEST = { time = math.huge, uid = nil, name = nil }
-				if resetSessionMarkers then resetSessionMarkers() end
-				for _, pl in ipairs(Players:GetPlayers()) do
-					local fd = fastLapData[pl.UserId]
-					if fd then fd.bestTime = nil; fd.currentLapStarted = false; fd.lastStartTime = nil end
-					local ld = lapData[pl.UserId]
-					if ld then ld.lapsMade = 0; ld.lastLapTouch = 0 end
-					local pd = pitData[pl.UserId]
-					if pd then pd.status = "En Pista"; pd.lastPitTouch = 0 end
-				end
-			elseif RACE_STATE == "QUALY" then
-				FINAL_QUALY_RESULTS = {}
-				FINAL_QUALY_GLOBAL_FASTEST = { time = math.huge, uid = nil, name = nil }
-				for uid, qualyTime in pairs(QUALY_BEST_TIMES) do
-					local pl = Players:GetPlayerByUserId(uid)
-					FINAL_QUALY_RESULTS[uid] = { uid = uid, name = QUALY_NAMES[uid] or (pl and getDisplayName(pl) or ("UID " .. tostring(uid))), time = qualyTime, fiaExcluded = QUALY_FIA_STATUS[uid] == true }
-				end
-				FINAL_QUALY_GLOBAL_FASTEST = { time = QUALY_GLOBAL_FASTEST.time, uid = QUALY_GLOBAL_FASTEST.uid, name = QUALY_GLOBAL_FASTEST.name }
-				QUALY_BEST_TIMES = {}
-				RACE_STATE = "IDLE"
+				SPA_Session:BeginQualy()
+			elseif SPA_Session.state == "QUALY" then
+				SPA_Session:EndQualy("IDLE")
 			end
-			_spaLapRuntimeState(v and "QUALY_START" or "QUALY_FINISH")
-			SPA_RaceControl:AddEvent(v and "QUALY_START" or "QUALY_FINISH", { category = "QUALY", severity = "INFO", title = v and "🏆 QUALY INICIADA" or "🏁 QUALY FINALIZADA", description = v and "Modo clasificación activado" or "Modo clasificación finalizado" })
 			if v then
 				towerHeader.BackgroundColor3 = Color3.fromRGB(80, 0, 140)
 				towerHeaderText.Text = "QUALY "..QUALY_LAPS.." LAP"
@@ -5500,7 +6236,7 @@ function _setupUI2()  -- [SPAV4] global: libera registros del ámbito principal
 		local perfStart = ENABLE_PERF_DIAGNOSTICS and os.clock() or nil
 		local activeUids = {}
 		local allData = {}
-		for _, p in ipairs(Players:GetPlayers()) do
+		for _, p in ipairs(SPA_PlayerList and SPA_PlayerList.list or Players:GetPlayers()) do
 			if p then
 				local playerOk, playerErr = pcall(function()
 					ensurePlayerData(p)
@@ -5597,7 +6333,7 @@ function _setupUI2()  -- [SPAV4] global: libera registros del ámbito principal
 		end
 		local hudSignature = table.concat(hudSignatureParts, ";")
 		if HUD_LAST_SIGNATURE == hudSignature then
-			SPA_PerfMark("GUI", perfStart, "unchanged")
+			SPA_PerfMark("HUD", perfStart, "unchanged")
 			return
 		end
 		HUD_LAST_SIGNATURE = hudSignature
@@ -5804,7 +6540,7 @@ function _setupUI2()  -- [SPAV4] global: libera registros del ámbito principal
 		if QUALY_MODE then towerHeaderText.Text = "QUALY "..QUALY_LAPS.." LAP"
 		else towerHeaderText.Text = "LAP "..leaderLaps.."/"..MAX_LAPS end
 		lapNumLabel.Text = leaderLaps.." / "..MAX_LAPS
-			SPA_PerfMark("GUI", perfStart)
+			SPA_PerfMark("HUD", perfStart)
 	end
 
 	previousLapPositions = {}
@@ -5878,14 +6614,30 @@ function _setupUI2()  -- [SPAV4] global: libera registros del ámbito principal
 -- de forma lazy si el Character termina de construirse después del
 -- primer ciclo o si una instancia deja de tener Parent.
 	-- ══════════════════════════════════════════════════════════
-	PlayerState = {}
+	PlayerState = PlayerState or {}
+	SPA_PlayerList = SPA_PlayerList or { list = {}, byUid = {} }
+	local function addCachedPlayer(p)
+		if SPA_PlayerList.byUid[p.UserId] then return end
+		SPA_PlayerList.byUid[p.UserId] = p
+		SPA_PlayerList.list[#SPA_PlayerList.list + 1] = p
+	end
+	local function removeCachedPlayer(p)
+		SPA_PlayerList.byUid[p.UserId] = nil
+		for i = #SPA_PlayerList.list, 1, -1 do
+			if SPA_PlayerList.list[i] == p then table.remove(SPA_PlayerList.list, i); break end
+		end
+	end
+	for _, p in ipairs(Players:GetPlayers()) do addCachedPlayer(p) end
+	Players.PlayerAdded:Connect(addCachedPlayer)
+	Players.PlayerRemoving:Connect(removeCachedPlayer)
 	local _tState = 0
 	RunService.Heartbeat:Connect(function(dt)
 		_tState += dt
 		if _tState < 0.06 then return end
 		_tState = 0
 		local perfStateStart = ENABLE_PERF_DIAGNOSTICS and os.clock() or nil
-		for _, p in ipairs(Players:GetPlayers()) do
+		local now = tick()
+		for _, p in ipairs(SPA_PlayerList.list) do
 			local uid = p.UserId
 			local st  = PlayerState[uid]
 			if not st then st = {}; PlayerState[uid] = st end
@@ -5927,13 +6679,23 @@ function _setupUI2()  -- [SPAV4] global: libera registros del ámbito principal
 			if st.root and st.root.Parent then
 				local positionOk, position = pcall(function() return st.root.Position end)
 				st.position = positionOk and position or nil
+				local speedOk,characterVelocity=pcall(function() return st.root.AssemblyLinearVelocity end)
+				st.characterSpeed=speedOk and characterVelocity.Magnitude or 0
 			else
-				st.position = nil
+				st.position = nil; st.characterSpeed=0
 			end
-		end
-		-- limpiar jugadores que ya no están en el servidor
-		for uid in pairs(PlayerState) do
-			if not Players:GetPlayerByUserId(uid) then PlayerState[uid] = nil end
+			if st.inVehicle and st.seat and st.seat.Parent then
+				local okMotion, seatCF, velocity, angular = pcall(function()
+					return st.seat.CFrame, st.seat.AssemblyLinearVelocity, st.seat.AssemblyAngularVelocity
+				end)
+				if okMotion then
+					st.previousVehiclePosition = st.vehiclePosition; st.vehiclePosition = seatCF.Position; st.seatCFrame = seatCF
+					st.velocity = velocity; st.angularVelocity = angular; st.rawSpeed = velocity.Magnitude; st.motionAt = now
+				end
+			else
+				st.previousVehiclePosition = nil; st.vehiclePosition = nil; st.seatCFrame = nil
+				st.velocity = nil; st.angularVelocity = nil; st.rawSpeed = 0; st.motionAt = now
+			end
 		end
 		SPA_PerfMark("PlayerState", perfStateStart)
 	end)
@@ -5943,36 +6705,39 @@ function _setupUI2()  -- [SPAV4] global: libera registros del ámbito principal
 	-- que antes se buscaban con GetDescendants() repetidamente.
 	-- Se invalida solo cuando el jugador cambia de asiento/vehículo.
 	-- ══════════════════════════════════════════════════════════
-	VehicleCache = {}
+	VehicleCache = VehicleCache or {}
 
 	local function getVehicleRootModel(seat)
 		return _telGetRootModel(seat)
 	end
 
 	local function destroyVehicleEngineSound(vc)
-		if vc and vc.engineSound then
-			if vc.audioOwnsSound then pcall(function() vc.engineSound:Destroy() end) end
-			vc.engineSound = nil
-		end
+		if vc and SPA_VehicleAudio then SPA_VehicleAudio:Cleanup(vc) end
 	end
 
 	local function cleanupVehicleCache(uid, vc)
 		SPA_RaceModes:Clear(uid)
 		if not vc or vc.cleaned then return end
 		vc.cleaned = true
+		_telStopDrift(uid)
 		SPA_NoClip:Clear(uid, vc)
 		destroyVehicleEngineSound(vc)
 		if vc and vc.audioConn then pcall(function() vc.audioConn:Disconnect() end); vc.audioConn = nil end
 		if vc and vc.nitrousDescendantConn then pcall(function() vc.nitrousDescendantConn:Disconnect() end); vc.nitrousDescendantConn = nil end
 		if vc and vc.nitrousRemovingConn then pcall(function() vc.nitrousRemovingConn:Disconnect() end); vc.nitrousRemovingConn = nil end
 		if vc and vc.vehicleRoot and SPA_Telemetry and SPA_Telemetry.suspCache then
+			if vc.seat then SPA_Telemetry.rootBySeat[vc.seat]=nil end
 			local sc = SPA_Telemetry.suspCache[vc.vehicleRoot]
 			if sc and sc.connections then for _, c in ipairs(sc.connections) do pcall(function() c:Disconnect() end) end end
 			SPA_Telemetry.suspCache[vc.vehicleRoot] = nil
 			local tc = SPA_Telemetry.turboCache[vc.vehicleRoot]
 			if tc and tc.connections then for _, c in ipairs(tc.connections) do pcall(function() c:Disconnect() end) end end
 			SPA_Telemetry.turboCache[vc.vehicleRoot] = nil
-			if SPA_Tires and SPA_Tires.scanCache then SPA_Tires.scanCache[vc.vehicleRoot] = nil end
+			if SPA_Tires and SPA_Tires.scanCache then
+				local tireCache=SPA_Tires.scanCache[vc.vehicleRoot]
+				if tireCache and tireCache.connections then for _,conn in ipairs(tireCache.connections) do pcall(function() conn:Disconnect() end) end end
+				SPA_Tires.scanCache[vc.vehicleRoot]=nil
+			end
 		end
 		groundEffectState[uid] = nil
 		if vc then
@@ -6029,22 +6794,25 @@ function _setupUI2()  -- [SPAV4] global: libera registros del ámbito principal
 	local function buildVehicleCache(seat, uid)
 		local vc = {
 			seat = seat, attemptCount = 0, lastAttempt = 0, audioState = "PENDING",
-			audioOwnsSound = false, audioScanned = false,
+			audioScanned = false, audioOwnsIdle = false, audioOwnsDrive = false, audioOwnsShift = false, audioOwnsSkid = false,
 			seatId = seat:GetFullName(), nitrousWasActive = false, nitrousStateInitialized = false,
 			nitrousPoint = nil, nitrousEmitter = nil, nitrousCacheInvalid = true,
 			nitrousDescendantConn = nil, nitrousRemovingConn = nil,
 			lastGroundCheck = 0, lastSpringScan = 0, springConstraints = {},
-			lastAudioScan = 0, engineSound = nil, audioReady = false, audioConn = nil,
+			lastAudioScan = 0, idleSound = nil, driveSound = nil, shiftSound = nil, skidSound = nil, audioReady = false, audioConn = nil,
+			driftWheels = {}, tireParts = {},
 		}
 		local ok, vehicleModel = pcall(getVehicleRootModel, seat)
 		vehicleModel = ok and vehicleModel or seat
 		vc.vehicleRoot = vehicleModel
+		SPA_Telemetry.rootBySeat[seat]=vehicleModel
 		refreshNitrousCache(vc, uid, true)
 		bindNitrousInvalidation(vc)
 		vc.speedLimit = getPlayerSpeedLimit(seat)
 		local speedEntry = speedLimitCache[vehicleModel] or speedLimitCache[seat]
 		vc.speedLimitValue = speedEntry and speedEntry.valueObject or nil
 		vc.speedLimitReady = true
+		SPA_VehicleAudio:Build(uid,vc)
 		return vc
 	end
 
@@ -6156,6 +6924,7 @@ function _setupUI2()  -- [SPAV4] global: libera registros del ámbito principal
 		SPA_UI2_tHead += dt
 		if SPA_UI2_tHead < 0.06 then return end
 		SPA_UI2_tHead = 0
+		if SPA_WeatherFX then SPA_WeatherFX:Step() end
 		for uid, st in pairs(PlayerState) do
 			local p    = st.player
 			local char = st.character
@@ -6163,6 +6932,8 @@ function _setupUI2()  -- [SPAV4] global: libera registros del ámbito principal
 			if not char or not st.humanoid or not head then continue end
 			if st.inVehicle then
 				local seat = st.seat
+				local vehicleAudioCache = VehicleCache[uid]
+				if vehicleAudioCache then SPA_VehicleAudio:Step(uid,st,vehicleAudioCache,tick(),0.06) end
 				local tag  = createSpeedTag(char, p)
 				if not tag then continue end
 				tag.Enabled = SHOW_HEAD_NAME or SHOW_HEAD_SPEED
@@ -6234,31 +7005,36 @@ function _setupUI2()  -- [SPAV4] global: libera registros del ámbito principal
 		if _tTel < 0.25 then return end
 		_tTel = 0
 		local perfTelStart = ENABLE_PERF_DIAGNOSTICS and os.clock() or nil
+		local now = tick()
 		for uid, st in pairs(PlayerState) do
 			local p = st.player
-			if not st.character or not st.inVehicle then continue end
+			if not st.character or not st.inVehicle or not st.seat then
+				SPA_Telemetry.current[uid]=nil; _telStopDrift(uid); continue
+			end
 			local seat = st.seat
 			local head = st.head
-			if not head then continue end
 			-- Compare actual seat identity, not a reused vehicle name; weak reference + lifecycle cleanup.
 			if not SPA_Telemetry.driftConns[uid] or SPA_Telemetry.driftConns[uid].seatRef[1]~=seat then
 				_telWatchDrift(uid,seat)
 			end
-			local tag = head:FindFirstChild("SpeedTag")
-			if not tag then continue end
-			local telLbl = tag:FindFirstChild("TelemetryText")
-			if not telLbl or not SHOW_HEAD_SPEED then continue end
 			local turboV = _telGetTurbo(seat)
-			local driftV,driftLow,driftHigh = _telGetDrift(seat, uid)
+			local perfDriftStart = ENABLE_PERF_DIAGNOSTICS and os.clock() or nil
+			local driftV,driftLow,driftHigh,driftStatus = _telGetDrift(seat, uid)
+			SPA_PerfMark("DriftSensor",perfDriftStart)
 			local suspV  = _telGetSusp(seat)
-			local distT  = (head.Position - Camera.CFrame.Position).Magnitude
-			telLbl.Text     = sformat("T:%s  D:%s  S:%s", turboV, driftV, suspV)
-			telLbl.TextSize = mclamp(30*(10/mmax(distT,1))*0.7, 9, 28)
-			telLbl.Visible  = true
+			SPA_Telemetry.current[uid] = {turbo=turboV,drift=driftV,driftLow=driftLow,driftHigh=driftHigh,driftStatus=driftStatus,suspension=suspV,at=now}
+			if head then
+				local tag=head:FindFirstChild("SpeedTag"); local telLbl=tag and tag:FindFirstChild("TelemetryText")
+				if telLbl then
+					if SHOW_HEAD_SPEED then
+						local distT=(head.Position-Camera.CFrame.Position).Magnitude
+						telLbl.Text=sformat("T:%s  D:%s  S:%s",turboV,driftV,suspV); telLbl.TextSize=mclamp(30*(10/mmax(distT,1))*0.7,9,28); telLbl.Visible=true
+					else telLbl.Text=""; telLbl.Visible=false end
+				end
+			end
 			-- Alertas de telemetría
 			local cdT = customPlayerData[uid]
 			if cdT then
-				local now = tick()
 				if cdT.maxTurbo then
 					local cI = SPA_Telemetry.TURBO_IDX[turboV] or 0
 					local mI = SPA_Telemetry.TURBO_IDX[cdT.maxTurbo] or 999
@@ -6405,6 +7181,8 @@ function _setupUI2()  -- [SPAV4] global: libera registros del ámbito principal
 											time   = timeStr
 										})
 										if #ccData[uid].history > 20 then table.remove(ccData[uid].history, 21) end
+										SPA_CC_UI_DIRTY=true
+										if SPA_V220.ccPanel and SPA_V220.ccPanel.Visible and SPA_V220.ccTab=="REGISTROS CC" and buildRegCCList then buildRegCCList(); SPA_CC_UI_DIRTY=false end
 
 										local displayName = getDisplayName(pl)
 										SPA_RaceControl:AddEvent("CORNER_CUT", {
@@ -6459,23 +7237,39 @@ function _setupUI2()  -- [SPAV4] global: libera registros del ámbito principal
 			else
 				warnHudError("updateGuiLists", nil, err)
 			end
-			task.wait(0.25)
+			task.wait((RACE_STATE=="RACE" or RACE_STATE=="QUALY") and 0.25 or 1)
 		end
 	end)
 
 	SPA_UI2_cronRunning    = false
 	SPA_UI2_cronStartTime  = 0
 	SPA_UI2_cronConnection = nil
-	local function resetRaceTransientState()
+	local function copyMap(source)
+		local out = {}
+		for key, value in pairs(source or {}) do
+			if type(value) == "table" then local row = {}; for k, v in pairs(value) do row[k] = v end; out[key] = row else out[key] = value end
+		end
+		return out
+	end
+
+	function SPA_Session:ResetIncidentData()
+		PENDING_SANCTIONS = {}; APPLIED_SANCTIONS = {}; PENALTY_OFFSET = {}; VIOLATIONS_LOG = {}; OVERTAKE_COUNT = {}; CRASH_LEVE_COUNT = {}
+		ccData = {}; ccDebounce = {}; lastSeenInCC = {}; DSQ_DRIVERS = {}
+		if SPA_Crash then SPA_Crash.prevVel = {}; SPA_Crash.prevPos = {}; SPA_Crash.pairCD = {}; SPA_Crash.wallCD = {}; SPA_Crash.candidates = {}; SPA_Crash.states = {}; SPA_Crash.log = {}; SPA_Crash.uiDirty = true end
+		if SPA_Replay then SPA_Replay.buffers = {}; SPA_Replay.hifi = {}; SPA_Replay.active = {}; SPA_Replay.pairCD = {}; SPA_Replay.events = {}; SPA_Replay.uiDirty = true end
+		if SPA_Telemetry then SPA_Telemetry.alerts = {} end
+		if SPA_Analysis then SPA_Analysis.data = {}; SPA_Analysis.uiDirty = true end
+	end
+
+	function SPA_Session:ResetRaceData()
 		lapData = {}; pitData = {}; fastLapData = {}
 		GLOBAL_FASTEST_LAP = { time = math.huge, uid = nil, name = nil }
 		RACE_GLOBAL_FASTEST = { time = math.huge, uid = nil, name = nil }
-		speedLimitCache = {}
 		CURRENT_STANDINGS_ORDER = {}; QUALY_STANDINGS = {}
 		HUD_LAST_SIGNATURE = nil
 		HUD_RANK_CACHE.signature = nil; HUD_RANK_CACHE.byUid = {}; HUD_RANK_CACHE.standings = {}; HUD_RANK_CACHE.qualy = {}
-		PENDING_SANCTIONS = {}; APPLIED_SANCTIONS = {}; VIOLATIONS_LOG = {}
-		OVERTAKE_COUNT = {}; ccData = {}; ccDebounce = {}
+		lastSpeeds = {}; notifiedPlayers = {}; SPA_UI2_alertedPlayers = {}; SPA_UI2_lapCompletionRaceTime = {}; SPA_UI2_lastLapsMadeSeenGap = {}
+		self:ResetIncidentData()
 		if resetSessionMarkers then resetSessionMarkers() end
 		if SPA_RaceControl then SPA_RaceControl.lastPositions = {}; SPA_RaceControl.pendingPositions = {}; SPA_RaceControl.rejoiningPositions = {} end
 		if VehicleCache then
@@ -6489,23 +7283,136 @@ function _setupUI2()  -- [SPAV4] global: libera registros del ámbito principal
 			end
 		end
 		groundEffectState = {}
-		DSQ_DRIVERS = {}
-		if PlayerState then
-			for _, st in pairs(PlayerState) do if st.charAncestryConn then pcall(function() st.charAncestryConn:Disconnect() end) end end
-			PlayerState = {}
-		end
-		if SPA_Analysis then SPA_Analysis.data = {} end
-		if SPA_Tires then SPA_Tires.current = {}; SPA_Tires._stableTimer = {} end
+		if SPA_Tires then SPA_Tires._stableTimer = {}; SPA_Tires.log = {}; SPA_Tires.uiDirty = true end
 		if ENABLE_VSC and toggleVSC then toggleVSC() end
-		for _, pl in ipairs(Players:GetPlayers()) do ensurePlayerData(pl) end
+		for _, pl in ipairs(SPA_PlayerList and SPA_PlayerList.list or Players:GetPlayers()) do ensurePlayerData(pl) end
 	end
 
-	makeSectionHeader(configScroll, "🚨  SISTEMA DE CHOQUES", 70)
+	function SPA_Session:ResetQualyData(keepFinal)
+		QUALY_BEST_TIMES = {}; QUALY_FIA_STATUS = {}; QUALY_NAMES = {}; QUALY_STANDINGS = {}
+		QUALY_GLOBAL_FASTEST = { time = math.huge, uid = nil, name = nil }
+		if not keepFinal then FINAL_QUALY_RESULTS = {}; FINAL_QUALY_GLOBAL_FASTEST = { time = math.huge, uid = nil, name = nil }; self.hasFinalQualy=false end
+	end
+
+	function SPA_Session:FreezeQualy()
+		FINAL_QUALY_RESULTS = {}
+		for uid, qualyTime in pairs(QUALY_BEST_TIMES) do
+			local pl = SPA_PlayerList and SPA_PlayerList.byUid[uid] or Players:GetPlayerByUserId(uid)
+			FINAL_QUALY_RESULTS[uid] = { uid = uid, name = QUALY_NAMES[uid] or (pl and getDisplayName(pl) or ("UID " .. tostring(uid))), time = qualyTime, fiaExcluded = QUALY_FIA_STATUS[uid] == true }
+		end
+		FINAL_QUALY_GLOBAL_FASTEST = { time = QUALY_GLOBAL_FASTEST.time, uid = QUALY_GLOBAL_FASTEST.uid, name = QUALY_GLOBAL_FASTEST.name }
+		self.hasFinalQualy=true
+	end
+
+	function SPA_Session:FreezeRaceResult(now)
+		local snapshot = { sessionId = self.sessionId, generation = self.generation, startedAt = self.startedAt, finishedAt = now, duration = self.startedAt and math.max(0, now - self.startedAt) or 0,
+			standings = {}, laps = copyMap(lapData), pits = copyMap(pitData), penalties = copyMap(APPLIED_SANCTIONS), dsq = copyMap(DSQ_DRIVERS), fastest = copyMap(GLOBAL_FASTEST_LAP), qualy = copyMap(FINAL_QUALY_RESULTS), qualyFastest = copyMap(FINAL_QUALY_GLOBAL_FASTEST), incidents = {}, stats = {} }
+		for i, uid in ipairs(CURRENT_STANDINGS_ORDER or {}) do snapshot.standings[i] = uid end
+		for i = 1, math.min(30, #(VIOLATIONS_LOG or {})) do snapshot.incidents[i] = copyMap(VIOLATIONS_LOG[i]) end
+		for i = 1, math.min(20, #(SPA_Crash and SPA_Crash.log or {})) do snapshot.incidents[#snapshot.incidents+1] = copyMap(SPA_Crash.log[i]) end
+		snapshot.stats.drivers=#snapshot.standings; snapshot.stats.penalties=#snapshot.penalties; snapshot.stats.incidents=#snapshot.incidents
+		self.finalSnapshot = snapshot
+		table.insert(self.archive, 1, snapshot); while #self.archive > self.MAX_ARCHIVE do table.remove(self.archive) end
+		return snapshot
+	end
+
+	function SPA_Session:BeginQualy()
+		if self.state == "RACE" then return false, "RACE_ACTIVE" end
+		self:ResetQualyData(false); self:ResetRaceData()
+		QUALY_MODE = true; self.state = "QUALY"; RACE_STATE = self.state
+		_spaLapRuntimeState("QUALY_START")
+		SPA_RaceControl:AddEvent("QUALY_START", { category = "QUALY", severity = "INFO", title = "🏆 QUALY INICIADA", description = "Modo clasificación activado" })
+		return true
+	end
+
+	function SPA_Session:EndQualy(nextState)
+		if self.state ~= "QUALY" then return false end
+		self:FreezeQualy(); QUALY_MODE = false; self.state = nextState or "IDLE"; RACE_STATE = self.state
+		_spaLapRuntimeState("QUALY_FINISH")
+		SPA_RaceControl:AddEvent("QUALY_FINISH", { category = "QUALY", severity = "INFO", title = "🏁 QUALY FINALIZADA", description = "Resultados de clasificación congelados" })
+		return true
+	end
+
+	function SPA_Session:BeginRace(options)
+		if self.state == "RACE" then return false, "ALREADY_RACING" end
+		local previousState=self.state
+		if previousState == "QUALY" then self:EndQualy("IDLE")
+		elseif previousState == "FINISHED" or not self.hasFinalQualy then self:ResetQualyData(false) end
+		SPA_UI2_cronRunning = false
+		self.generation += 1; self.sessionId = HttpService:GenerateGUID(false); self.startedAt = tick(); self.finishedAt = nil; self.finalSnapshot = nil
+		self:ResetRaceData()
+		QUALY_MODE = false; self.state = "RACE"; RACE_STATE = self.state
+		SPA_UI2_cronStartTime = self.startedAt; SPA_UI2_cronRunning = true
+		_spaLapRuntimeState("RACE_START")
+		SPA_RaceControl:AddEvent("RACE_START", { category = "FLAGS", severity = "INFO", title = "🟢 RACE STARTED", description = "Cronómetro de carrera iniciado", options = options })
+		return true
+	end
+
+	function SPA_Session:FinishRace()
+		if self.state ~= "RACE" then return false, "NOT_RACING" end
+		local now = tick(); local snapshot = self:FreezeRaceResult(now)
+		SPA_UI2_cronRunning = false; self.finishedAt = now
+		_spaLapRuntimeState("RACE_FINISH")
+		SPA_RaceControl:AddEvent("RACE_FINISH", { category = "FLAGS", severity = "INFO", title = "🏁 RACE FINISHED", description = "Cronómetro de carrera detenido", duration = snapshot.duration })
+		QUALY_MODE = false; self.state = "FINISHED"; RACE_STATE = self.state
+		return true, snapshot
+	end
+
+	function SPA_Session:PrepareNewRace()
+		if self.state == "RACE" then return false, "RACE_ACTIVE" end
+		self:ResetRaceData(); self:ResetQualyData(false); self.finalSnapshot=nil; QUALY_MODE = false; self.state = "IDLE"; RACE_STATE = self.state
+		return true
+	end
+
+	function SPA_Session:Diagnostics()
+		local players=0; for _ in pairs(PlayerState or {}) do players+=1 end
+		local vehicles=0; for _ in pairs(VehicleCache or {}) do vehicles+=1 end
+		local watchers=0; for _ in pairs(SPA_Telemetry and SPA_Telemetry.driftConns or {}) do watchers+=1 end
+		local replayBuffers=0; for _ in pairs(SPA_Replay and SPA_Replay.buffers or {}) do replayBuffers+=1 end
+		local candidates=0; for _ in pairs(SPA_Crash and SPA_Crash.candidates or {}) do candidates+=1 end
+		return ("SESSION %d · %s\nID: %s\nPlayers: %d · Vehicles: %d · Drift watchers: %d\nReplay buffers: %d · Crash candidates: %d"):format(self.generation,self.state,tostring(self.sessionId or "N/A"),players,vehicles,watchers,replayBuffers,candidates)
+	end
+
+	makeSectionHeader(configScroll, "🔊  AUDIO DINÁMICO / SKID FX", 67)
+	mkConfigToggleRow(configScroll,"Vehicle Audio",function() return SPA_VEHICLE_AUDIO_ENABLED end,function(v) SPA_VEHICLE_AUDIO_ENABLED=v end,68)
+	mkConfigAdjustRow(configScroll,"Idle Volume",function() return SPA_IDLE_VOLUME end,function(v) SPA_IDLE_VOLUME=v end,0.1,0,5,nil,68)
+	mkConfigAdjustRow(configScroll,"Drive Volume",function() return SPA_DRIVE_VOLUME end,function(v) SPA_DRIVE_VOLUME=v end,0.1,0,5,nil,68)
+	mkConfigAdjustRow(configScroll,"Drive Start Speed",function() return SPA_ENGINE_START_SPEED end,function(v) SPA_ENGINE_START_SPEED=v end,1,10,100,nil,68)
+	mkConfigToggleRow(configScroll,"Shift Sounds",function() return SPA_SHIFT_SOUNDS_ENABLED end,function(v) SPA_SHIFT_SOUNDS_ENABLED=v end,68)
+	mkConfigAdjustRow(configScroll,"Shift Volume",function() return SPA_SHIFT_VOLUME end,function(v) SPA_SHIFT_VOLUME=v end,0.1,0,5,nil,68)
+	mkConfigToggleRow(configScroll,"Skid FX",function() return SPA_SKID_FX_ENABLED end,function(v) SPA_SKID_FX_ENABLED=v end,68)
+	mkConfigAdjustRow(configScroll,"Skid Volume",function() return SPA_SKID_VOLUME end,function(v) SPA_SKID_VOLUME=v end,0.1,0,5,nil,68)
+	mkConfigToggleRow(configScroll,"Skid Smoke",function() return SPA_SKID_SMOKE_ENABLED end,function(v) SPA_SKID_SMOKE_ENABLED=v end,69)
+	mkConfigActionRow(configScroll,"⚙  RECALIBRAR TRANSMISIÓN",Color3.fromRGB(40,90,135),function()
+		local target=SPA_Onboard and SPA_Onboard.current or LocalPlayer
+		local vc=target and VehicleCache[target.UserId]
+		if not vc or not vc.seat or not vc.seat.Parent then
+			showNotification("Selecciona en ONBOARD un piloto que esté en un vehículo",C_ORANGE,"⚙",6)
+			return
+		end
+		SPA_VehicleAudio:ResetCalibration(vc)
+		showNotification("Transmisión reiniciada · primera arrancada en calibración",C_BLUE,"⚙",6)
+	end,70)
+
+	makeSectionHeader(configScroll, "🚨  SISTEMA DE CHOQUES", 71)
 	mkConfigToggleRow(configScroll, "Activar choques + repeticiones (CPU+)",
 		function() return ENABLE_CRASH_SYSTEM end,
-		function(v) ENABLE_CRASH_SYSTEM = v end, 71)
+		function(v) ENABLE_CRASH_SYSTEM = v end, 72)
+	mkConfigActionRow(configScroll,"💨  DIAGNÓSTICO DRIFT",Color3.fromRGB(45,85,135),function()
+		local target=SPA_Onboard and SPA_Onboard.current or LocalPlayer
+		local text=SPA_Telemetry:Diagnostics(target and target.UserId or LocalPlayer.UserId)
+		showNotification(text,C_BLUE,"💨",20)
+		if ENABLE_DRIFT_DEBUG then warn("[SPA DRIFT DIAGNOSTICS] "..text) end
+	end,72)
+	mkConfigActionRow(configScroll,"🧪  DIAGNÓSTICO DE SESIÓN",Color3.fromRGB(65,65,110),function()
+		showNotification(SPA_Session:Diagnostics(),C_BLUE,"🧪",20)
+	end,73)
+	mkConfigActionRow(configScroll,"↻  PREPARAR NUEVA CARRERA",Color3.fromRGB(0,105,75),function()
+		local ok=SPA_Session:PrepareNewRace()
+		showNotification(ok and "Nueva carrera preparada · estado IDLE" or "Detén la carrera antes de preparar otra",ok and C_GREEN or C_RED,"↻",20)
+	end,73)
 
-	makeSectionHeader(configScroll, "🧹  LIMPIEZA DE RECURSOS", 72)
+	makeSectionHeader(configScroll, "🧹  LIMPIEZA DE RECURSOS", 73)
 	local function cleanupResources()
 		local activeUids = {}
 		for _, p in ipairs(Players:GetPlayers()) do activeUids[p.UserId] = true end
@@ -6571,13 +7478,10 @@ function _setupUI2()  -- [SPAV4] global: libera registros del ámbito principal
 			if not activeUids[uid] then SPA_Replay.buffers[uid] = nil; buffersFreed += 1 end
 		end
 
-		-- Liberación real de memoria (solo aquí, nunca en un loop automático)
-		collectgarbage("collect")
-
 		showNotification(("🧹 Limpieza: %d entradas + %d buffers liberados"):format(cleaned, buffersFreed),
 			Color3.fromRGB(0,150,90), "🧹", 20)
 	end
-	mkConfigActionRow(configScroll, "🧹  LIMPIAR RECURSOS NO ESENCIALES", Color3.fromRGB(0,120,90), cleanupResources, 73)
+	mkConfigActionRow(configScroll, "🧹  LIMPIAR RECURSOS NO ESENCIALES", Color3.fromRGB(0,120,90), cleanupResources, 74)
 
 	makeSectionHeader(configScroll, "📏  GAP", 74)
 	mkConfigToggleRow(configScroll, "Mostrar gap en vez de vuelta",
@@ -6734,6 +7638,7 @@ function _setupUI2()  -- [SPAV4] global: libera registros del ámbito principal
 	local function buildPostRaceReport()
 		local lines = {}
 		table.insert(lines, "🏁 INFORME POST-CARRERA — Administrator CGF1")
+		table.insert(lines, "LIGA: "..((SPA_LEAGUE_NAME and SPA_LEAGUE_NAME~="") and SPA_LEAGUE_NAME or "SIN CONFIGURAR"))
 		table.insert(lines, os.date("%d/%m/%Y %H:%M"))
 		table.insert(lines, "")
 		-- [QUALY REPORT FIX] La fuente oficial es la sesión actual o su snapshot congelado.
@@ -6887,8 +7792,15 @@ function _setupUI2()  -- [SPAV4] global: libera registros del ámbito principal
 		reportBox.Text = buildPostRaceReport()
 	end, 102)
 
-	-- ── Envío del informe a un webhook de Discord (propio, tú lo pegas) ──
-	RACE_WEBHOOK_URL = RACE_WEBHOOK_URL or ""
+	-- ── Identidad de liga y Discord Race Control Feed ──
+	makeSectionHeader(configScroll,"📡  DISCORD RACE CONTROL",102)
+	local leagueBox = Instance.new("TextBox")
+	leagueBox.Name="LeagueNameBox"; leagueBox.Size=UDim2.new(1,-16,0,36); leagueBox.Position=UDim2.new(0,8,0,0)
+	leagueBox.BackgroundColor3=Color3.fromRGB(25,25,32); leagueBox.TextColor3=C_WHITE; leagueBox.Font=Enum.Font.Gotham
+	leagueBox.TextSize=12; leagueBox.ClearTextOnFocus=false; leagueBox.PlaceholderText="Nombre de la liga (2–60 caracteres)"
+	leagueBox.Text=SPA_LEAGUE_NAME; leagueBox.TextXAlignment=Enum.TextXAlignment.Left; leagueBox.LayoutOrder=103; leagueBox.Parent=configScroll
+	SPA_DiscordLeagueBox=leagueBox
+	Instance.new("UICorner",leagueBox).CornerRadius=UDim.new(0,4)
 	local webhookBox = Instance.new("TextBox")
 	webhookBox.Name = "WebhookBox"
 	webhookBox.Size = UDim2.new(1,-16,0,36)
@@ -6899,61 +7811,43 @@ function _setupUI2()  -- [SPAV4] global: libera registros del ámbito principal
 	webhookBox.TextSize = 12
 	webhookBox.ClearTextOnFocus = false
 	webhookBox.PlaceholderText = "Pega aquí TU webhook de Discord (nunca uno ajeno)"
-	webhookBox.Text = RACE_WEBHOOK_URL
+	webhookBox.Text = SPA_DISCORD_WEBHOOK_URL~="" and "WEBHOOK CONFIGURED ✓" or ""
 	webhookBox.TextXAlignment = Enum.TextXAlignment.Left
-	webhookBox.LayoutOrder = 103
+	webhookBox.LayoutOrder = 104
 	webhookBox.Parent = configScroll
+	SPA_DiscordWebhookBox=webhookBox
 	local whCorner = Instance.new("UICorner"); whCorner.CornerRadius = UDim.new(0,4); whCorner.Parent = webhookBox
-	webhookBox.FocusLost:Connect(function() RACE_WEBHOOK_URL = webhookBox.Text end)
+	webhookBox.Focused:Connect(function() if webhookBox.Text=="WEBHOOK CONFIGURED ✓" then webhookBox.Text="" end end)
+	webhookBox.FocusLost:Connect(function() if webhookBox.Text=="" and SPA_DISCORD_WEBHOOK_URL~="" then webhookBox.Text="WEBHOOK CONFIGURED ✓" end end)
+	mkConfigActionRow(configScroll,"💾  GUARDAR CONFIGURACIÓN",Color3.fromRGB(0,110,75),function()
+		if not SPA_DiscordRaceFeed then showNotification("Discord Feed todavía no está listo",C_YELLOW,"⚠",8); return end
+		local leagueOK=SPA_DiscordRaceFeed:SetLeagueName(leagueBox.Text)
+		local webhookOK=true
+		if webhookBox.Text~="WEBHOOK CONFIGURED ✓" then webhookOK=SPA_DiscordRaceFeed:SetWebhook(webhookBox.Text) end
+		leagueBox.Text=SPA_LEAGUE_NAME
+		webhookBox.Text=SPA_DISCORD_WEBHOOK_URL~="" and "WEBHOOK CONFIGURED ✓" or ""
+		if leagueOK and webhookOK then showNotification("Discord Race Control configuration saved",C_GREEN,"✓",8) else showNotification("Review League Name and Discord Webhook",C_YELLOW,"⚠",8) end
+	end,105)
+
+	SPA_DiscordStatusLabel=Instance.new("TextLabel")
+	SPA_DiscordStatusLabel.Size=UDim2.new(1,-16,0,28); SPA_DiscordStatusLabel.Position=UDim2.new(0,8,0,0)
+	SPA_DiscordStatusLabel.BackgroundTransparency=1; SPA_DiscordStatusLabel.Font=Enum.Font.GothamBold
+	SPA_DiscordStatusLabel.TextColor3=C_YELLOW; SPA_DiscordStatusLabel.TextSize=11; SPA_DiscordStatusLabel.TextXAlignment=Enum.TextXAlignment.Left
+	SPA_DiscordStatusLabel.Text="DISCORD FEED: INITIALIZING"; SPA_DiscordStatusLabel.LayoutOrder=106; SPA_DiscordStatusLabel.Parent=configScroll
 
 	function sendReportToDiscord()
-		if not RACE_WEBHOOK_URL or RACE_WEBHOOK_URL == "" then
-			showNotification("⚠ Pega tu webhook de Discord primero", C_YELLOW, "⚠", 8)
-			return
-		end
 		local text = reportBox.Text
 		if not text or text == "" or text == "Presiona GENERAR INFORME al terminar la carrera." then
 			text = buildPostRaceReport()
 			reportBox.Text = text
 		end
-		if #text > 3900 then text = text:sub(1, 3900) .. "\n…(cortado, mira el resto en el panel)" end
-		local payload = HttpService:JSONEncode({
-			embeds = {{
-				title = "🏁 Informe Post-Carrera — Administrator CGF1",
-				description = text,
-				color = 15158332,
-			}}
-		})
-		task.spawn(function()
-			local accepted = false
-			local statusCode = nil
-			local ok, err = pcall(function()
-				local http_request = request or http_request or (syn and syn.request) or (http and http.request)
-				if not http_request then
-					error("Este executor no soporta peticiones HTTP (request/http_request/syn.request).")
-				end
-				local response = http_request({
-					Url = RACE_WEBHOOK_URL,
-					Method = "POST",
-					Headers = { ["Content-Type"] = "application/json" },
-					Body = payload,
-				})
-				if type(response) == "table" then
-					statusCode = tonumber(response.StatusCode or response.Status or response.status_code)
-					accepted = statusCode ~= nil and statusCode >= 200 and statusCode < 300
-				end
-			end)
-			if ok and accepted then
-				showNotification("📤 Informe enviado a Discord", Color3.fromRGB(0,150,90), "📤", 10)
-			else
-				showNotification("❌ Discord no aceptó el informe", C_RED, "❌", 10)
-				warn("[SPA] Error webhook:", err or ("HTTP status no aceptado: " .. tostring(statusCode)))
-			end
-		end)
+		if SPA_DiscordRaceFeed then SPA_DiscordRaceFeed:SendManualReport(text)
+		else showNotification("Discord Feed todavía no está listo",C_YELLOW,"⚠",8) end
 	end
-	mkConfigActionRow(configScroll, "📤  ENVIAR INFORME A DISCORD", Color3.fromRGB(88,101,242), sendReportToDiscord, 104)
+	mkConfigActionRow(configScroll,"🧪  ENVIAR TEST",Color3.fromRGB(88,101,242),function() if SPA_DiscordRaceFeed then SPA_DiscordRaceFeed:SendTest() end end,107)
+	mkConfigActionRow(configScroll, "📤  ENVIAR INFORME A DISCORD", Color3.fromRGB(88,101,242), sendReportToDiscord, 108)
 
-	makeSectionHeader(configScroll, "🏆  REPORTE DE TEMPORADA", 106)
+	makeSectionHeader(configScroll, "🏆  REPORTE DE TEMPORADA", 110)
 	SEASON_POINTS_TABLE = {25,18,15,12,10,8,6,4,2,1}
 	SEASON_STANDINGS = SEASON_STANDINGS or {}  -- [uid] = {name=..., points=...}
 
@@ -6970,7 +7864,7 @@ function _setupUI2()  -- [SPAV4] global: libera registros del ámbito principal
 			end
 		end
 		showNotification("🏆 Carrera sumada al campeonato", Color3.fromRGB(0,150,90), "🏆", 10)
-	end, 107)
+	end, 111)
 
 	mkConfigActionRow(configScroll, "📋  GENERAR REPORTE DE TEMPORADA", Color3.fromRGB(0,90,140), function()
 		local rows = {}
@@ -6981,7 +7875,7 @@ function _setupUI2()  -- [SPAV4] global: libera registros del ámbito principal
 			table.insert(lines, i..". "..d.name.." — "..d.points.." pts")
 		end
 		reportBox.Text = table.concat(lines, "\n")
-	end, 108)
+	end, 112)
 
 	makeSectionHeader(configScroll, "🔔  NOTIFICACIONES", 78)
 	mkConfigToggleRow(configScroll, "Mostrar notificaciones",
@@ -7014,54 +7908,18 @@ function _setupUI2()  -- [SPAV4] global: libera registros del ámbito principal
 
 		cronBtn.MouseButton1Click:Connect(function()
 			if not SPA_UI2_cronRunning then
-				if SPA_UI2_cronConnection then SPA_UI2_cronConnection:Disconnect(); SPA_UI2_cronConnection = nil end
-				if RACE_STATE == "FINISHED" then
-					resetRaceTransientState()
-					FINAL_QUALY_RESULTS = {}; FINAL_QUALY_GLOBAL_FASTEST = { time = math.huge, uid = nil, name = nil }; QUALY_BEST_TIMES = {}; QUALY_FIA_STATUS = {}; QUALY_NAMES = {}
-				end
-				SPA_UI2_cronRunning    = true
-				SPA_UI2_cronStartTime  = tick()
-				-- Transición única: QUALY → RACE y snapshot histórico inmutable.
-				if QUALY_MODE and RACE_STATE == "QUALY" then
-					FINAL_QUALY_RESULTS = {}
-					for uid, qualyTime in pairs(QUALY_BEST_TIMES) do
-						local pl = Players:GetPlayerByUserId(uid)
-						FINAL_QUALY_RESULTS[uid] = {
-							uid = uid, name = QUALY_NAMES[uid] or (pl and getDisplayName(pl) or ("UID " .. tostring(uid))),
-							time = qualyTime, fiaExcluded = QUALY_FIA_STATUS[uid] == true,
-						}
-					end
-					FINAL_QUALY_GLOBAL_FASTEST = { time = QUALY_GLOBAL_FASTEST.time, uid = QUALY_GLOBAL_FASTEST.uid, name = QUALY_GLOBAL_FASTEST.name }
-					QUALY_BEST_TIMES = {}
-					QUALY_MODE = false
-					RACE_STATE = "RACE"
-					towerHeader.BackgroundColor3 = towerConfig.headerColor
-					towerHeaderText.Text = "LAP 0/" .. tostring(MAX_LAPS)
-					SPA_RaceControl:AddEvent("QUALY_FINISH", { category = "QUALY", severity = "INFO", title = "🏁 QUALY FINALIZADA", description = "Qualy congelada al iniciar la carrera" })
-				else
-					RACE_STATE = "RACE"
-				end
-				resetRaceTransientState()
-				_spaLapRuntimeState("RACE_START")
-				SPA_RaceControl:AddEvent("RACE_START", { category = "FLAGS", severity = "INFO", title = "🟢 RACE STARTED", description = "Cronómetro de carrera iniciado" })
+				local started = SPA_Session:BeginRace()
+				if not started then return end
+				towerHeader.BackgroundColor3 = towerConfig.headerColor
+				towerHeaderText.Text = "LAP 0/" .. tostring(MAX_LAPS)
 				cronBtn.Text   = "■  DETENER"
 				cronBtn.BackgroundColor3 = Color3.fromRGB(160,20,20)
 				cronLbl.Text   = "0:00.000"
 				cronLbl.TextColor3 = C_YELLOW
-				SPA_UI2_cronConnection = RunService.Heartbeat:Connect(function()
-					local e    = tick()-SPA_UI2_cronStartTime
-					local mins = mfloor(e/60)
-					local secs = e%60
-					cronLbl.Text = sformat("%d:%06.3f",mins,secs)
-				end)
 			else
-				SPA_UI2_cronRunning = false
-				QUALY_MODE = false
-				RACE_STATE = "FINISHED"
-				_spaLapRuntimeState("RACE_FINISH")
-				SPA_RaceControl:AddEvent("RACE_FINISH", { category = "FLAGS", severity = "INFO", title = "🏁 RACE FINISHED", description = "Cronómetro de carrera detenido" })
-				if SPA_UI2_cronConnection then SPA_UI2_cronConnection:Disconnect(); SPA_UI2_cronConnection=nil end
-				local e    = tick()-SPA_UI2_cronStartTime
+				local finished, snapshot = SPA_Session:FinishRace()
+				if not finished then return end
+				local e    = snapshot.duration
 				local mins = mfloor(e/60)
 				local secs = e%60
 				cronLbl.Text       = sformat("%d:%06.3f",mins,secs)
@@ -7070,13 +7928,18 @@ function _setupUI2()  -- [SPAV4] global: libera registros del ámbito principal
 				cronBtn.BackgroundColor3 = Color3.fromRGB(0,120,50)
 			end
 		end)
+		SPA_UI2_cronConnection = RunService.Heartbeat:Connect(function()
+			if not SPA_UI2_cronRunning then return end
+			local e = tick() - SPA_UI2_cronStartTime
+			cronLbl.Text = sformat("%d:%06.3f", mfloor(e / 60), e % 60)
+		end)
 	end
 
 	-- ═══ ANUNCIOS DE CHAT (solo eventos clave: vuelta rápida y sanciones) ═══
 	-- (ENABLE_CHAT_EVENTS ya se inicializó arriba, antes del CONFIG UI)
 	local function _buildCurrentQualyChatStandings()
 		local list = {}
-		for _, pl in ipairs(Players:GetPlayers()) do
+		for _, pl in ipairs(SPA_PlayerList and SPA_PlayerList.list or Players:GetPlayers()) do
 			if not FIA_EXCLUDED[pl.UserId] then
 				table.insert(list, { player = pl, bestTime = QUALY_BEST_TIMES[pl.UserId] })
 			end
@@ -7239,7 +8102,7 @@ function _setupUI2()  -- [SPAV4] global: libera registros del ámbito principal
 		if SPA_UI2_tGap < 0.2 then return end
 		SPA_UI2_tGap = 0
 		local nowRace = tick() - SPA_UI2_cronStartTime
-		for _, pl in ipairs(Players:GetPlayers()) do
+		for _, pl in ipairs(SPA_PlayerList and SPA_PlayerList.list or Players:GetPlayers()) do
 			local uid = pl.UserId
 			local ld  = lapData[uid]
 			if ld then
@@ -7294,6 +8157,15 @@ function _setupUI2()  -- [SPAV4] global: libera registros del ámbito principal
 			PlayerState[uid] = nil
 		end
 		if VehicleCache and VehicleCache[uid] then cleanupVehicleCache(uid, VehicleCache[uid]); VehicleCache[uid] = nil end
+		_telStopDrift(uid); SPA_Telemetry.current[uid]=nil
+		for key in pairs(SPA_Telemetry.alerts) do if tostring(key):match("^"..tostring(uid).."_") then SPA_Telemetry.alerts[key]=nil end end
+		SPA_Analysis.data[uid]=nil; SPA_Tires.current[uid]=nil; SPA_Tires._stableTimer[uid]=nil
+		SPA_Crash.prevVel[uid]=nil; if SPA_Crash.prevPos then SPA_Crash.prevPos[uid]=nil end; SPA_Crash.candidates[uid]=nil; SPA_Crash.wallCD[uid]=nil
+		SPA_Replay.buffers[uid]=nil; SPA_Replay.hifi[uid]=nil; SPA_Replay.active[uid]=nil
+		SPA_Crash.states[uid]=nil
+		for key in pairs(SPA_Crash.pairCD) do local a,b=tostring(key):match("^(%d+)_(%d+)$"); if tonumber(a)==uid or tonumber(b)==uid then SPA_Crash.pairCD[key]=nil end end
+		for key in pairs(SPA_Replay.pairCD) do local a,b=tostring(key):match("^(%d+)_([%dWALL]+)$"); if tonumber(a)==uid or tonumber(b)==uid then SPA_Replay.pairCD[key]=nil end end
+		SPA_Crash.uiDirty=true; SPA_Replay.uiDirty=true; SPA_Analysis.uiDirty=true; SPA_Tires.uiDirty=true
 		groundEffectState[uid] = nil
 		DSQ_DRIVERS[uid] = nil
 		if SPA_RaceControl then SPA_RaceControl.lastPositions[uid] = nil; SPA_RaceControl.pendingPositions[uid] = nil; SPA_RaceControl.rejoiningPositions[uid] = nil end
@@ -7568,6 +8440,7 @@ function _setupCCUI()  -- [SPAV4] global: libera registros del ámbito principal
 			local id = ccWpCounter
 			local wall = createCCWall(id, wpName, GetWaypointPlacementCFrame(root.CFrame))
 			ccWaypoints[id] = { name = wpName, wall = wall, cframe = wall.CFrame, halfWidth = wall.Size.X / 2, halfHeight = wall.Size.Y / 2 }
+			SPA_AuditWaypoint("CC · "..wpName,wall.CFrame)
 			lastSeenInCC[id] = {}
 			nameBox.Text = ""
 			buildWpCCList()
@@ -7648,7 +8521,7 @@ function _setupCCUI()  -- [SPAV4] global: libera registros del ámbito principal
 			local lbl = Instance.new("TextLabel"); lbl.Size = UDim2.new(0.62, 0, 1, 0); lbl.Position = UDim2.new(0, 10, 0, 0); lbl.BackgroundTransparency = 1; lbl.Text = labelText; lbl.Font = Enum.Font.GothamBold; lbl.TextColor3 = C_WHITE; lbl.TextSize = 12; lbl.TextXAlignment = Enum.TextXAlignment.Left; lbl.Parent = row
 			local togBtn = Instance.new("TextButton"); togBtn.Size = UDim2.new(0.33, -8, 0.65, 0); togBtn.Position = UDim2.new(0.65, 0, 0.175, 0); togBtn.BorderSizePixel = 0; togBtn.Font = Enum.Font.GothamBold; togBtn.TextSize = 11; togBtn.Parent = row; Instance.new("UICorner", togBtn).CornerRadius = UDim.new(0, 3)
 			local function refresh() local v = getVal(); togBtn.BackgroundColor3 = v and Color3.fromRGB(0,120,50) or Color3.fromRGB(80,20,20); togBtn.TextColor3 = v and C_GREEN or Color3.fromRGB(255,80,80); togBtn.Text = v and "ON" or "OFF" end
-			refresh(); togBtn.MouseButton1Click:Connect(function() setVal(not getVal()); refresh() end)
+			refresh(); togBtn.MouseButton1Click:Connect(function() local oldValue=getVal(); setVal(not oldValue); local newValue=getVal(); refresh(); SPA_AuditConfigChange(labelText,oldValue,newValue) end)
 		end
 
 		local function makeAdjustRow(parent, labelText, getVal, setVal, step, minV, maxV, onChange, order)
@@ -7658,8 +8531,8 @@ function _setupCCUI()  -- [SPAV4] global: libera registros del ámbito principal
 			local valLbl = Instance.new("TextLabel"); valLbl.Size = UDim2.new(0.2, 0, 0.7, 0); valLbl.Position = UDim2.new(0.44, 32, 0.15, 0); valLbl.BackgroundColor3 = Color3.fromRGB(20, 20, 32); valLbl.BorderSizePixel = 0; valLbl.Text = tostring(getVal()); valLbl.Font = Enum.Font.GothamBlack; valLbl.TextColor3 = C_WHITE; valLbl.TextSize = 12; valLbl.TextXAlignment = Enum.TextXAlignment.Center; valLbl.Parent = row; Instance.new("UICorner", valLbl).CornerRadius = UDim.new(0, 3)
 			local plusBtn = Instance.new("TextButton"); plusBtn.Size = UDim2.new(0, 28, 0.7, 0); plusBtn.Position = UDim2.new(0.65, 4, 0.15, 0); plusBtn.BackgroundColor3 = Color3.fromRGB(0, 70, 30); plusBtn.Text = "+"; plusBtn.Font = Enum.Font.GothamBlack; plusBtn.TextColor3 = C_GREEN; plusBtn.TextSize = 16; plusBtn.BorderSizePixel = 0; plusBtn.Parent = row; Instance.new("UICorner", plusBtn).CornerRadius = UDim.new(0, 3)
 			local studsLbl = Instance.new("TextLabel"); studsLbl.Size = UDim2.new(0.28, -8, 1, 0); studsLbl.Position = UDim2.new(0.71, 0, 0, 0); studsLbl.BackgroundTransparency = 1; studsLbl.Text = "studs"; studsLbl.Font = Enum.Font.GothamBold; studsLbl.TextColor3 = Color3.fromRGB(80, 70, 40); studsLbl.TextSize = 10; studsLbl.TextXAlignment = Enum.TextXAlignment.Left; studsLbl.Parent = row
-			minusBtn.MouseButton1Click:Connect(function() setVal(math.max(minV, getVal() - step)); valLbl.Text = tostring(getVal()); if onChange then onChange() end end)
-			plusBtn.MouseButton1Click:Connect(function() setVal(math.min(maxV, getVal() + step)); valLbl.Text = tostring(getVal()); if onChange then onChange() end end)
+			minusBtn.MouseButton1Click:Connect(function() local oldValue=getVal(); setVal(math.max(minV, oldValue - step)); valLbl.Text = tostring(getVal()); SPA_AuditConfigChange(labelText,oldValue,getVal()); if onChange then onChange() end end)
+			plusBtn.MouseButton1Click:Connect(function() local oldValue=getVal(); setVal(math.min(maxV, oldValue + step)); valLbl.Text = tostring(getVal()); SPA_AuditConfigChange(labelText,oldValue,getVal()); if onChange then onChange() end end)
 		end
 
 		makeToggleRow(configCCScroll, "Detección CC activa", function() return DETECTCC end, function(v) DETECTCC = v end, 1)
@@ -7700,13 +8573,6 @@ function _setupCCUI()  -- [SPAV4] global: libera registros del ámbito principal
 
 	closeBtn.MouseButton1Click:Connect(function() ccPanel.Visible = false end)
 
-	task.spawn(function()
-		while true do
-			task.wait(1)
-			if ccPanel.Visible and currentCCTab == "REGISTROS CC" then buildRegCCList() end
-		end
-	end)
-
 	SPA_V220.ccPanel = ccPanel; SPA_V220.ccFrames=tabFrames
 	SPA_V220.openCC = function(tab)
 		currentCCTab = tab or "WP CC"; SPA_V220.ccTab = currentCCTab
@@ -7732,6 +8598,7 @@ SPA_INIT.ccUiOk = _spaInitStage("CC_UI", _setupCCUI, { "UI2" })
 function _setupTireSystem()
 	local tireFrame = tabFrames["LLANTAS"]
 	if not tireFrame then return end
+	SPA_Tires.frame=tireFrame
 
 	-- ── Scroll principal ────────────────────────────────────────
 	local tireScroll = Instance.new("ScrollingFrame")
@@ -7763,6 +8630,7 @@ function _setupTireSystem()
 
 	-- ── UI rebuild ──────────────────────────────────────────────
 	local function rebuildTireUI()
+		SPA_Tires.uiDirty=false
 		for _, c in ipairs(tireScroll:GetChildren()) do
 			if not c:IsA("UIListLayout") then c:Destroy() end
 		end
@@ -7981,15 +8849,11 @@ function _setupTireSystem()
 		_tTire += dt
 		if _tTire < 0.5 then return end
 		_tTire = 0
-		for _, p in ipairs(Players:GetPlayers()) do
-			local uid  = p.UserId
+		for uid,playerState in pairs(PlayerState) do
+			local p=playerState.player
 			if FIA_EXCLUDED[uid] then continue end
-			local char = p.Character
-			if not char then continue end
-			local hum  = char:FindFirstChildOfClass("Humanoid")
-			if not hum then continue end
-			local seat = hum.SeatPart
-			if not seat or not (seat:IsA("VehicleSeat") or seat:IsA("Seat")) or seat.Occupant ~= hum then continue end
+			local seat=playerState.inVehicle and playerState.seat
+			if not seat then continue end
 			local cpd = _tirGetCompound(seat)
 			if not cpd then continue end   -- ID desconocida → ignorar
 			local prev = SPA_Tires.current[uid]
@@ -8026,13 +8890,8 @@ function _setupTireSystem()
 	end)
 
 	rebuildTireUI()
-
-	-- Actualización periódica mientras la pestaña esté visible
-	task.spawn(function()
-		while tireFrame.Parent do
-			task.wait(1)
-			if tireFrame.Visible then rebuildTireUI() end
-		end
+	tireFrame:GetPropertyChangedSignal("Visible"):Connect(function()
+		if tireFrame.Visible and SPA_Tires.uiDirty then rebuildTireUI() end
 	end)
 end
 SPA_INIT.tiresOk = _spaInitStage("TIRES", _setupTireSystem, { "UI2" })
@@ -8041,7 +8900,7 @@ SPA_INIT.tiresOk = _spaInitStage("TIRES", _setupTireSystem, { "UI2" })
 SPA_INIT.glassOk = _spaInitStage("GLASS_APPLY", Glass and Glass.apply, { "UI1", "UI2", "CC_UI", "TIRES", "LAPS CONTROL" })
 SPA_INIT.ready = SPA_INIT.ui1Ok and SPA_INIT.ui2Ok and SPA_INIT.collisionOk and SPA_INIT.analysisOk and SPA_INIT.replayOk and SPA_INIT.ccUiOk and SPA_INIT.tiresOk and SPA_INIT.glassOk and SPA_INIT.audioOk and SPA_INIT.noclipOk and SPA_INIT.lapsControlOk and SPA_INIT.drsOk and SPA_INIT.otOk and SPA_INIT.pitLimiterOk and not SPA_INIT.criticalFailed
 if SPA_INIT.ready then
-	print("✅ SPA-GLOBAL V2.21 — RACE CONTROL SYSTEM (Unificado)")
+	print("✅ SPA-GLOBAL V" .. SPA_VERSION .. " — RACE CONTROL SYSTEM (Unificado)")
 	print("🏁 Anti-Corner Cut NATIVO integrado sin memory leaks")
 	print("🍏 SPAV4 — Interfaz iOS Glassmorphism aplicada (frosted glass + blur)")
 else
@@ -8374,6 +9233,14 @@ SPA_Tracks = (function()
 		end
 		-- Solo después de confirmar el cambio se eliminan las Parts antiguas.
 		self.Current=data
+		local labels={laps="Max Vueltas",maxPits="Max Boxes",pitReduction="Reducción en boxes",pitEnabled="Control de velocidad en boxes",detectLaps="Detección Vueltas",detectPits="Detección Boxes",checkpointRadius="Radio Checkpoint",ccEnabled="Detección CC activa",ccDebounce="Debounce CC",ccWidth="Ancho CC",ccHeight="Alto CC",ccDepth="Grosor CC",drsEnabled="Activar DRS",drsLap="Vuelta inicial DRS",drsGap="GAP DRS (s)",drsBonus="Bonus DRS",drsPenalty="Sanciones DRS",otEnabled="Activar OT",otGap="GAP OT (s)"}
+		for key,label in pairs(labels) do SPA_AuditConfigChange(label,old.settings and old.settings[key],data.track.settings[key]) end
+		if old.settings and old.settings.speedLimit~=data.track.settings.speedLimit then SPA_RaceControl:AddEvent("SPEED_LIMIT_CHANGED",{category="CONFIG",severity="INFO",operator=player.Name,name=player.Name,oldValue=old.settings.speedLimit,newValue=data.track.settings.speedLimit,title="SPEED LIMIT CHANGED",description=tostring(old.settings.speedLimit).." → "..tostring(data.track.settings.speedLimit)}) end
+		SPA_AuditWaypoint("LAP",lapWall.CFrame); SPA_AuditWaypoint("PIT IN",pitInWall.CFrame); SPA_AuditWaypoint("PIT OUT",pitOutWall.CFrame)
+		for index,gate in pairs(SPA_Timing.gates) do if gate and gate.Parent then SPA_AuditWaypoint("SECTOR "..tostring(index),gate.CFrame) end end
+		for _,zone in ipairs(SPA_DRS.zones) do if zone.part and zone.part.Parent then SPA_AuditWaypoint("DRS "..zone.kind.." #"..tostring(zone.index),zone.part.CFrame) end end
+		if OT_DETECTION_ZONE and OT_DETECTION_ZONE.part then SPA_AuditWaypoint("OT",OT_DETECTION_ZONE.part.CFrame) end
+		for _,entry in pairs(ccWaypoints) do if entry.wall and entry.wall.Parent then SPA_AuditWaypoint("CC · "..entry.name,entry.wall.CFrame) end end
 		self.applying=false
 		local cleaned,cleanupError=xpcall(function()
 			for _,p in ipairs(old.parts) do p:Destroy() end
@@ -8468,15 +9335,45 @@ function SPA_ControlCenter:Message(message,bad)
 	if self.status then self.status.Text=message; self.status.TextColor3=bad and C_RED or C_GREEN end
 	if self.trackStatus then self.trackStatus.Text=message; self.trackStatus.TextColor3=bad and C_RED or C_GREEN end
 end
+function SPA_ControlCenter:RefreshEffects()
+	if not self.effectStatus then return end
+	local labels={OFF="● OFF",NORMAL="● NORMAL",RAIN="🌧 RAIN"}
+	local colors={OFF=Color3.fromRGB(105,105,115),NORMAL=Color3.fromRGB(0,135,78),RAIN=Color3.fromRGB(35,105,180)}
+	self.effectStatus.Text="CURRENT:  "..labels[SPA_EFFECT_MODE]
+	self.effectStatus.TextColor3=colors[SPA_EFFECT_MODE]
+	for mode,button in pairs(self.effectButtons or {}) do
+		local selected=mode==SPA_EFFECT_MODE
+		button.BackgroundColor3=selected and colors[mode] or Color3.fromRGB(30,30,42)
+		button.BackgroundTransparency=selected and 0 or 0.22
+		button.TextColor3=selected and C_WHITE or C_GRAY
+	end
+	local rainVisible=SPA_EFFECT_MODE=="RAIN"
+	if self.rainIntensityTitle then self.rainIntensityTitle.Visible=rainVisible end
+	for intensity,button in pairs(self.rainIntensityButtons or {}) do
+		local selected=intensity==SPA_RAIN_INTENSITY
+		button.Visible=rainVisible
+		button.BackgroundColor3=selected and (intensity=="STORM" and Color3.fromRGB(125,45,145) or Color3.fromRGB(35,105,180)) or Color3.fromRGB(30,30,42)
+		button.BackgroundTransparency=selected and 0 or 0.22; button.TextColor3=selected and C_WHITE or C_GRAY
+	end
+	local wetness=SPA_WeatherFX and math.clamp(SPA_WeatherFX.trackWetness or 0,0,1) or 0
+	if self.wetnessFill then self.wetnessFill.Size=UDim2.new(wetness,0,1,0) end
+	if self.wetnessLabel then self.wetnessLabel.Text=("TRACK WETNESS  ·  %d%%"):format(math.floor(wetness*100+0.5)) end
+	if self.wetnessStatus then
+		local status=SPA_WeatherFX and SPA_WeatherFX:WetnessStatus() or "DRY"
+		self.wetnessStatus.Text=(SPA_EFFECT_MODE=="RAIN" and ("RAIN · "..SPA_RAIN_INTENSITY.." · "..status) or (wetness>0.02 and ("DRYING · "..status) or status))
+	end
+end
 function SPA_ControlCenter:Refresh()
 	if not self.initialized or not self.panel.Visible then return end
 	if tick()-self.lastRefresh<0.25 then return end
 	self.lastRefresh=tick()
 	local names={IDLE="IDLE",QUALY="QUALIFYING",RACE="RACE",FINISHED="FINISHED"}
-	self.dashboard.Text=("SESSION: %s\nTRACK: %s\nDRIVERS: %d CONNECTED\nRACE CONTROL: %s"):format(
+	local discordStatus=SPA_DiscordRaceFeed and SPA_DiscordRaceFeed:Status() or "INITIALIZING"
+	self.dashboard.Text=("SESSION: %s\nTRACK: %s\nLEAGUE: %s\nDRIVERS: %d CONNECTED\nRACE CONTROL: %s\nDISCORD FEED: %s"):format(
 		names[RACE_STATE] or RACE_STATE,SPA_Tracks and SPA_Tracks.Current and SPA_Tracks.Current.track.name or "NO TRACK LOADED",
-		#Players:GetPlayers(),SPA_INIT.ready and "READY" or "ERROR — revisa Output")
+		(SPA_LEAGUE_NAME~="" and SPA_LEAGUE_NAME or "NOT CONFIGURED"),#Players:GetPlayers(),SPA_INIT.ready and "READY" or "ERROR — revisa Output",discordStatus)
 	self.completed.Text=SPA_TUTORIAL_COMPLETED and "✓ Tutorial completado" or "Tutorial opcional · puedes empezar a trabajar ahora"
+	self:RefreshEffects()
 end
 function SPA_ControlCenter:Hide()
 	self.panel.Visible=false; self.trackPanel.Visible=false
@@ -8570,7 +9467,7 @@ function SPA_ControlCenter:TrackView(mode,data)
 end
 function SPA_ControlCenter:Init()
 	self.gui=SPA_V220:Make("ScreenGui",{Name="SPA_CONTROL_CENTER",ResetOnSpawn=false,DisplayOrder=80,ZIndexBehavior=Enum.ZIndexBehavior.Sibling},playerGui)
-	self.panel,self.content,self.status=SPA_V220:Panel(self.gui,"SPA CONTROL CENTER · V2.21")
+	self.panel,self.content,self.status=SPA_V220:Panel(self.gui,"SPA CONTROL CENTER · V" .. SPA_VERSION)
 	self.trackPanel,self.trackContent,self.trackStatus=SPA_V220:Panel(self.gui,"SPA TRACK SYSTEM")
 	for _,panel in ipairs({self.panel,self.trackPanel}) do
 		local close=SPA_V220:Button(panel,"✕",function() self:Hide() end)
@@ -8583,8 +9480,47 @@ function SPA_ControlCenter:Init()
 	local label=SPA_V220:Label(profile,player.DisplayName.."\nFIA OPERATOR · @"..player.Name,90)
 	label.Position=UDim2.new(0,104,0,0); label.Size=UDim2.new(1,-112,0,90)
 	SPA_V220:Label(self.content,"Bienvenido a Race Control, @"..player.Name.."\n¿Qué deseas preparar hoy?",68,2)
-	self.dashboard=SPA_V220:Label(self.content,"",108,3)
+	self.dashboard=SPA_V220:Label(self.content,"",138,3)
 	self.completed=SPA_V220:Label(self.content,"",42,4)
+	local leagueRow=SPA_V220:Make("Frame",{Size=UDim2.new(1,-12,0,64),BackgroundColor3=C_BG2,BorderSizePixel=0,LayoutOrder=5},self.content)
+	SPA_V220:Make("UICorner",{CornerRadius=UDim.new(0,5)},leagueRow)
+	local leagueTitle=SPA_V220:Label(leagueRow,"LEAGUE SESSION",20); leagueTitle.Position=UDim2.new(0,6,0,2); leagueTitle.Size=UDim2.new(1,-12,0,20); leagueTitle.TextColor3=C_YELLOW
+	local leagueInput=SPA_V220:Make("TextBox",{Size=UDim2.new(0.72,-10,0,30),Position=UDim2.new(0,6,0,28),BackgroundColor3=Color3.fromRGB(25,25,35),BorderSizePixel=0,Font=Enum.Font.Gotham,TextColor3=C_WHITE,TextSize=12,Text=SPA_LEAGUE_NAME,PlaceholderText="League name (2–60)",ClearTextOnFocus=false,TextXAlignment=Enum.TextXAlignment.Left},leagueRow)
+	SPA_V220:Make("UICorner",{CornerRadius=UDim.new(0,4)},leagueInput)
+	local leagueSave=SPA_V220:Make("TextButton",{Size=UDim2.new(0.28,-8,0,30),Position=UDim2.new(0.72,2,0,28),BackgroundColor3=Color3.fromRGB(0,90,140),BorderSizePixel=0,Font=Enum.Font.GothamBold,TextColor3=C_WHITE,TextSize=11,Text="SAVE LEAGUE"},leagueRow)
+	SPA_V220:Make("UICorner",{CornerRadius=UDim.new(0,4)},leagueSave)
+	leagueSave.MouseButton1Click:Connect(function()
+		if SPA_DiscordRaceFeed and SPA_DiscordRaceFeed:SetLeagueName(leagueInput.Text) then leagueInput.Text=SPA_LEAGUE_NAME; self:Refresh()
+		else leagueInput.Text=SPA_LEAGUE_NAME; showNotification("League name must contain 2–60 valid characters",C_YELLOW,"⚠",8) end
+	end)
+	local effectCard=SPA_V220:Make("Frame",{Size=UDim2.new(1,-12,0,270),BackgroundColor3=C_BG2,BorderSizePixel=0,LayoutOrder=6},self.content)
+	SPA_V220:Make("UICorner",{CornerRadius=UDim.new(0,10)},effectCard)
+	local effectTitle=SPA_V220:Label(effectCard,"🌦  WEATHER & CAR FX",28); effectTitle.Position=UDim2.new(0,10,0,6); effectTitle.Size=UDim2.new(1,-20,0,28); effectTitle.Font=Enum.Font.GothamBlack
+	self.effectStatus=SPA_V220:Label(effectCard,"",30); self.effectStatus.Position=UDim2.new(0,10,0,38); self.effectStatus.Size=UDim2.new(1,-20,0,30); self.effectStatus.Font=Enum.Font.GothamBold
+	self.effectButtons={}
+	for index,entry in ipairs({{"OFF","🚫 NO EFFECTS"},{"NORMAL","🏎 NORMAL"},{"RAIN","🌧 RAIN"}}) do
+		local mode,text=entry[1],entry[2]
+		local button=SPA_V220:Make("TextButton",{Size=UDim2.new(1/3,-10,0,44),Position=UDim2.new((index-1)/3,5,0,76),BackgroundColor3=C_BG,BorderSizePixel=0,Font=Enum.Font.GothamBold,TextColor3=C_WHITE,TextSize=12,Text=text},effectCard)
+		SPA_V220:Make("UICorner",{CornerRadius=UDim.new(0,8)},button)
+		button.MouseButton1Click:Connect(function() SPA_Effects:SetMode(mode) end)
+		self.effectButtons[mode]=button
+	end
+	self.rainIntensityTitle=SPA_V220:Label(effectCard,"RAIN INTENSITY",20); self.rainIntensityTitle.Position=UDim2.new(0,10,0,126); self.rainIntensityTitle.Size=UDim2.new(1,-20,0,20); self.rainIntensityTitle.TextColor3=C_BLUE; self.rainIntensityTitle.Font=Enum.Font.GothamBold
+	self.rainIntensityButtons={}
+	for index,intensity in ipairs({"LIGHT","HEAVY","STORM"}) do
+		local icon=intensity=="STORM" and "⛈ " or "🌧 "
+		local button=SPA_V220:Make("TextButton",{Size=UDim2.new(1/3,-10,0,38),Position=UDim2.new((index-1)/3,5,0,150),BackgroundColor3=C_BG,BorderSizePixel=0,Font=Enum.Font.GothamBold,TextColor3=C_WHITE,TextSize=11,Text=icon..intensity},effectCard)
+		SPA_V220:Make("UICorner",{CornerRadius=UDim.new(0,7)},button)
+		button.MouseButton1Click:Connect(function() SPA_Effects:SetRainIntensity(intensity) end)
+		self.rainIntensityButtons[intensity]=button
+	end
+	self.wetnessLabel=SPA_V220:Label(effectCard,"TRACK WETNESS  ·  0%",20); self.wetnessLabel.Position=UDim2.new(0,10,0,196); self.wetnessLabel.Size=UDim2.new(1,-20,0,20); self.wetnessLabel.Font=Enum.Font.GothamBold
+	local wetnessBar=SPA_V220:Make("Frame",{Size=UDim2.new(1,-20,0,12),Position=UDim2.new(0,10,0,220),BackgroundColor3=Color3.fromRGB(22,28,36),BorderSizePixel=0},effectCard)
+	SPA_V220:Make("UICorner",{CornerRadius=UDim.new(1,0)},wetnessBar)
+	self.wetnessFill=SPA_V220:Make("Frame",{Size=UDim2.new(0,0,1,0),BackgroundColor3=Color3.fromRGB(55,155,225),BorderSizePixel=0},wetnessBar)
+	SPA_V220:Make("UICorner",{CornerRadius=UDim.new(1,0)},self.wetnessFill)
+	self.wetnessStatus=SPA_V220:Label(effectCard,"DRY",22); self.wetnessStatus.Position=UDim2.new(0,10,0,238); self.wetnessStatus.Size=UDim2.new(1,-20,0,22); self.wetnessStatus.TextColor3=C_GRAY; self.wetnessStatus.Font=Enum.Font.GothamBold
+	self:RefreshEffects()
 	local cards={
 		{"🏁 CARRERA",function() self:Go("VUELTAS") end},
 		{"🗺️ CIRCUITOS",function() self:TrackView("home") end},
@@ -8597,13 +9533,14 @@ function SPA_ControlCenter:Init()
 		{"💡 IDEAS & FEEDBACK",function() if SPA_ConnectUI then SPA_ConnectUI:Open("feedback") end end},
 		{"⚙️ CONFIGURACIÓN",function() self:Go("CONFIG") end},
 	}
-	for i,card in ipairs(cards) do SPA_V220:Button(self.content,card[1],card[2],i+4) end
+	for i,card in ipairs(cards) do SPA_V220:Button(self.content,card[1],card[2],i+6) end
 	local home=SPA_V220:Button(self.gui,"⌂ HOME",function() self:Open() end)
 	home.Size=UDim2.new(0,88,0,32); home.Position=UDim2.new(0,14,1,-44)
 	self.home=home; self.initialized=true
 	self.gui.Destroying:Connect(function()
 		self.initialized=false
 		if SPA_Tutorial then SPA_Tutorial:Stop(false) end
+		if SPA_WeatherFX then SPA_WeatherFX:Cleanup() end
 		end)
 	task.spawn(function()
 		local ok,url,ready=pcall(function() return Players:GetUserThumbnailAsync(player.UserId,Enum.ThumbnailType.HeadShot,Enum.ThumbnailSize.Size180x180) end)
@@ -8621,7 +9558,7 @@ SPA_Tutorial.steps = {
 	{"Carrera","PREPARAR LA CARRERA","CONFIG","Max Vueltas","Ajusta el máximo de vueltas antes de comenzar. La importación de circuitos también recupera este valor. Este tutorial nunca inicia ni reinicia una sesión por ti."},
 	{"Carrera","INICIAR Y FINALIZAR","CONFIG","CRONOMETRO","INICIAR pone la sesión en RACE y comienza el cronómetro. DETENER la deja en FINISHED. Preparar una nueva carrera puede reiniciar datos transitorios: revisa el informe antes de hacerlo."},
 	{"Carrera","POSICIONES Y ESTADOS","VUELTAS",nil,"La torre y VUELTAS muestran la clasificación existente. FIA excluye pilotos de los cálculos. IDLE, QUALY, RACE y FINISHED identifican el estado de sesión."},
-	{"Carrera","FASTEST LAP Y GAPS","FAST LAPS",nil,"FAST LAPS muestra los mejores tiempos. En CONFIG puedes mostrar el gap al líder o al de delante; los tiempos y vueltas siguen siendo calculados por V2.19."},
+	{"Carrera","FASTEST LAP Y GAPS","FAST LAPS",nil,"FAST LAPS muestra los mejores tiempos. En CONFIG puedes mostrar el gap al líder o al de delante; el cálculo usa el sistema de timing activo."},
 	{"Clasificación","MODO QUALY","CONFIG","Activar Modo Qualy","Activa Qualy antes de la carrera. Las vueltas válidas tienen un máximo configurable. Al iniciar la carrera se conserva una instantánea de los resultados de clasificación."},
 	{"Clasificación","VUELTAS DE CLASIFICACIÓN","CONFIG","Vueltas Qualy","Configura el límite de intentos. RESETEAR TIEMPOS QUALY borra los tiempos de la sesión; no lo pulses si necesitas conservarlos."},
 	{"Circuitos y Waypoints","LAP / PIT IN / PIT OUT","CONFIG","Posición Meta/Vuelta","Usa SET WP en tu posición actual para colocar la meta. PIT IN y PIT OUT definen entrada y salida de boxes. El script utiliza la posición del vehículo y cruces de plano."},
@@ -8629,7 +9566,7 @@ SPA_Tutorial.steps = {
 	{"Circuitos y Waypoints","CORNER CUT: WAYPOINTS","CC","WP CC","Coloca un CC WP desde el panel original, asigna un nombre y revisa sus dimensiones. QUITAR elimina uno; QUITAR TODOS elimina todos los CC WP."},
 	{"Circuitos y Waypoints","CORNER CUT: AVISOS","CC","CONFIG CC","Detección CC activa y debounce controlan los avisos. Las infracciones generan registros y propuestas de sanción según los umbrales de CONFIG; no se aplican automáticamente."},
 	{"Circuitos y Waypoints","TRACK ANCHOR Y CÓDIGOS","TRACK",nil,"Establece el anchor en una referencia reproducible con la misma orientación. Captura un perfil, exporta el código y compártelo. Al importar, establece el nuevo anchor, valida, revisa el resumen y confirma; el respaldo protege ante errores. Los perfiles viven durante esta sesión."},
-	{"DRS / OT / Pit","DRS: DETECTION, START Y END","CONFIG","+ DRS DETECTION","DETECTION es un volumen activo que recalcula el gap. START abre el tramo de uso y END lo cierra. En V2.19, salir de DETECTION quita el permiso: extiende la detección hasta el final del tramo."},
+	{"DRS / OT / Pit","DRS: DETECTION, START Y END","CONFIG","+ DRS DETECTION","DETECTION es un volumen activo que recalcula el gap. START abre el tramo de uso y END lo cierra; salir de DETECTION quita el permiso, así que extiende la detección hasta el final del tramo."},
 	{"DRS / OT / Pit","DRS: VUELTA, GAP Y BONUS","CONFIG","Vuelta inicial DRS","Por defecto DRS está disponible desde LAP 3, con gap máximo de 1 s y bonus +10. Estos valores son configurables. Un gap desconocido no concede permiso."},
 	{"DRS / OT / Pit","DRS: USO E INFRACCIONES","CONFIG","Sanciones DRS","PERMITIDO no significa ACTIVADO: se observa el incremento real y la configuración del coche. Un bonus incorrecto o uso fuera de permiso genera avisos y propuestas; los mensajes tienen control de repetición."},
 	{"DRS / OT / Pit","OT: UNA SOLA ZONA","CONFIG","+ CREAR ZONA OT","La única zona OT inicia el ciclo y el siguiente paso lo renueva. El gap se evalúa en la entrada. El incremento permitido es siempre +2; no se suma automáticamente al bonus DRS."},
@@ -8814,9 +9751,10 @@ SPA_HTTP = (function()
 		if self.active~=job then return end
 		if job.timer then pcall(task.cancel,job.timer); job.timer=nil end
 		self.active=nil; self.lastCode=result.status or 0; self.lastError=result.ok and nil or result.error
-		local retry=self.enabled and not job.cancelled and not job.noRetry and result.retry and job.attempt<=#self.retryDelays
+		local delays=job.retryDelays or self.retryDelays
+		local retry=self.enabled and not job.cancelled and not job.noRetry and result.retry and job.attempt<=#delays
 		if retry then
-			job.ready=os.clock()+math.max(self.retryDelays[job.attempt],math.min(result.retryAfter or 0,120))
+			job.ready=os.clock()+math.max(delays[job.attempt],math.min(result.retryAfter or 0,120))
 			table.insert(self.queue,job)
 		else self:Deliver(job,result) end
 		self:Wake(0)
@@ -8846,9 +9784,11 @@ SPA_HTTP = (function()
 				local headers=response.Headers or response.headers or {}
 				local retryAfter=type(headers)=="table" and tonumber(headers["Retry-After"] or headers["retry-after"]) or 0
 				local apiOK,apiData=pcall(function() return HttpService:JSONDecode(body) end)
+				if apiOK and type(apiData)=="table" and tonumber(apiData.retry_after) then retryAfter=tonumber(apiData.retry_after) end
 				local apiError=apiOK and type(apiData)=="table" and type(apiData.error)=="string" and apiData.error:match("^[A-Z_0-9]+$") and apiData.error:sub(1,96) or nil
 				self:Finish(job,{ok=false,status=status,error="HTTP_"..status,apiError=apiError,retry=status==429 or status>=500,retryAfter=retryAfter}); return
 			end
+			if job.acceptEmpty and body=="" then self:Finish(job,{ok=true,status=status,data={},latency=math.floor((os.clock()-job.started)*1000)}); return end
 			local decoded,data=pcall(function() return HttpService:JSONDecode(body) end)
 			if not decoded or type(data)~="table" or not self:JSONSafe(data) then
 				self:Finish(job,{ok=false,status=status,error="INVALID_JSON"}); return
@@ -8885,8 +9825,17 @@ SPA_HTTP = (function()
 		self.sequence+=1
 		local safe={Url=options.Url,Method=options.Method,Headers=table.clone(options.Headers or {})}
 		if body then safe.Body=body end
+		local retryDelays=nil
+		if type(options.RetryDelays)=="table" and #options.RetryDelays<=4 then
+			retryDelays={}
+			for _,delay in ipairs(options.RetryDelays) do
+				local n=tonumber(delay)
+				if not n or n<0 or n>120 then retryDelays=nil; break end
+				retryDelays[#retryDelays+1]=n
+			end
+		end
 		local job={options=safe,priority=math.clamp(tonumber(options.Priority) or 1,0,2),callback=callback,
-			id=self.sequence,ready=os.clock(),attempt=0,noRetry=options.NoRetry==true}
+			id=self.sequence,ready=os.clock(),attempt=0,noRetry=options.NoRetry==true,acceptEmpty=options.AcceptEmpty==true,retryDelays=retryDelays}
 		table.insert(self.queue,job); self:Wake(0); return job.id
 	end
 	function H:Get(url,headers,callback,priority) return self:Request({Url=url,Method="GET",Headers=headers,Priority=priority},callback) end
@@ -8906,6 +9855,202 @@ SPA_HTTP = (function()
 	H:Detect()
 	return H
 end)()
+
+-- V2.22.8 · single event-driven Discord sender. The webhook is never printed,
+-- included in Race Control events, or copied into diagnostics.
+SPA_DiscordRaceFeed = {
+	queue={},maxQueue=150,sending=false,lastCode=0,lastError=nil,lastSuccess=nil,lastSuccessAt=0,
+	sessionId=HttpService:GenerateGUID(false),finalResultsSent={},finalResultOrder={},subscription=nil,
+}
+
+function SPA_DiscordRaceFeed:CleanText(value,limit)
+	local text=tostring(value or ""):gsub("[%z\1-\8\11\12\14-\31\127]","")
+	if #text>(limit or 1000) then text=text:sub(1,(limit or 1000)-1).."…" end
+	return text
+end
+
+function SPA_DiscordRaceFeed:SanitizeLeague(value)
+	local text=self:CleanText(value,60):match("^%s*(.-)%s*$")
+	if #text<2 or #text>60 then return nil end
+	return text
+end
+
+function SPA_DiscordRaceFeed:SetLeagueName(value)
+	local clean=self:SanitizeLeague(value)
+	if not clean then self:UpdateStatus(); return false end
+	SPA_LEAGUE_NAME=clean; self:UpdateStatus(); return true
+end
+
+function SPA_DiscordRaceFeed:SetWebhook(value)
+	local clean=self:CleanText(value,2048):match("^%s*(.-)%s*$")
+	local host=string.lower(clean):match("^https://([^/]+)/api/webhooks/")
+	local discordHost=host and (host=="discord.com" or host=="discordapp.com" or host:sub(-12)==".discord.com" or host:sub(-15)==".discordapp.com")
+	if not discordHost or not SPA_HTTP:ValidURL(clean) then self:UpdateStatus(); return false end
+	SPA_DISCORD_WEBHOOK_URL=clean
+	if SPA_DiscordWebhookBox and SPA_DiscordWebhookBox.Parent then SPA_DiscordWebhookBox.Text="WEBHOOK CONFIGURED ✓" end
+	self.lastError=nil; self.lastCode=0; self:UpdateStatus(); return true
+end
+
+function SPA_DiscordRaceFeed:Status()
+	if not self:SanitizeLeague(SPA_LEAGUE_NAME) then return "NO LEAGUE" end
+	if type(SPA_DISCORD_WEBHOOK_URL)~="string" or SPA_DISCORD_WEBHOOK_URL=="" or not SPA_HTTP:ValidURL(SPA_DISCORD_WEBHOOK_URL) then return "NO WEBHOOK" end
+	if not SPA_HTTP.available or not SPA_HTTP.enabled then return "HTTP UNAVAILABLE" end
+	if self.sending then return "SENDING" end
+	if self.lastCode==429 then return "RATE LIMITED" end
+	if self.lastError then return "ERROR · "..self:CleanText(self.lastError,40) end
+	return "READY"
+end
+
+function SPA_DiscordRaceFeed:UpdateStatus()
+	local status=self:Status()
+	if SPA_DiscordStatusLabel and SPA_DiscordStatusLabel.Parent then
+		SPA_DiscordStatusLabel.Text="● "..status
+		SPA_DiscordStatusLabel.TextColor3=status=="READY" and C_GREEN or ((status=="SENDING") and C_YELLOW or C_RED)
+	end
+	if SPA_ControlCenter and SPA_ControlCenter.initialized then SPA_ControlCenter.lastRefresh=0 end
+	return status
+end
+
+function SPA_DiscordRaceFeed:TrackName()
+	return SPA_Tracks and SPA_Tracks.Current and SPA_Tracks.Current.track and SPA_Tracks.Current.track.name or "NO TRACK LOADED"
+end
+
+function SPA_DiscordRaceFeed:BaseFields(event)
+	return {
+		{name="League",value=self:CleanText(SPA_LEAGUE_NAME,256),inline=true},
+		{name="Track",value=self:CleanText(self:TrackName(),256),inline=true},
+		{name="Session",value=self:CleanText((RACE_STATE or "IDLE").." · "..self.sessionId,256),inline=false},
+		{name="SPA Version",value=SPA_VERSION,inline=true},
+		{name="Operator",value=self:CleanText((event and event.operator) or (player and player.Name) or "Local",256),inline=true},
+		{name="Time",value=os.date("%d/%m/%Y %H:%M:%S"),inline=true},
+	}
+end
+
+function SPA_DiscordRaceFeed:Embed(title,description,color,event,extraFields)
+	local fields=self:BaseFields(event)
+	for _,field in ipairs(extraFields or {}) do
+		if #fields>=25 then break end
+		fields[#fields+1]={name=self:CleanText(field.name,256),value=self:CleanText(field.value,1024),inline=field.inline==true}
+	end
+	return {title=self:CleanText(title,256),description=self:CleanText(description,4000),color=color or 3447003,fields=fields,timestamp=os.date("!%Y-%m-%dT%H:%M:%SZ")}
+end
+
+function SPA_DiscordRaceFeed:CanSend(notify)
+	local status=nil
+	if not self:SanitizeLeague(SPA_LEAGUE_NAME) then status="NO LEAGUE"
+	elseif type(SPA_DISCORD_WEBHOOK_URL)~="string" or SPA_DISCORD_WEBHOOK_URL=="" or not SPA_HTTP:ValidURL(SPA_DISCORD_WEBHOOK_URL) then status="NO WEBHOOK"
+	elseif not SPA_HTTP.available or not SPA_HTTP.enabled then status="HTTP UNAVAILABLE" end
+	if not status then return true end
+	if notify then showNotification("Discord Feed: "..status,C_YELLOW,"⚠",8) end
+	self:UpdateStatus(); return false
+end
+
+function SPA_DiscordRaceFeed:QueueEmbed(embed,notify)
+	local perfStart=ENABLE_PERF_DIAGNOSTICS and os.clock() or nil
+	if not self:CanSend(notify) then SPA_PerfMark("DiscordQueue",perfStart); return false end
+	if #self.queue>=self.maxQueue then table.remove(self.queue,1) end
+	self.queue[#self.queue+1]={embeds={embed},notify=notify==true}
+	self:Flush(); SPA_PerfMark("DiscordQueue",perfStart); return true
+end
+
+function SPA_DiscordRaceFeed:Flush()
+	if self.sending or #self.queue==0 or not self:CanSend(false) then return end
+	local job=table.remove(self.queue,1); self.sending=true; self:UpdateStatus()
+	SPA_HTTP:Request({Url=SPA_DISCORD_WEBHOOK_URL,Method="POST",Headers={["Content-Type"]="application/json"},Body={username="SPA-GLOBAL Race Control",embeds=job.embeds},Priority=2,AcceptEmpty=true,RetryDelays={2,5,10}},function(result)
+		self.sending=false; self.lastCode=result.status or 0
+		if result.ok then
+			self.lastError=nil; self.lastSuccess=tick(); self.lastSuccessAt=self.lastSuccess
+			if job.notify then showNotification("Discord Feed sent",Color3.fromRGB(0,150,90),"📤",8) end
+		else
+			self.lastError=result.error or "SEND_FAILED"
+			if job.notify then showNotification("Discord Feed error: "..self:CleanText(self.lastError,48),C_RED,"❌",10) end
+			warn("[SPA DISCORD] SEND_FAILED status="..tostring(self.lastCode).." error="..self:CleanText(self.lastError,48))
+		end
+		self:UpdateStatus(); self:Flush()
+	end)
+end
+
+function SPA_DiscordRaceFeed:EventEmbed(event)
+	local kind=event.type
+	local titles={
+		GLOBAL_FASTEST_LAP="🟣 Global Fastest Lap",PROVISIONAL_POLE="🟣 Provisional Pole",
+		CONFIG_CHANGED="⚙ Competitive Configuration",SPEED_LIMIT_CHANGED="🚦 Global Speed Limit",
+		DRIVER_SPEED_LIMIT_CHANGED="🚦 Driver Speed Limit",VEHICLE_SPEED_CONFIG_CHANGED="🏎 Vehicle Speed Configuration",
+		SANCTION_PROPOSED="⚖ Sanction Proposed",
+		SANCTION_APPLIED="✅ Sanction Applied",SANCTION_DISMISSED="↩ Sanction Dismissed",DSQ="⛔ Disqualification",
+		DSQ_PROPOSED="⚠ DSQ Proposed",FIA_DECISION="⚖ FIA Decision",RACE_START="🟢 Race Started",
+		WEATHER_CHANGED="🌦 Weather Change",RAIN_STARTED="🌧 Rain Started",RAIN_STOPPED="🌤 Rain Stopped",
+		RAIN_INTENSITY_CHANGED="🌧 Rain Intensity Changed",TRACK_WETNESS="💧 Track Wetness",STORM_STARTED="⛈ Storm Started",
+	}
+	if not titles[kind] then return nil end
+	local color=({RACE_START=3066993,GLOBAL_FASTEST_LAP=10181046,PROVISIONAL_POLE=10181046,SANCTION_APPLIED=15844367,DSQ=15158332,WEATHER_CHANGED=3447003,RAIN_STARTED=3447003,RAIN_STOPPED=3066993,RAIN_INTENSITY_CHANGED=3447003,TRACK_WETNESS=10181046,STORM_STARTED=10181046})[kind] or 3447003
+	local extra={}
+	if event.name then extra[#extra+1]={name="Driver",value=event.name,inline=true} end
+	if event.lap then extra[#extra+1]={name="Lap",value=event.lap,inline=true} end
+	if event.time or event.bestTime then extra[#extra+1]={name="Lap time",value=event.time or event.bestTime,inline=true} end
+	if event.configuration then extra[#extra+1]={name="Configuration",value=event.configuration,inline=true} end
+	if kind=="WEATHER_CHANGED" or kind=="RAIN_STARTED" or kind=="RAIN_STOPPED" or kind=="RAIN_INTENSITY_CHANGED" or kind=="STORM_STARTED" then
+		extra[#extra+1]={name="Previous",value=tostring(event.oldValue),inline=true}
+		extra[#extra+1]={name="New",value=tostring(event.newValue),inline=true}
+	elseif event.oldValue~=nil or event.newValue~=nil then extra[#extra+1]={name="Change",value=tostring(event.oldValue).." → "..tostring(event.newValue),inline=false} end
+	if event.weather then extra[#extra+1]={name="Rain",value=tostring(event.weather),inline=true} end
+	if event.wetness~=nil then extra[#extra+1]={name="Track wetness",value=tostring(event.wetness).."%",inline=true} end
+	if event.direction then extra[#extra+1]={name="Trend",value=tostring(event.direction),inline=true} end
+	if event.context then extra[#extra+1]={name="Context",value=event.context,inline=true} end
+	if event.reason then extra[#extra+1]={name="Reason",value=event.reason,inline=false} end
+	return self:Embed(titles[kind],event.description or event.title or kind,color,event,extra)
+end
+
+function SPA_DiscordRaceFeed:BuildFinalResults(event)
+	local snapshot=event and event.finalSnapshot or (SPA_Session and SPA_Session.finalSnapshot)
+	local standings=snapshot and snapshot.standings or CURRENT_STANDINGS_ORDER or {}
+	local laps=snapshot and snapshot.laps or lapData; local pits=snapshot and snapshot.pits or pitData
+	local penalties=snapshot and snapshot.penalties or APPLIED_SANCTIONS
+	local lines={}; local position=0; local listed=0
+	for _,uid in ipairs(standings) do
+		if listed>=20 then break end
+		local pl=Players:GetPlayerByUserId(uid); local ld=laps[uid]; local pd=pits[uid]
+		local name=pl and getDisplayName(pl) or (customPlayerData[uid] and customPlayerData[uid].name) or ("UID "..tostring(uid))
+		local penaltyCount=0; for _,sanction in ipairs(penalties or {}) do if sanction.uid==uid then penaltyCount+=1 end end
+		if (snapshot and snapshot.dsq and snapshot.dsq[uid]) or (not snapshot and DSQ_DRIVERS[uid]) or FIA_EXCLUDED[uid] then
+			lines[#lines+1]="[DSQ] "..name.." · laps "..tostring(ld and ld.lapsMade or 0).." · pits "..tostring(pd and pd.pitStopsMade or 0).." · sanctions "..tostring(penaltyCount)
+		else
+			position+=1; lines[#lines+1]="P"..position.." "..name.." · laps "..tostring(ld and ld.lapsMade or 0).." · pits "..tostring(pd and pd.pitStopsMade or 0).." · sanctions "..tostring(penaltyCount)
+		end
+		listed+=1
+	end
+	if #lines==0 then lines[1]="No standings available." end
+	local duration=snapshot and snapshot.duration or (SPA_UI2_cronStartTime and math.max(0,tick()-SPA_UI2_cronStartTime) or 0)
+	local fastestData=snapshot and snapshot.fastest or GLOBAL_FASTEST_LAP
+	local fastest=fastestData and fastestData.time and fastestData.time<math.huge and ((fastestData.name or "Unknown").." · "..fmtTime(fastestData.time)) or "Not recorded"
+	local poleData=snapshot and snapshot.qualyFastest or FINAL_QUALY_GLOBAL_FASTEST
+	local pole=poleData and poleData.time and poleData.time<math.huge and ((poleData.name or "Unknown").." · "..fmtTime(poleData.time)) or "Not recorded"
+	return self:Embed("🏆 Final Race Results",table.concat(lines,"\n"),15105570,event,{
+		{name="Drivers",value=tostring(#standings),inline=true},{name="Duration",value=fmtTime(duration),inline=true},{name="Pole",value=pole,inline=false},{name="Fastest lap",value=fastest,inline=false},
+	})
+end
+
+function SPA_DiscordRaceFeed:Push(event)
+	if event.type=="RACE_START" then self.sessionId=event.sessionId or HttpService:GenerateGUID(false); self.queue={}; self.lastCode=0; self.lastError=nil end
+	local embed=self:EventEmbed(event); if embed then self:QueueEmbed(embed,false) end
+	if event.type=="RACE_FINISH" and not self.finalResultsSent[self.sessionId] then
+		if self:QueueEmbed(self:BuildFinalResults(event),false) then
+			self.finalResultsSent[self.sessionId]=true; self.finalResultOrder[#self.finalResultOrder+1]=self.sessionId
+			while #self.finalResultOrder>20 do local old=table.remove(self.finalResultOrder,1); self.finalResultsSent[old]=nil end
+		end
+	end
+end
+
+function SPA_DiscordRaceFeed:SendManualReport(text)
+	self:QueueEmbed(self:Embed("🏁 Post-Race Report",self:CleanText(text,4000),15158332,nil),true)
+end
+
+function SPA_DiscordRaceFeed:SendTest()
+	self:QueueEmbed(self:Embed("✅ SPA-GLOBAL RACE CONTROL CONNECTED","Private Race Control webhook test completed successfully.",3066993,nil),true)
+end
+
+SPA_DiscordRaceFeed.subscription=SPA_RaceControl:Subscribe(function(event) SPA_DiscordRaceFeed:Push(event) end)
+SPA_DiscordRaceFeed:UpdateStatus()
 
 SPA_Connect = (function()
 	local C={API_VERSION=1,enabled=true,status="DISABLED",baseUrl=SPA_CONNECT_BASE_URL,latency=nil,lastHealthCheck=0,
@@ -9386,7 +10531,7 @@ end
 function SPA_ConnectUI:Updates()
 	self:Label("SPA GLOBAL · CURRENT VERSION V2.22.4",50,1)
 	local info=self:Label("LATEST VERSION: sin verificar\nSTATUS: OFFLINE / sin sincronización",75,2)
-	local localChanges="V2.21 · SPA CONNECT\nNEW · Support, Updates, Feedback, FAQ y avisos.\nIMPROVED · Intercambio de circuitos con confirmación y respaldo.\nFIXED · Retirada la previsualización de pistas."
+	local localChanges="V2.23 · SESSION STABILITY HOTFIX\nNEW · Session lifecycle, frozen results and reusable race reset.\nIMPROVED · Drift sensor, confirmed crashes and adaptive replay.\nFIXED · Stale data, periodic UI rebuilds and cache cleanup."
 	local details=self:Label(localChanges,180,3)
 	local view=self.view
 	if SPA_Connect.flags.updatesEnabled then SPA_Connect:Fetch("updates",false,function(ok,d)
