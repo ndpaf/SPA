@@ -434,9 +434,9 @@ groundEffectState       = groundEffectState or {}
 -- IDS DE ÁUDIO DO VEÍCULO SPA
 -- Cole nesta seção somente os IDs dos seus próprios assets de áudio do Roblox.
 -- ============================================================
-SPA_IDLE_SOUND_ID       = SPA_IDLE_SOUND_ID or ""
-SPA_DRIVE_SOUND_ID      = SPA_DRIVE_SOUND_ID or ""
-SPA_SHIFT_SOUND_ID      = SPA_SHIFT_SOUND_ID or ""
+SPA_IDLE_SOUND_ID       = SPA_IDLE_SOUND_ID or "rbxassetid://105052546255484"
+SPA_DRIVE_SOUND_ID      = SPA_DRIVE_SOUND_ID or "rbxassetid://131453640492630"
+SPA_SHIFT_SOUND_ID      = SPA_SHIFT_SOUND_ID or "rbxassetid://116482222395784"
 SPA_SKID_SOUND_ID       = SPA_SKID_SOUND_ID or ""
 SPA_IDLE_VOLUME         = SPA_IDLE_VOLUME or 1.0
 SPA_DRIVE_VOLUME        = SPA_DRIVE_VOLUME or 3.0
