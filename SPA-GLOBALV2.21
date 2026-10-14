@@ -1,4 +1,5 @@
--- SPA-GLOBAL V2.23
+-- SPA-GLOBAL V2.23.3
+-- Onboard Ultra Camera & Vehicle FX update.
 -- V2.22.8: scalable rain density, intensity presets, track wetness and storm effects.
 -- First-launch transmission calibration, fixed-speed audio and Discord Race Control remain intact.
 -- V2.22.4: Brookhaven Drift calibrated from PhysicalWheel friction values.
@@ -6,7 +7,7 @@
 -- KNOWN LIMITATION: physical 2.0 is shared by Drift 1.4/1.5; no verified secondary signal.
 -- FIA COLLABORATIVE RACE CONTROL · ONE RACE. ONE CONTROL ROOM.
 -- TRACK TIMING & MOBILE CONTROL HOTFIX · V2.22.1
-SPA_VERSION = "2.23"
+SPA_VERSION = "2.23.3"
 SPA_V222 = { version = SPA_VERSION }
 SPA_V221 = { version = SPA_VERSION, connect = {}, services = {} }
 SPA_Session = SPA_Session or { generation = 0, sessionId = nil, state = "IDLE", startedAt = nil, finishedAt = nil, archive = {}, MAX_ARCHIVE = 5 }
@@ -78,9 +79,9 @@ groundEffectState       = groundEffectState or {}
 -- SPA VEHICLE AUDIO IDS
 -- Paste only your own Roblox audio asset IDs in this section.
 -- ============================================================
-SPA_IDLE_SOUND_ID       = SPA_IDLE_SOUND_ID or "rbxassetid://105052546255484"
-SPA_DRIVE_SOUND_ID      = SPA_DRIVE_SOUND_ID or "rbxassetid://131453640492630"
-SPA_SHIFT_SOUND_ID      = SPA_SHIFT_SOUND_ID or "rbxassetid://116482222395784"
+SPA_IDLE_SOUND_ID       = SPA_IDLE_SOUND_ID or ""
+SPA_DRIVE_SOUND_ID      = SPA_DRIVE_SOUND_ID or ""
+SPA_SHIFT_SOUND_ID      = SPA_SHIFT_SOUND_ID or ""
 SPA_SKID_SOUND_ID       = SPA_SKID_SOUND_ID or ""
 SPA_IDLE_VOLUME         = SPA_IDLE_VOLUME or 1.0
 SPA_DRIVE_VOLUME        = SPA_DRIVE_VOLUME or 3.0
@@ -98,7 +99,7 @@ SPA_TRACK_DRYING_SECONDS = math.clamp(tonumber(SPA_TRACK_DRYING_SECONDS) or 300,
 SPA_THUNDER_SOUND_ID     = SPA_THUNDER_SOUND_ID or ""
 SPA_THUNDER_VOLUME       = math.clamp(tonumber(SPA_THUNDER_VOLUME) or 1.5,0,5)
 SPA_LEAGUE_NAME         = SPA_LEAGUE_NAME or ""
-SPA_DISCORD_WEBHOOK_URL = SPA_DISCORD_WEBHOOK_URL or "https://discord.com/api/webhooks/1558431352947347498/8SO_3uoe1yRbv9CVbUga-9F_Ebc_3w0I-6QBazQexP2A9wOMtjpK2D34c8htOhEpd0SE"
+SPA_DISCORD_WEBHOOK_URL = SPA_DISCORD_WEBHOOK_URL or ""
 QUALY_STANDINGS         = {}
 OVERTAKE_COUNT          = {}
 CRASH_LEVE_COUNT        = {}
@@ -2038,13 +2039,280 @@ local function makeVueltasRow(parent, order, pos, p)
 	vueltasRowCache[uid] = {topRow = topRow, btnRow = btnRow, posLbl = posLbl, nameLbl = nameLbl, lapLbl = lapCountLbl}
 end
 
--- V2.22.1 ONBOARD CORE: one ordered roster for keyboard, menu and touch.
-SPA_Onboard = { drivers={}, current=nil, departing={}, active=false }
+-- V2.23.3 ONBOARD CAMERA CORE: one roster, one render connection, data-only presets.
+SPA_Onboard = {
+	drivers={}, current=nil, departing={}, active=false,
+	cameraPresets={}, cameraById={}, cameraIndex=1, currentPreset="TCAM", favorites={}, favoriteOrder={},
+	autoCam="OFF", autoCamAt=0, shakeMode="LOW", shakeImpulse=0,
+	transitionMode="CUT", transitionStart=0, transitionDuration=0, transitionFrom=nil,
+	lastCameraRaycast=0, correctedPosition=nil, missingSourceAt=nil, manualOverrideUntil=0,
+	cameraListFilter="ALL", cameraListSearch="", cameraFiltered={}, cameraPool={}, cameraPoolSize=20, cameraRowHeight=46,
+	cameraFilterButtons={}, cycleFiltered=false,
+}
+
+function SPA_Onboard:InstallCameraPresets()
+	local rows = {
+		{"TCAM","T-CAM","COCKPIT",Vector3.new(0,3.4,0.7),Vector3.new(0,1.0,-16),70,0.15,0,false,false,"CUT"},
+		{"COCKPIT_CENTER","COCKPIT CENTER","COCKPIT",Vector3.new(0,1.8,-0.3),Vector3.new(0,1.4,-18),68,0.10,0,false,false,"CUT"},
+		{"DRIVER_EYE","DRIVER EYE","COCKPIT",Vector3.new(-0.25,2.0,-0.15),Vector3.new(-0.1,1.7,-20),67,0.08,0,false,false,"CUT"},
+		{"HELMET_CAM","HELMET CAM","COCKPIT",Vector3.new(0,2.5,0.1),Vector3.new(0,1.7,-20),69,0.07,0,false,false,"CUT"},
+		{"DASH_CAM","DASH CAM","COCKPIT",Vector3.new(0,1.25,-1.0),Vector3.new(0,1.2,-18),66,0.10,0,false,false,"CUT"},
+		{"DASH_WIDE","DASH WIDE","COCKPIT",Vector3.new(0,1.35,-0.9),Vector3.new(0,1.2,-18),82,0.12,0,false,true,"CUT"},
+		{"NOSE_CAM","NOSE CAM","CAR MOUNTED",Vector3.new(0,1.0,-4.0),Vector3.new(0,1.0,-22),72,0.08,0,false,false,"CUT"},
+		{"LOW_NOSE","LOW NOSE","CAR MOUNTED",Vector3.new(0,0.45,-4.6),Vector3.new(0,0.55,-22),74,0.07,0,false,true,"CUT"},
+		{"FRONT_WING","FRONT WING","CAR MOUNTED",Vector3.new(0,0.65,-5.2),Vector3.new(0,0.8,-24),75,0.08,0,false,true,"CUT"},
+		{"FRONT_BUMPER","FRONT BUMPER","CAR MOUNTED",Vector3.new(0,0.35,-5.0),Vector3.new(0,0.5,-22),76,0.07,0,false,true,"CUT"},
+		{"GROUND_FRONT","GROUND FRONT","CAR MOUNTED",Vector3.new(0,0.18,-4.8),Vector3.new(0,0.35,-24),78,0.06,0,false,true,"CUT"},
+		{"ROOF_CAM","ROOF CAM","CAR MOUNTED",Vector3.new(0,3.7,0),Vector3.new(0,1.4,-20),72,0.12,0,false,false,"CUT"},
+		{"ROLL_HOOP","ROLL HOOP","CAR MOUNTED",Vector3.new(0,3.0,1.0),Vector3.new(0,1.5,-18),70,0.12,0,false,false,"CUT"},
+		{"ENGINE_COVER","ENGINE COVER","CAR MOUNTED",Vector3.new(0,2.6,2.7),Vector3.new(0,1.4,-16),72,0.10,0,false,false,"CUT"},
+		{"GEARBOX_CAM","GEARBOX CAM","REAR",Vector3.new(0,1.0,4.6),Vector3.new(0,1.0,-12),74,0.10,0,false,true,"CUT"},
+		{"REAR_WING_FORWARD","REAR WING FORWARD","REAR",Vector3.new(0,2.4,4.8),Vector3.new(0,1.1,-12),72,0.10,0,false,false,"CUT"},
+		{"REAR_WING_BACK","REAR WING BACK","REAR",Vector3.new(0,2.2,4.5),Vector3.new(0,1.1,18),74,0.10,0,false,true,"CUT"},
+		{"REAR_BUMPER","REAR BUMPER","REAR",Vector3.new(0,0.5,5.2),Vector3.new(0,0.7,20),76,0.08,0,false,true,"CUT"},
+		{"DIFFUSER_CAM","DIFFUSER CAM","REAR",Vector3.new(0,0.18,4.8),Vector3.new(0,0.35,20),78,0.07,0,false,true,"CUT"},
+		{"REAR_LOOK","REAR LOOK","REAR",Vector3.new(0,2.0,0.5),Vector3.new(0,1.3,18),70,0.10,0,false,false,"CUT"},
+		{"CHASE_CLOSE","CHASE CLOSE","CHASE",Vector3.new(0,3.4,9),Vector3.new(0,1.1,-4),72,0.22,0,true,true,"SMOOTH"},
+		{"CHASE_MEDIUM","CHASE MEDIUM","CHASE",Vector3.new(0,5.5,15),Vector3.new(0,1.0,-3),72,0.28,0,true,true,"SMOOTH"},
+		{"CHASE_FAR","CHASE FAR","CHASE",Vector3.new(0,8,25),Vector3.new(0,1.0,-2),70,0.34,0,true,true,"SMOOTH"},
+		{"CHASE_HIGH","CHASE HIGH","CHASE",Vector3.new(0,14,18),Vector3.new(0,0,-2),74,0.30,0,true,true,"SMOOTH"},
+		{"CHASE_LOW","CHASE LOW","CHASE",Vector3.new(0,1.1,14),Vector3.new(0,1.0,-5),76,0.22,0,true,true,"SMOOTH"},
+		{"CHASE_WIDE","CHASE WIDE","CHASE",Vector3.new(0,7,24),Vector3.new(0,1.0,-3),86,0.32,0,true,true,"SMOOTH"},
+		{"CHASE_TELEPHOTO","CHASE TELEPHOTO","CHASE",Vector3.new(0,8,31),Vector3.new(0,1.0,-2),48,0.36,0,true,false,"SMOOTH"},
+		{"LEFT_SIDEPOD","LEFT SIDEPOD","SIDE",Vector3.new(-2.2,1.0,0),Vector3.new(-1.4,1.0,-16),75,0.10,math.rad(-4),false,true,"CUT"},
+		{"RIGHT_SIDEPOD","RIGHT SIDEPOD","SIDE",Vector3.new(2.2,1.0,0),Vector3.new(1.4,1.0,-16),75,0.10,math.rad(4),false,true,"CUT"},
+		{"LEFT_PROFILE","LEFT PROFILE","SIDE",Vector3.new(-13,4,0),Vector3.new(0,1,0),62,0.28,math.rad(-2),true,false,"SMOOTH"},
+		{"RIGHT_PROFILE","RIGHT PROFILE","SIDE",Vector3.new(13,4,0),Vector3.new(0,1,0),62,0.28,math.rad(2),true,false,"SMOOTH"},
+		{"FRONT_LEFT_34","FRONT LEFT 3/4","CINEMATIC",Vector3.new(-10,5,-12),Vector3.new(0,1,0),58,0.32,math.rad(-2),true,false,"SMOOTH"},
+		{"FRONT_RIGHT_34","FRONT RIGHT 3/4","CINEMATIC",Vector3.new(10,5,-12),Vector3.new(0,1,0),58,0.32,math.rad(2),true,false,"SMOOTH"},
+		{"REAR_LEFT_34","REAR LEFT 3/4","CINEMATIC",Vector3.new(-10,5,12),Vector3.new(0,1,0),58,0.32,math.rad(-2),true,false,"SMOOTH"},
+		{"REAR_RIGHT_34","REAR RIGHT 3/4","CINEMATIC",Vector3.new(10,5,12),Vector3.new(0,1,0),58,0.32,math.rad(2),true,false,"SMOOTH"},
+		{"FRONT_LEFT_WHEEL","FRONT LEFT WHEEL","WHEEL / SUSPENSION",Vector3.new(-2.3,0.55,-3.2),Vector3.new(-1.6,0.6,-14),78,0.07,math.rad(-4),false,true,"CUT"},
+		{"FRONT_RIGHT_WHEEL","FRONT RIGHT WHEEL","WHEEL / SUSPENSION",Vector3.new(2.3,0.55,-3.2),Vector3.new(1.6,0.6,-14),78,0.07,math.rad(4),false,true,"CUT"},
+		{"REAR_LEFT_WHEEL","REAR LEFT WHEEL","WHEEL / SUSPENSION",Vector3.new(-2.2,0.55,3.1),Vector3.new(-1.4,0.7,14),78,0.07,math.rad(-4),false,true,"CUT"},
+		{"REAR_RIGHT_WHEEL","REAR RIGHT WHEEL","WHEEL / SUSPENSION",Vector3.new(2.2,0.55,3.1),Vector3.new(1.4,0.7,14),78,0.07,math.rad(4),false,true,"CUT"},
+		{"FRONT_SUSPENSION_LEFT","FRONT SUSPENSION LEFT","WHEEL / SUSPENSION",Vector3.new(-1.8,0.8,-2.6),Vector3.new(-1.1,0.7,-12),75,0.07,math.rad(-3),false,false,"CUT"},
+		{"FRONT_SUSPENSION_RIGHT","FRONT SUSPENSION RIGHT","WHEEL / SUSPENSION",Vector3.new(1.8,0.8,-2.6),Vector3.new(1.1,0.7,-12),75,0.07,math.rad(3),false,false,"CUT"},
+		{"REAR_SUSPENSION","REAR SUSPENSION","WHEEL / SUSPENSION",Vector3.new(0,0.75,3.4),Vector3.new(0,0.7,13),76,0.08,0,false,false,"CUT"},
+		{"LEFT_SHOULDER","LEFT SHOULDER","COCKPIT",Vector3.new(-0.75,2.2,0.4),Vector3.new(-0.2,1.4,-18),70,0.10,math.rad(-2),false,false,"CUT"},
+		{"RIGHT_SHOULDER","RIGHT SHOULDER","COCKPIT",Vector3.new(0.75,2.2,0.4),Vector3.new(0.2,1.4,-18),70,0.10,math.rad(2),false,false,"CUT"},
+		{"LEFT_MIRROR","LEFT MIRROR STYLE","SIDE",Vector3.new(-1.5,1.8,-0.3),Vector3.new(-6,1.2,12),67,0.10,math.rad(-3),false,false,"CUT"},
+		{"RIGHT_MIRROR","RIGHT MIRROR STYLE","SIDE",Vector3.new(1.5,1.8,-0.3),Vector3.new(6,1.2,12),67,0.10,math.rad(3),false,false,"CUT"},
+		{"DRONE_FOLLOW","DRONE FOLLOW","AERIAL",Vector3.new(-5,24,20),Vector3.new(0,0,-2),72,0.42,0,true,false,"SMOOTH"},
+		{"HELICOPTER_FOLLOW","HELICOPTER FOLLOW","AERIAL",Vector3.new(18,38,34),Vector3.new(0,0,-2),64,0.50,0,true,false,"SMOOTH"},
+		{"SPEED_CAM","SPEED CAM","CINEMATIC",Vector3.new(0,0.7,18),Vector3.new(0,0.8,-7),65,0.18,0,true,true,"SMOOTH"},
+		{"BATTLE_CAM","BATTLE CAM","BATTLE",Vector3.new(-12,8,18),Vector3.new(0,1,0),66,0.28,0,true,true,"SMOOTH"},
+		{"ORBIT_LEFT","CINEMATIC ORBIT LEFT","CINEMATIC",Vector3.new(-15,8,15),Vector3.new(0,1,0),60,0.36,0,true,false,"SMOOTH"},
+		{"ORBIT_RIGHT","CINEMATIC ORBIT RIGHT","CINEMATIC",Vector3.new(15,8,15),Vector3.new(0,1,0),60,0.36,0,true,false,"SMOOTH"},
+		{"REAR_SPRAY","REAR TYRE SPRAY CAM","REAR",Vector3.new(-1.8,0.5,7),Vector3.new(-1.0,0.6,18),80,0.10,0,false,true,"CUT"},
+		{"PIT_ENTRY","PIT ENTRY CAM","CINEMATIC",Vector3.new(-14,7,16),Vector3.new(0,1,0),62,0.34,0,true,false,"SMOOTH"},
+		{"PIT_EXIT","PIT EXIT CAM","CINEMATIC",Vector3.new(14,7,16),Vector3.new(0,1,0),62,0.34,0,true,false,"SMOOTH"},
+		{"START_CAM","START CAM","CINEMATIC",Vector3.new(-18,10,24),Vector3.new(0,1,-2),56,0.38,0,true,false,"SMOOTH"},
+		{"FINISH_FOLLOW","FINISH LINE FOLLOW","CINEMATIC",Vector3.new(12,6,18),Vector3.new(0,1,-2),60,0.34,0,true,false,"SMOOTH"},
+		{"LEADER_CAM","LEADER CAM","BATTLE",Vector3.new(0,9,22),Vector3.new(0,1,-3),68,0.32,0,true,true,"SMOOTH"},
+		{"LAST_LAP","LAST LAP CAM","CINEMATIC",Vector3.new(-10,7,18),Vector3.new(0,1,-3),64,0.30,0,true,true,"SMOOTH"},
+		{"VICTORY_CAM","VICTORY CAM","CINEMATIC",Vector3.new(14,9,16),Vector3.new(0,1,0),58,0.40,0,true,false,"SMOOTH"},
+	}
+	local rigidExisting={TCAM=true,COCKPIT_CENTER=true,DRIVER_EYE=true,HELMET_CAM=true,DASH_CAM=true,DASH_WIDE=true,NOSE_CAM=true,LOW_NOSE=true,FRONT_WING=true,FRONT_BUMPER=true,GROUND_FRONT=true,ROOF_CAM=true,ROLL_HOOP=true,ENGINE_COVER=true,GEARBOX_CAM=true,REAR_WING_FORWARD=true,REAR_WING_BACK=true,REAR_BUMPER=true,DIFFUSER_CAM=true,REAR_LOOK=true,LEFT_SIDEPOD=true,RIGHT_SIDEPOD=true,FRONT_LEFT_WHEEL=true,FRONT_RIGHT_WHEEL=true,REAR_LEFT_WHEEL=true,REAR_RIGHT_WHEEL=true,FRONT_SUSPENSION_LEFT=true,FRONT_SUSPENSION_RIGHT=true,REAR_SUSPENSION=true,LEFT_SHOULDER=true,RIGHT_SHOULDER=true,LEFT_MIRROR=true,RIGHT_MIRROR=true,REAR_SPRAY=true}
+	local groups={
+		{"COCKPIT","RIGID_MOUNT","T-CAM LOW|T-CAM HIGH|T-CAM FORWARD|T-CAM REARWARD|T-CAM LEFT OFFSET|T-CAM RIGHT OFFSET|HALO CENTER|HALO LOW|HALO HIGH|HALO LEFT|HALO RIGHT|HALO REAR LOOK|DRIVER EYE LOW|DRIVER EYE HIGH|DRIVER EYE WIDE|DRIVER EYE TIGHT|DRIVER EYE LEFT|DRIVER EYE RIGHT|VISOR CENTER|VISOR LOW|VISOR HIGH|COCKPIT ULTRA LOW|COCKPIT HIGH|COCKPIT LEFT|COCKPIT RIGHT|DASH LEFT|DASH RIGHT|STEERING CENTER|SHOULDER LEFT REAR|SHOULDER RIGHT REAR"},
+		{"CAR MOUNTED","RIGID_MOUNT","NOSE HIGH|NOSE ULTRA LOW|NOSE LEFT|NOSE RIGHT|NOSE REVERSE|FRONT WING CENTER LOW|FRONT WING CENTER HIGH|FRONT WING LEFT|FRONT WING RIGHT|FRONT WING TIP LEFT|FRONT WING TIP RIGHT|FLOOR FRONT|FLOOR MID|FLOOR REAR|PLANK CENTER|FLOOR EDGE LEFT|FLOOR EDGE RIGHT|SIDEPOD FRONT LEFT|SIDEPOD FRONT RIGHT|SIDEPOD MID LEFT|SIDEPOD MID RIGHT|SIDEPOD REAR LEFT|SIDEPOD REAR RIGHT|AIRBOX FRONT|AIRBOX REAR|ENGINE COVER LEFT|ENGINE COVER RIGHT|REAR WING CENTER HIGH|REAR WING LEFT ENDPLATE|REAR WING RIGHT ENDPLATE|DIFFUSER LEFT|DIFFUSER RIGHT|REAR CENTER LOW|REAR CENTER HIGH|REAR TYRE LEFT|REAR TYRE RIGHT|FRONT HUB LEFT|FRONT HUB RIGHT|REAR HUB LEFT|REAR HUB RIGHT"},
+		{"CHASE","FOLLOW","CHASE SUPER CLOSE|CHASE RACE|CHASE LONG|CHASE ULTRA WIDE|CHASE LOW WIDE|CHASE HIGH TIGHT|CHASE LEFT OFFSET|CHASE RIGHT OFFSET|CHASE REAR LEFT|CHASE REAR RIGHT|CHASE TELE LONG|CHASE TELE LOW|CHASE SPEED LOW|CHASE SPEED HIGH|CHASE HORIZON STABLE|SIDE FOLLOW LEFT LOW|SIDE FOLLOW RIGHT LOW|SIDE FOLLOW LEFT HIGH|SIDE FOLLOW RIGHT HIGH|REAR FOLLOW COMPRESSED"},
+		{"AERIAL","AERIAL","AERIAL TOP DOWN|AERIAL REAR TOP|AERIAL FRONT TOP|HELICOPTER LOW|HELICOPTER HIGH"},
+		{"BATTLE","BATTLE","BATTLE SIDE BY SIDE|BATTLE REAR CHASE|BATTLE FRONT THREE QUARTER|OVERTAKE CAM LEFT|OVERTAKE CAM RIGHT"},
+	}
+	local number=60
+	for _,group in ipairs(groups) do
+		for name in string.gmatch(group[3],"[^|]+") do
+			number+=1
+			local id=string.upper(name):gsub("[^%w]+","_"):gsub("^_",""):gsub("_$","")
+			local category,behavior=group[1],group[2]
+			local j=number-60; local side=((j%5)-2)*0.42; local height=1.2+(j%4)*0.42; local depth=-0.6-(j%6)*0.55
+			local offset,lookOffset,fov,smoothing,collision,dynamicFov,transition=Vector3.new(side,height,depth),Vector3.new(side*0.25,1.1,-18),68+(j%5)*2,0,false,false,"CUT"
+			if number>=91 and number<=130 then
+				local mounted=number-91; side=((mounted%5)-2)*1.05; height=0.3+(mounted%6)*0.48; depth=-5+(math.floor(mounted/5)%8)*1.45
+				offset=Vector3.new(side,height,depth); lookOffset=Vector3.new(side*0.4,math.max(0.4,height*0.7),name:find("REVERSE",1,true) and 18 or -20); fov=72+(mounted%4)*2
+				if name:find("TYRE",1,true) or name:find("HUB",1,true) then category="WHEEL / SUSPENSION" elseif name:find("REAR",1,true) or name:find("DIFFUSER",1,true) then category="REAR" elseif name:find("LEFT",1,true) or name:find("RIGHT",1,true) then category="SIDE" end
+			elseif number>=131 and number<=150 then
+				local chase=number-131; local sideSign=name:find("LEFT",1,true) and -1 or (name:find("RIGHT",1,true) and 1 or 0)
+				offset=Vector3.new(sideSign*(5+chase%4),2.2+(chase%5)*1.6,8+(chase%7)*3.1); lookOffset=Vector3.new(0,1,-3); fov=name:find("TELE",1,true) and 48 or (70+(chase%4)*4); smoothing=0.20+(chase%5)*0.035; collision=true; dynamicFov=true; transition="SMOOTH"
+				if name:find("SIDE",1,true) then category="SIDE" elseif name:find("REAR FOLLOW",1,true) then category="REAR" end
+			elseif number>=151 then
+				local special=number-151; offset=Vector3.new(((special%3)-1)*15,22+(special%5)*8,12+(special%4)*8); lookOffset=Vector3.new(0,0,-2); fov=58+(special%4)*4; smoothing=0.35+(special%3)*0.06; collision=true; transition="SMOOTH"
+			end
+			rows[#rows+1]={id,name,category,offset,lookOffset,fov,smoothing,0,collision,dynamicFov,transition,behavior}
+		end
+	end
+	self.cameraPresets={}; self.cameraById={}
+	for _,r in ipairs(rows) do
+		local behavior=r[12] or (rigidExisting[r[1]] and "RIGID_MOUNT") or (r[3]=="CHASE" and "FOLLOW") or (r[3]=="AERIAL" and "AERIAL") or (r[3]=="BATTLE" and "BATTLE") or "CINEMATIC"
+		local preset={id=r[1],name=r[2],category=r[3],offset=r[4],lookOffset=r[5],fov=r[6],smoothing=r[7],rollAmount=r[8],collision=r[9],dynamicFov=r[10],transition=r[11],behavior=behavior}
+		if self.cameraById[preset.id] then warn("[SPA Onboard] Duplicate camera ID: "..preset.id)
+		elseif type(preset.name)~="string" or type(preset.category)~="string" or type(preset.behavior)~="string" or typeof(preset.offset)~="Vector3" or typeof(preset.lookOffset)~="Vector3" or type(preset.fov)~="number" or preset.fov<35 or preset.fov>100 then warn("[SPA Onboard] Invalid camera preset: "..tostring(preset.id))
+		else self.cameraPresets[#self.cameraPresets+1]=preset; self.cameraById[preset.id]=#self.cameraPresets end
+	end
+	self.currentPreset=self.cameraPresets[1].id
+end
+SPA_Onboard:InstallCameraPresets()
+
+function SPA_Onboard:GetPreset(index)
+	return self.cameraPresets[math.clamp(tonumber(index) or self.cameraIndex,1,#self.cameraPresets)] or self.cameraPresets[1]
+end
+function SPA_Onboard:GetSource(pl)
+	if not pl then return nil,nil,nil end
+	local uid=pl.UserId; local vc=VehicleCache and VehicleCache[uid]; local st=PlayerState and PlayerState[uid]
+	local seat=(vc and vc.seat and vc.seat.Parent and vc.seat) or (st and st.seat and st.seat.Parent and st.seat)
+	if seat then return seat,vc,st end
+	local root=st and st.root and st.root.Parent and st.root or (pl.Character and pl.Character:FindFirstChild("HumanoidRootPart"))
+	return root,vc,st
+end
+function SPA_Onboard:GetPosition(uid)
+	for i,id in ipairs(CURRENT_STANDINGS_ORDER or {}) do if id==uid then return i end end
+	return nil
+end
+function SPA_Onboard:GetAdjacentRival(uid)
+	local position=self:GetPosition(uid); if not position then return nil end
+	local order=CURRENT_STANDINGS_ORDER or {}; local candidates={order[position-1],order[position+1]}
+	local targetState=PlayerState and PlayerState[uid]; local targetPlayer=targetState and targetState.player or Players:GetPlayerByUserId(uid)
+	local source,targetCache,resolvedTargetState=self:GetSource(targetPlayer); local targetSeat=(targetCache and targetCache.seat and targetCache.seat.Parent and targetCache.seat) or (resolvedTargetState and resolvedTargetState.seat and resolvedTargetState.seat.Parent and resolvedTargetState.seat)
+	if not targetSeat then return nil end; source=targetSeat
+	local best,bestDistance=nil,math.huge; self.adjacentRivalPlayer=nil
+	for _,otherUid in ipairs(candidates) do
+		local otherState=otherUid and PlayerState and PlayerState[otherUid]; local pl=otherState and otherState.player or (otherUid and Players:GetPlayerByUserId(otherUid)); local other,otherCache,resolvedOtherState=nil,nil,nil
+		if pl then other,otherCache,resolvedOtherState=self:GetSource(pl) end
+		local otherSeat=(otherCache and otherCache.seat and otherCache.seat.Parent and otherCache.seat) or (resolvedOtherState and resolvedOtherState.seat and resolvedOtherState.seat.Parent and resolvedOtherState.seat)
+		if otherSeat then other=otherSeat; local distance=(other.Position-source.Position).Magnitude; if distance<bestDistance then best=other; bestDistance=distance; self.adjacentRivalPlayer=pl end end
+	end
+	return best,bestDistance,self.adjacentRivalPlayer
+end
+function SPA_Onboard:SetCamera(index,manual)
+	if #self.cameraPresets==0 then return end
+	index=((tonumber(index) or 1)-1)%#self.cameraPresets+1
+	local camera=Workspace.CurrentCamera
+	self.cameraIndex=index; self.currentPreset=self.cameraPresets[index].id
+	self.transitionMode=self.cameraPresets[index].transition or "CUT"
+	self.transitionStart=os.clock(); self.transitionDuration=self.transitionMode=="SMOOTH" and (self.cameraPresets[index].behavior=="RIGID_MOUNT" and 0.16 or math.clamp(self.cameraPresets[index].smoothing*1.7,0.25,0.60)) or 0
+	self.transitionFrom=camera and camera.CFrame or nil; self.correctedPosition=nil
+	if manual then self.manualOverrideUntil=os.clock()+15 end
+	self.autoCamAt=os.clock()+self:AutoInterval()
+	self:Paint(); self:RefreshCameraPanel()
+end
+function SPA_Onboard:SelectCamera(id,manual)
+	local index=self.cameraById[id]; if not index then return false end
+	self:SetCamera(index,manual); return true
+end
+function SPA_Onboard:NextCamera(direction,manual)
+	local step=direction or 1
+	if self.cycleFiltered and #self.cameraFiltered>0 then
+		local at=0; for i,preset in ipairs(self.cameraFiltered) do if preset.id==self.currentPreset then at=i; break end end
+		local nextPreset=self.cameraFiltered[((at-1+step)%#self.cameraFiltered)+1]; self:SelectCamera(nextPreset.id,manual~=false)
+	else self:SetCamera(self.cameraIndex+step,manual~=false) end
+end
+function SPA_Onboard:RandomCamera(manual)
+	local pool=(self.autoFavoritesOnly and #self.favoriteOrder>0) and self.favoriteOrder or nil
+	if pool then self:SelectCamera(pool[math.random(1,#pool)],manual~=false) else self:SetCamera(math.random(1,#self.cameraPresets),manual~=false) end
+end
+function SPA_Onboard:ToggleFavorite(id)
+	id=id or self:GetPreset().id
+	if self.favorites[id] then
+		self.favorites[id]=nil; for i=#self.favoriteOrder,1,-1 do if self.favoriteOrder[i]==id then table.remove(self.favoriteOrder,i) end end
+	elseif #self.favoriteOrder<40 then self.favorites[id]=true; self.favoriteOrder[#self.favoriteOrder+1]=id end
+	self:Paint(); self:RefreshCameraPanel()
+end
+function SPA_Onboard:CycleAutoCam()
+	local modes={"OFF","SLOW","NORMAL","FAST"}; local at=1
+	for i,v in ipairs(modes) do if v==self.autoCam then at=i; break end end
+	self.autoCam=modes[at%#modes+1]; self.autoCamAt=os.clock()+self:AutoInterval(); self:Paint()
+end
+function SPA_Onboard:AutoInterval()
+	if self.autoCam=="SLOW" then return math.random(12,20) elseif self.autoCam=="NORMAL" then return math.random(8,14) elseif self.autoCam=="FAST" then return math.random(4,8) end
+	return math.huge
+end
+function SPA_Onboard:CycleShake()
+	self.shakeMode=self.shakeMode=="OFF" and "LOW" or (self.shakeMode=="LOW" and "MEDIUM" or "OFF"); self:Paint()
+end
+function SPA_Onboard:OnRaceEvent(event)
+	if not event then return end
+	if event.type=="CRASH" and self.current and (event.uid==self.current.UserId or event.uidA==self.current.UserId or event.uidB==self.current.UserId) then self.shakeImpulse=1; self.autoCamAt=math.max(self.autoCamAt or 0,os.clock()+4) end
+	if self.autoCam=="OFF" or os.clock()<self.manualOverrideUntil then return end
+	if event.type=="GLOBAL_FASTEST_LAP" or event.type=="PROVISIONAL_POLE" then self:SelectCamera("TCAM",false)
+	elseif event.type=="CRASH" then self:SelectCamera("CHASE_WIDE",false)
+	elseif event.type=="PIT_IN" then self:SelectCamera("PIT_ENTRY",false)
+	elseif event.type=="PIT_OUT" then self:SelectCamera("PIT_EXIT",false)
+	elseif event.type=="POSITION_CHANGE" then self:SelectCamera("BATTLE_CAM",false) end
+end
+function SPA_Onboard:CameraTarget(preset,source,vc,st)
+	local base=source.CFrame; local scale=1
+	if vc then
+		if not vc.cameraScale then
+			local ok,size=pcall(function() return vc.vehicleRoot and vc.vehicleRoot:GetExtentsSize() end)
+			vc.cameraScale=ok and size and math.clamp(math.max(size.X,size.Z)/12,0.7,2.0) or 1
+		end
+		scale=vc.cameraScale
+	end
+	local offset=preset.offset*scale; local lookOffset=preset.lookOffset*scale
+	local rigid=preset.behavior=="RIGID_MOUNT"
+	if not rigid and (preset.id=="ORBIT_LEFT" or preset.id=="ORBIT_RIGHT" or preset.id=="VICTORY_CAM") then
+		local sign=preset.id=="ORBIT_RIGHT" and 1 or -1; local angle=os.clock()*0.22*sign
+		offset=Vector3.new(math.sin(angle)*18,offset.Y,math.cos(angle)*18)
+	end
+	local position=(base*CFrame.new(offset)).Position; local look=(base*CFrame.new(lookOffset)).Position
+	if not rigid and preset.behavior=="BATTLE" then
+		local rival,distance=self:GetAdjacentRival(self.current.UserId)
+		if rival then
+			look=(source.Position+rival.Position)*0.5
+			local width=math.clamp((distance or 10)*0.85,12,30)
+			position=look+base.RightVector*-width+base.UpVector*(8+width*0.15)+base.LookVector*-width
+		end
+	end
+	if not rigid and preset.collision and os.clock()-(self.lastCameraRaycast or 0)>=0.08 then
+		self.lastCameraRaycast=os.clock()
+		self.raycastParams=self.raycastParams or RaycastParams.new(); self.raycastParams.FilterType=Enum.RaycastFilterType.Exclude
+		self.raycastParams.FilterDescendantsInstances={vc and vc.vehicleRoot or source,self.current and self.current.Character}
+		local hit=Workspace:Raycast(look,position-look,self.raycastParams)
+		self.correctedPosition=hit and (hit.Position+hit.Normal*0.45) or position
+	end
+	if not rigid and preset.collision and self.correctedPosition then position=self.correctedPosition end
+	local up=base.UpVector; local target=CFrame.lookAt(position,look,up)*CFrame.Angles(0,0,preset.rollAmount or 0)
+	local speed=st and st.rawSpeed or 0; local angular=source:IsA("BasePart") and source.AssemblyAngularVelocity.Magnitude or 0
+	local fov=preset.fov+((not rigid and preset.dynamicFov) and math.clamp(speed/160,0,1)*12 or 0)
+	return target,math.clamp(fov,45,90),speed,angular
+end
+function SPA_Onboard:UpdateCamera(dt)
+	if not self.active or not self.current then return end
+	local source,vc,st=self:GetSource(self.current)
+	local seat=(vc and vc.seat and vc.seat.Parent and vc.seat) or (st and st.seat and st.seat.Parent and st.seat)
+	if not seat then
+		self.missingSourceAt=self.missingSourceAt or os.clock(); self.waitingForVehicle=true; self:Paint()
+		if os.clock()-self.missingSourceAt>=2.5 then self:Switch(1) end
+		return
+	end
+	source=seat; self.waitingForVehicle=false
+	self.missingSourceAt=nil
+	local camera=Workspace.CurrentCamera; if not camera then return end; Camera=camera
+	local preset=self:GetPreset(); local target,fov,speed,angular=self:CameraTarget(preset,source,vc,st)
+	local now=os.clock()
+	if self.autoCam~="OFF" and now>=(self.autoCamAt or 0) and now>=self.manualOverrideUntil then self:RandomCamera(false); preset=self:GetPreset(); target,fov,speed,angular=self:CameraTarget(preset,source,vc,st) end
+	if self.transitionDuration>0 and self.transitionFrom then
+		local alpha=math.clamp((now-self.transitionStart)/self.transitionDuration,0,1); target=self.transitionFrom:Lerp(target,alpha)
+		if alpha>=1 then self.transitionDuration=0; self.transitionFrom=nil end
+	elseif preset.behavior~="RIGID_MOUNT" and preset.smoothing>0 then target=camera.CFrame:Lerp(target,1-math.exp(-dt/math.max(0.02,preset.smoothing))) end
+	local shakeScale=self.shakeMode=="MEDIUM" and 1 or (self.shakeMode=="LOW" and 0.45 or 0)
+	self.shakeImpulse=math.max(0,(self.shakeImpulse or 0)-dt*1.8)
+	if preset.behavior~="RIGID_MOUNT" and shakeScale>0 then
+		local motion=math.clamp((speed or 0)/220,0,1)*0.035+math.clamp((angular or 0)/12,0,1)*0.018+self.shakeImpulse*0.16
+		local phase=now*13; target=target*CFrame.new(math.sin(phase*1.7)*motion*shakeScale,math.cos(phase*1.3)*motion*shakeScale,0)*CFrame.Angles(0,0,math.sin(phase)*motion*0.15*shakeScale)
+	end
+	camera.CameraType=Enum.CameraType.Scriptable; camera.CFrame=target
+	if preset.behavior=="RIGID_MOUNT" then camera.FieldOfView=fov else camera.FieldOfView=camera.FieldOfView+(fov-camera.FieldOfView)*math.clamp(dt*7,0,1) end
+end
 function SPA_Onboard:Valid(pl)
 	local char=pl and pl.Character
 	local hum=char and char:FindFirstChildOfClass("Humanoid")
+	local uid=pl and pl.UserId; local vc=uid and VehicleCache and VehicleCache[uid]; local st=uid and PlayerState and PlayerState[uid]
+	local seat=(vc and vc.seat and vc.seat.Parent and vc.seat) or (st and st.seat and st.seat.Parent and st.seat)
 	return pl and pl~=player and pl.Parent and not self.departing[pl.UserId] and not FIA_EXCLUDED[pl.UserId] and not DSQ_DRIVERS[pl.UserId]
-		and char and char:FindFirstChild("HumanoidRootPart") and hum and hum.Health>0
+		and char and char:FindFirstChild("HumanoidRootPart") and hum and hum.Health>0 and seat~=nil
 end
 function SPA_Onboard:Refresh()
 	self.drivers=Players:GetPlayers()
@@ -2061,10 +2329,21 @@ function SPA_Onboard:Switch(direction)
 	self.stop()
 end
 function SPA_Onboard:Paint()
-	if not self.touch then return end
-	self.touch.Visible=self.active and UserInputService.TouchEnabled
+	if self.touch then self.touch.Visible=self.active and UserInputService.TouchEnabled end
+	if self.cameraTouch then self.cameraTouch.Visible=self.active and UserInputService.TouchEnabled end
 	local pos=nil; for i,uid in ipairs(CURRENT_STANDINGS_ORDER) do if self.current and uid==self.current.UserId then pos=i; break end end
-	self.touchLabel.Text=self.current and ((pos and ("P"..pos.." · ") or "")..getDisplayName(self.current)) or "NO DRIVER"
+	if self.touchLabel then self.touchLabel.Text=self.waitingForVehicle and "WAITING FOR VEHICLE" or (self.current and ((pos and ("P"..pos.." · ") or "")..getDisplayName(self.current)) or "NO DRIVER") end
+	local preset=self:GetPreset()
+	if self.cameraTouchLabel then self.cameraTouchLabel.Text=(self.favorites[preset.id] and "⭐ " or "")..preset.name end
+	if self.cameraStatusLabel then
+		self.cameraStatusLabel.Text=self.waitingForVehicle and "DRIVER\n"..(self.current and getDisplayName(self.current) or "—").."\n\nWAITING FOR VEHICLE" or (("DRIVER\n%s\n\nCAMERA\n%s\n%s · %s · FOV %d\n\nAUTO CAM  %s\nSHAKE  %s"):format(self.current and getDisplayName(self.current) or "—",preset.name,preset.category,preset.behavior:gsub("_"," "),preset.fov,self.autoCam,self.shakeMode))
+	end
+	if self.favoriteButton then self.favoriteButton.Text=self.favorites[preset.id] and "★ FAVORITE" or "☆ FAVORITE" end
+	if self.autoButton then self.autoButton.Text="AUTO CAM  "..self.autoCam end
+	if self.shakeButton then self.shakeButton.Text="SHAKE  "..self.shakeMode end
+end
+function SPA_Onboard:RefreshCameraPanel()
+	if self.RefreshCameraFilter then self:RefreshCameraFilter(false) elseif self.RenderCameraList then self:RenderCameraList() end
 end
 function SPA_Onboard:BuildTouch()
 	local row=Instance.new("Frame"); row.Name="SPA_OnboardTouch"; row.Size=UDim2.new(0.92,0,0,60)
@@ -2077,12 +2356,118 @@ function SPA_Onboard:BuildTouch()
 		local b=Instance.new("TextButton"); b.Name=direction<0 and "PreviousDriver" or "NextDriver"
 		b.Size=UDim2.fromOffset(60,60); b.Position=UDim2.new(i-1,i==1 and 0 or -60,0,0)
 		b.BackgroundColor3=C_BG2; b.BackgroundTransparency=0.15; b.Text=direction<0 and "◀" or "▶"; b.TextColor3=C_WHITE; b.Font=Enum.Font.GothamBlack; b.TextSize=26; b.AutoButtonColor=true; b.Parent=row
-		Instance.new("UICorner",b).CornerRadius=UDim.new(0,10)
-		b.Activated:Connect(function() self:Switch(direction) end)
+		Instance.new("UICorner",b).CornerRadius=UDim.new(0,10); b.Activated:Connect(function() self:Switch(direction) end)
 	end
-	UserInputService:GetPropertyChangedSignal("TouchEnabled"):Connect(function() self:Paint() end)
+	local camRow=Instance.new("Frame"); camRow.Name="SPA_OnboardCameraTouch"; camRow.Size=UDim2.new(0.92,0,0,54)
+	camRow.AnchorPoint=Vector2.new(0.5,0.5); camRow.Position=UDim2.fromScale(0.5,0.72); camRow.BackgroundTransparency=1; camRow.Visible=false; camRow.Parent=mainGui
+	local camLimit=Instance.new("UISizeConstraint"); camLimit.MaxSize=Vector2.new(500,54); camLimit.Parent=camRow; self.cameraTouch=camRow
+	local camLabel=Instance.new("TextLabel"); camLabel.Size=UDim2.new(1,-136,1,0); camLabel.Position=UDim2.fromOffset(68,0); camLabel.BackgroundColor3=C_BG
+	camLabel.BackgroundTransparency=0.2; camLabel.TextColor3=C_WHITE; camLabel.TextWrapped=true; camLabel.TextSize=12; camLabel.Font=Enum.Font.GothamBold; camLabel.Parent=camRow; self.cameraTouchLabel=camLabel
+	for i,direction in ipairs({-1,1}) do
+		local b=Instance.new("TextButton"); b.Size=UDim2.fromOffset(60,54); b.Position=UDim2.new(i-1,i==1 and 0 or -60,0,0); b.BackgroundColor3=C_RED
+		b.BackgroundTransparency=0.12; b.Text=direction<0 and "◀ CAM" or "CAM ▶"; b.TextColor3=C_WHITE; b.Font=Enum.Font.GothamBlack; b.TextSize=11; b.Parent=camRow
+		Instance.new("UICorner",b).CornerRadius=UDim.new(0,10); b.Activated:Connect(function() self:NextCamera(direction,true) end)
+	end
+	if self.touchConnection then self.touchConnection:Disconnect() end
+	self.touchConnection=UserInputService:GetPropertyChangedSignal("TouchEnabled"):Connect(function() self:Paint() end)
+	self:Paint()
 end
--- END V2.22.1 ONBOARD CORE
+function SPA_Onboard:CameraMatchesFilter(preset,wanted)
+	if wanted=="ALL" then return true end
+	if wanted=="FAVORITES" then return self.favorites[preset.id]==true end
+	if wanted=="RIGID" then return preset.behavior=="RIGID_MOUNT" end
+	if wanted=="WHEELS" then return preset.category=="WHEEL / SUSPENSION" or preset.name:find("WHEEL",1,true) or preset.name:find("TYRE",1,true) or preset.name:find("HUB",1,true) end
+	if wanted=="CAR MOUNTED" then return preset.category=="CAR MOUNTED" or (preset.behavior=="RIGID_MOUNT" and preset.category~="COCKPIT") end
+	if wanted=="CHASE" then return preset.category=="CHASE" or preset.behavior=="FOLLOW" end
+	return preset.category==wanted
+end
+function SPA_Onboard:RefreshCameraFilter(autoScroll)
+	if not self.cameraList then return end
+	local query=string.upper(self.cameraListSearch or ""); table.clear(self.cameraFiltered)
+	for _,preset in ipairs(self.cameraPresets) do
+		local haystack=string.upper(preset.name.." "..preset.id.." "..preset.category.." "..preset.behavior)
+		if self:CameraMatchesFilter(preset,self.cameraListFilter) and (query=="" or haystack:find(query,1,true)) then self.cameraFiltered[#self.cameraFiltered+1]=preset end
+	end
+	self.cameraList.CanvasSize=UDim2.fromOffset(0,#self.cameraFiltered*self.cameraRowHeight)
+	if #self.cameraFiltered==0 then self.cameraList.CanvasPosition=Vector2.zero end
+	if autoScroll then
+		local selected=1; for i,preset in ipairs(self.cameraFiltered) do if preset.id==self.currentPreset then selected=i; break end end
+		self.cameraList.CanvasPosition=Vector2.new(0,math.max(0,(selected-1)*self.cameraRowHeight-self.cameraRowHeight*2))
+	end
+	self:RenderCameraList()
+end
+function SPA_Onboard:BuildCameraListUI()
+	if self.cameraPanel and self.cameraPanel.Parent then return end
+	local panel=Instance.new("Frame"); panel.Name="SPA_OnboardCameraLibrary"; panel.Size=UDim2.new(0.94,0,0.86,0); panel.AnchorPoint=Vector2.new(0.5,0.5); panel.Position=UDim2.fromScale(0.5,0.5)
+	panel.BackgroundColor3=C_BG; panel.BackgroundTransparency=0.02; panel.BorderSizePixel=0; panel.Visible=false; panel.ZIndex=80; panel.Parent=mainGui; self.cameraPanel=panel
+	local constraint=Instance.new("UISizeConstraint"); constraint.MaxSize=Vector2.new(680,650); constraint.MinSize=Vector2.new(300,430); constraint.Parent=panel
+	Instance.new("UICorner",panel).CornerRadius=UDim.new(0,12)
+	local title=Instance.new("TextLabel"); title.Size=UDim2.new(1,-60,0,40); title.Position=UDim2.fromOffset(14,4); title.BackgroundTransparency=1; title.TextColor3=C_WHITE; title.Font=Enum.Font.GothamBlack; title.TextSize=16; title.TextXAlignment=Enum.TextXAlignment.Left; title.ZIndex=81; title.Parent=panel; self.cameraLibraryTitle=title
+	local close=Instance.new("TextButton"); close.Size=UDim2.fromOffset(42,36); close.Position=UDim2.new(1,-48,0,6); close.BackgroundColor3=C_RED; close.Text="✕"; close.TextColor3=C_WHITE; close.Font=Enum.Font.GothamBlack; close.TextSize=16; close.ZIndex=82; close.Parent=panel; Instance.new("UICorner",close).CornerRadius=UDim.new(0,8); close.Activated:Connect(function() panel.Visible=false end)
+	local search=Instance.new("TextBox"); search.Name="CameraSearch"; search.Size=UDim2.new(1,-24,0,42); search.Position=UDim2.fromOffset(12,48); search.BackgroundColor3=C_BG2; search.PlaceholderText="SEARCH CAMERA"; search.Text=""; search.ClearTextOnFocus=false; search.TextColor3=C_WHITE; search.PlaceholderColor3=C_GRAY; search.Font=Enum.Font.GothamBold; search.TextSize=13; search.ZIndex=82; search.Parent=panel; Instance.new("UICorner",search).CornerRadius=UDim.new(0,8); self.cameraSearchBox=search
+	local filters=Instance.new("ScrollingFrame"); filters.Size=UDim2.new(1,-24,0,44); filters.Position=UDim2.fromOffset(12,96); filters.BackgroundTransparency=1; filters.BorderSizePixel=0; filters.ScrollBarThickness=3; filters.ScrollingDirection=Enum.ScrollingDirection.X; filters.AutomaticCanvasSize=Enum.AutomaticSize.X; filters.CanvasSize=UDim2.new(); filters.ZIndex=81; filters.Parent=panel
+	local filterLayout=Instance.new("UIListLayout"); filterLayout.FillDirection=Enum.FillDirection.Horizontal; filterLayout.Padding=UDim.new(0,5); filterLayout.Parent=filters
+	for _,filter in ipairs({"ALL","FAVORITES","RIGID","COCKPIT","CAR MOUNTED","WHEELS","SIDE","REAR","CHASE","CINEMATIC","AERIAL","BATTLE"}) do
+		local b=Instance.new("TextButton"); b.Size=UDim2.fromOffset(filter=="CAR MOUNTED" and 112 or 88,42); b.BackgroundColor3=C_BG2; b.Text=filter; b.TextColor3=C_WHITE; b.Font=Enum.Font.GothamBold; b.TextSize=10; b.ZIndex=82; b.Parent=filters; Instance.new("UICorner",b).CornerRadius=UDim.new(0,7); self.cameraFilterButtons[filter]=b
+		b.Activated:Connect(function() self.cameraListFilter=filter; self:RefreshCameraFilter(true) end)
+	end
+	local list=Instance.new("ScrollingFrame"); list.Name="VirtualCameraList"; list.Size=UDim2.new(1,-24,1,-230); list.Position=UDim2.fromOffset(12,146); list.BackgroundColor3=Color3.fromRGB(14,14,17); list.BackgroundTransparency=0.2; list.BorderSizePixel=0; list.ScrollBarThickness=7; list.CanvasSize=UDim2.new(); list.ZIndex=81; list.Parent=panel; self.cameraList=list; Instance.new("UICorner",list).CornerRadius=UDim.new(0,8)
+	local empty=Instance.new("TextLabel"); empty.Size=UDim2.fromScale(1,1); empty.BackgroundTransparency=1; empty.Text="NO CAMERAS FOUND"; empty.TextColor3=C_GRAY; empty.Font=Enum.Font.GothamBold; empty.TextSize=14; empty.ZIndex=82; empty.Visible=false; empty.Parent=list; self.cameraEmptyLabel=empty
+	for poolIndex=1,self.cameraPoolSize do
+		local frame=Instance.new("Frame"); frame.Size=UDim2.new(1,-10,0,self.cameraRowHeight-4); frame.BackgroundColor3=C_BG2; frame.BorderSizePixel=0; frame.ZIndex=82; frame.Parent=list; Instance.new("UICorner",frame).CornerRadius=UDim.new(0,7)
+		local star=Instance.new("TextButton"); star.Size=UDim2.fromOffset(46,self.cameraRowHeight-4); star.BackgroundTransparency=1; star.Text="☆"; star.TextColor3=C_WHITE; star.Font=Enum.Font.GothamBlack; star.TextSize=19; star.ZIndex=84; star.Parent=frame
+		local choose=Instance.new("TextButton"); choose.Size=UDim2.new(1,-50,1,0); choose.Position=UDim2.fromOffset(50,0); choose.BackgroundTransparency=1; choose.TextColor3=C_WHITE; choose.Font=Enum.Font.GothamBold; choose.TextSize=12; choose.TextXAlignment=Enum.TextXAlignment.Left; choose.ZIndex=83; choose.Parent=frame
+		local entry={frame=frame,star=star,choose=choose,presetId=nil}
+		star.Activated:Connect(function() if entry.presetId then self:ToggleFavorite(entry.presetId) end end)
+		choose.Activated:Connect(function() if entry.presetId then self:SelectCamera(entry.presetId,true); self:RenderCameraList() end end)
+		self.cameraPool[poolIndex]=entry
+	end
+	local details=Instance.new("TextLabel"); details.Size=UDim2.new(1,-150,0,52); details.Position=UDim2.new(0,12,1,-76); details.BackgroundTransparency=1; details.TextColor3=C_WHITE; details.Font=Enum.Font.GothamBold; details.TextSize=11; details.TextWrapped=true; details.TextXAlignment=Enum.TextXAlignment.Left; details.ZIndex=82; details.Parent=panel; self.cameraDetails=details
+	local cycle=Instance.new("TextButton"); cycle.Size=UDim2.fromOffset(126,34); cycle.Position=UDim2.new(1,-272,1,-50); cycle.BackgroundColor3=C_BG2; cycle.Text="CYCLE FILTERED OFF"; cycle.TextColor3=C_WHITE; cycle.Font=Enum.Font.GothamBold; cycle.TextSize=9; cycle.ZIndex=82; cycle.Parent=panel; Instance.new("UICorner",cycle).CornerRadius=UDim.new(0,7); self.cameraCycleButton=cycle
+	cycle.Activated:Connect(function() self.cycleFiltered=not self.cycleFiltered; cycle.Text="CYCLE FILTERED "..(self.cycleFiltered and "ON" or "OFF") end)
+	local done=Instance.new("TextButton"); done.Size=UDim2.fromOffset(126,42); done.Position=UDim2.new(1,-138,1,-54); done.BackgroundColor3=C_RED; done.Text="DONE / CLOSE"; done.TextColor3=C_WHITE; done.Font=Enum.Font.GothamBlack; done.TextSize=11; done.ZIndex=82; done.Parent=panel; Instance.new("UICorner",done).CornerRadius=UDim.new(0,7); done.Activated:Connect(function() panel.Visible=false end)
+	self.cameraScrollConnection=list:GetPropertyChangedSignal("CanvasPosition"):Connect(function() self:RenderCameraList() end)
+	self.cameraSearchConnection=search:GetPropertyChangedSignal("Text"):Connect(function()
+		self.cameraSearchToken=(self.cameraSearchToken or 0)+1; local token=self.cameraSearchToken
+		task.delay(0.12,function() if token==self.cameraSearchToken and search.Parent then self.cameraListSearch=search.Text; self:RefreshCameraFilter(false) end end)
+	end)
+	self:RefreshCameraFilter(false)
+end
+function SPA_Onboard:RenderCameraList()
+	if not self.cameraList then return end
+	local first=math.floor(self.cameraList.CanvasPosition.Y/self.cameraRowHeight)+1
+	for poolIndex,entry in ipairs(self.cameraPool) do
+		local dataIndex=first+poolIndex-1; local preset=self.cameraFiltered[dataIndex]; entry.presetId=preset and preset.id or nil; entry.frame.Visible=preset~=nil
+		if preset then
+			entry.frame.Position=UDim2.fromOffset(5,(dataIndex-1)*self.cameraRowHeight+2); entry.frame.BackgroundColor3=preset.id==self.currentPreset and C_RED or C_BG2
+			entry.star.Text=self.favorites[preset.id] and "★" or "☆"; entry.choose.Text=preset.name.."   ·   "..preset.category.."   ·   "..preset.behavior:gsub("_"," ")
+		end
+	end
+	if self.cameraEmptyLabel then self.cameraEmptyLabel.Visible=#self.cameraFiltered==0 end
+	if self.cameraLibraryTitle then self.cameraLibraryTitle.Text=("🎥 CAMERA LIBRARY · %d SHOTS"):format(#self.cameraPresets) end
+	local preset=self:GetPreset(); if self.cameraDetails and preset then self.cameraDetails.Text=("%s\n%s  ·  %s  ·  FOV %d"):format(preset.name,preset.category,preset.behavior:gsub("_"," "),preset.fov) end
+	for filter,button in pairs(self.cameraFilterButtons) do if button and button.Parent then button.BackgroundColor3=filter==self.cameraListFilter and C_RED or C_BG2 end end
+end
+function SPA_Onboard:OpenCameraLibrary(filter)
+	self:BuildCameraListUI(); self.cameraListFilter=filter or self.cameraListFilter or "ALL"; self.cameraPanel.Visible=true; self:RefreshCameraFilter(true)
+end
+function SPA_Onboard:BuildMenuControls(parent,order)
+	local function button(text,callback,layoutOrder)
+		local b=Instance.new("TextButton"); b.Size=UDim2.new(1,0,0,42); b.BackgroundColor3=C_BG2; b.BorderSizePixel=0; b.Text=text; b.TextColor3=C_WHITE; b.Font=Enum.Font.GothamBold; b.TextSize=12; b.LayoutOrder=layoutOrder; b.Parent=parent; Instance.new("UICorner",b).CornerRadius=UDim.new(0,7); b.Activated:Connect(callback); return b
+	end
+	local status=Instance.new("TextLabel"); status.Size=UDim2.new(1,0,0,154); status.BackgroundColor3=C_BG2; status.BackgroundTransparency=0.1; status.BorderSizePixel=0; status.TextColor3=C_WHITE; status.Font=Enum.Font.GothamBold; status.TextSize=12; status.TextXAlignment=Enum.TextXAlignment.Left; status.TextYAlignment=Enum.TextYAlignment.Top; status.TextWrapped=true; status.LayoutOrder=order; status.Parent=parent; self.cameraStatusLabel=status; Instance.new("UICorner",status).CornerRadius=UDim.new(0,8)
+	local camRow=Instance.new("Frame"); camRow.Size=UDim2.new(1,0,0,42); camRow.BackgroundTransparency=1; camRow.LayoutOrder=order+1; camRow.Parent=parent
+	for i,data in ipairs({{"◀ CAMERA",-1},{"CAMERA ▶",1}}) do local b=Instance.new("TextButton"); b.Size=UDim2.new(0.5,-3,1,0); b.Position=UDim2.new(i-1,i==1 and 0 or -3,0,0); b.BackgroundColor3=C_RED; b.Text=data[1]; b.TextColor3=C_WHITE; b.Font=Enum.Font.GothamBold; b.TextSize=11; b.Parent=camRow; Instance.new("UICorner",b).CornerRadius=UDim.new(0,7); b.Activated:Connect(function() self:NextCamera(data[2],true) end) end
+	button("🎥 CAMERA LIBRARY",function() self:OpenCameraLibrary("ALL") end,order+2)
+	button("⭐ FAVORITES",function() self:OpenCameraLibrary("FAVORITES") end,order+3)
+	self.favoriteButton=button("☆ FAVORITE",function() self:ToggleFavorite() end,order+4)
+	button("🔀 RANDOM CAMERA",function() self:RandomCamera(true) end,order+5)
+	self.autoButton=button("AUTO CAM  OFF",function() self:CycleAutoCam() end,order+6)
+	self.shakeButton=button("SHAKE  LOW",function() self:CycleShake() end,order+7)
+	self.favoritesOnlyButton=button("AUTO USE FAVORITES  OFF",function() self.autoFavoritesOnly=not self.autoFavoritesOnly; self.favoritesOnlyButton.Text="AUTO USE FAVORITES  "..(self.autoFavoritesOnly and "ON" or "OFF") end,order+8)
+	self:Paint()
+end
+-- END V2.23.3 ONBOARD CAMERA CORE
 
 -- ─── VARIABLES SCROLL / PANEL ──────────────────────────────────
 vueltasScroll   = nil
@@ -2535,6 +2920,7 @@ function _setupUI1()  -- [SPAV4] global: libera registros del ámbito principal
 	local spectLastPosition       = Vector3.new(0,0,0)
 	local spectTotalDistance      = 0
 	local spectCurrentIndex       = 1
+	local originalCameraFOV       = Camera.FieldOfView
 
 	local spectHUD = Instance.new("TextLabel")
 	spectHUD.Name = "SpectTrackingHUD"
@@ -2565,45 +2951,24 @@ function _setupUI1()  -- [SPAV4] global: libera registros del ámbito principal
 			isSpectating = true
 			originalCameraType    = Camera.CameraType
 			originalCameraSubject = Camera.CameraSubject
+			originalCameraFOV     = Camera.FieldOfView
 
-			spectRenderConnection = RunService.RenderStepped:Connect(function()
+			spectRenderConnection = RunService.RenderStepped:Connect(function(dt)
 				if not (isSpectating and targetSpectPlayer) then return end
-				if not SPA_Onboard:Valid(targetSpectPlayer) then SPA_Onboard:Switch(1); return end
-				local char = targetSpectPlayer.Character
-				if not char then stopSpectatingFunc(); return end
-				local rootPart = char:FindFirstChild("HumanoidRootPart")
-				if rootPart then
-					local currentPos = rootPart.Position
-					spectTotalDistance += (currentPos - spectLastPosition).Magnitude
-					spectLastPosition   = currentPos
-					if spectTotalDistance >= SPECT_REPOSITION_THRESHOLD then
-						spectRandomizeOffset()
-						spectFixedCameraPosition = currentPos + spectCameraOffset
-						spectTotalDistance = 0
-					end
-					local lookAt = currentPos + Vector3.new(0,3,0)
-					Camera.CFrame = CFrame.lookAt(spectFixedCameraPosition, lookAt)
-				else
-					stopSpectatingFunc()
-				end
+				if not targetSpectPlayer.Parent or SPA_Onboard.departing[targetSpectPlayer.UserId] then SPA_Onboard:Switch(1); return end
+				SPA_Onboard:UpdateCamera(dt)
 			end)
 		end
 
 		targetSpectPlayer = plr
 		spectCurrentIndex = index or 1
 
-		local char = plr.Character
-		if not char then return end
-		local rootPart = char:FindFirstChild("HumanoidRootPart")
-		if not rootPart then return end
-
-		spectRandomizeOffset()
-		spectLastPosition        = rootPart.Position
-		spectFixedCameraPosition = spectLastPosition + spectCameraOffset
-		spectTotalDistance       = 0
+		local source = SPA_Onboard:GetSource(plr)
+		if source then spectLastPosition=source.Position; spectFixedCameraPosition=source.Position; spectTotalDistance=0 end
 
 		Camera.CameraType   = Enum.CameraType.Scriptable
-		Camera.FieldOfView  = SPECT_FOV
+		SPA_Onboard.transitionFrom=Camera.CFrame; SPA_Onboard.transitionStart=os.clock()
+		SPA_Onboard.autoCamAt=os.clock()+SPA_Onboard:AutoInterval()
 
 		spectHUD.Text    = "📹 TRACKING: " .. plr.Name
 		spectHUD.Visible = true
@@ -2622,10 +2987,13 @@ function _setupUI1()  -- [SPAV4] global: libera registros del ámbito principal
 		targetSpectPlayer = nil
 		if spectRenderConnection then spectRenderConnection:Disconnect(); spectRenderConnection = nil end
 		Camera.CameraType = originalCameraType or Enum.CameraType.Custom
+		Camera.FieldOfView = originalCameraFOV or SPECT_FOV
 		local myChar = player.Character
-		if myChar then
+		if originalCameraSubject and originalCameraSubject.Parent then
+			Camera.CameraSubject = originalCameraSubject
+		elseif myChar then
 			local myHum = myChar:FindFirstChildOfClass("Humanoid")
-			if myHum then Camera.CameraSubject = myHum else Camera.CameraSubject = originalCameraSubject or myChar:FindFirstChild("Head") end
+			if myHum then Camera.CameraSubject = myHum else Camera.CameraSubject = myChar:FindFirstChild("Head") end
 		else
 			task.spawn(function()
 				player.CharacterAdded:Wait()
@@ -2729,6 +3097,8 @@ function _setupUI1()  -- [SPAV4] global: libera registros del ámbito principal
 			cycleSpectateTarget(1)
 		end)
 
+		SPA_Onboard:BuildMenuControls(onboardScroll,920)
+
 		local exitBtn = Instance.new("TextButton")
 		exitBtn.Size = UDim2.new(1,0,0,40)
 		exitBtn.BackgroundColor3 = C_DARKRED
@@ -2743,13 +3113,16 @@ function _setupUI1()  -- [SPAV4] global: libera registros del ámbito principal
 	end
 
 	buildOnboardList()
-	Players.PlayerAdded:Connect(function() SPA_Onboard:Refresh(); task.wait(1); buildOnboardList() end)
-	Players.PlayerRemoving:Connect(function(pl)
+	if SPA_Onboard.playerAddedConnection then SPA_Onboard.playerAddedConnection:Disconnect() end
+	if SPA_Onboard.playerRemovingConnection then SPA_Onboard.playerRemovingConnection:Disconnect() end
+	SPA_Onboard.playerAddedConnection=Players.PlayerAdded:Connect(function() SPA_Onboard:Refresh(); task.wait(1); buildOnboardList() end)
+	SPA_Onboard.playerRemovingConnection=Players.PlayerRemoving:Connect(function(pl)
 		SPA_Onboard.departing[pl.UserId]=true
 		if targetSpectPlayer==pl then SPA_Onboard:Switch(1) end
 		task.defer(function() SPA_Onboard:Refresh(); buildOnboardList(); SPA_Onboard.departing[pl.UserId]=nil end)
 	end)
-	UserInputService.InputBegan:Connect(function(input, gameProcessedEvent)
+	if SPA_Onboard.inputConnection then SPA_Onboard.inputConnection:Disconnect() end
+	SPA_Onboard.inputConnection=UserInputService.InputBegan:Connect(function(input, gameProcessedEvent)
 		if gameProcessedEvent or not isSpectating then return end
 		local focusedTextBox = UserInputService:GetFocusedTextBox()
 		if focusedTextBox then return end
@@ -2757,6 +3130,22 @@ function _setupUI1()  -- [SPAV4] global: libera registros del ámbito principal
 			cycleSpectateTarget(-1)
 		elseif input.KeyCode == Enum.KeyCode.Right then
 			cycleSpectateTarget(1)
+		elseif input.KeyCode == Enum.KeyCode.A then
+			SPA_Onboard:NextCamera(-1,true)
+		elseif input.KeyCode == Enum.KeyCode.D then
+			SPA_Onboard:NextCamera(1,true)
+		elseif input.KeyCode == Enum.KeyCode.One then
+			SPA_Onboard:SelectCamera("TCAM",true)
+		elseif input.KeyCode == Enum.KeyCode.Two then
+			SPA_Onboard:SelectCamera("COCKPIT_CENTER",true)
+		elseif input.KeyCode == Enum.KeyCode.Three then
+			SPA_Onboard:SelectCamera("CHASE_MEDIUM",true)
+		elseif input.KeyCode == Enum.KeyCode.Four then
+			SPA_Onboard:SelectCamera("FRONT_LEFT_WHEEL",true)
+		elseif input.KeyCode == Enum.KeyCode.Five then
+			SPA_Onboard:SelectCamera("DRONE_FOLLOW",true)
+		elseif input.KeyCode == Enum.KeyCode.C then
+			SPA_Onboard:OpenCameraLibrary()
 		end
 	end)
 end
@@ -4497,6 +4886,7 @@ function SPA_Effects:ApplyVehicle(vc)
 	for _,emitter in ipairs(vc.skidEmitters or {}) do
 		if emitter and emitter.Parent then emitter.Enabled=false; emitter.Rate=0 end
 	end
+	if SPA_CarFX and SPA_CarFX.Disable then SPA_CarFX:Disable(vc) end
 end
 
 function SPA_Effects:SetMode(mode)
@@ -4521,6 +4911,113 @@ function SPA_Effects:SetRainIntensity(intensity)
 	if changed then showNotification(("Rain intensity: %s"):format(intensity),intensity=="STORM" and C_RED or C_BLUE,intensity=="STORM" and "⛈" or "🌧",5) end
 	return changed
 end
+
+-- V2.23.3: four lazily-created shared channels provide twenty visual behaviors.
+-- They run from StepSkid/events; no additional Heartbeat or physics mutation is used.
+SPA_FX_BUDGET = {quality="AUTO",window=0.10,continuousRateBudget=1500,burstBudget=320,rateLeft=1500,burstLeft=320,resetAt=0,maxBurst=80}
+SPA_CarFX = {
+	channelNames={"DUST","SPARK","DEBRIS","REAR"},
+	behaviors={"DRY LAUNCH HAZE","LOCKUP SMOKE","BURNOUT CLOUD","SPIN CLOUD","DRY ROAD DUST","DIRT PLUME","GRASS DEBRIS","GRAVEL DEBRIS","CENTER ROOSTER TAIL","LATERAL WATER FAN","BRAKING WATER SHEET","PUDDLE SPLASH","IMPACT SPARKS","UNDERBODY SPARKS","CRASH DEBRIS","SHIFT EXHAUST PUFF","SHIFT BACKFIRE FLASH","NITRO WAKE","HIGH SPEED WET MIST","RUBBER FLECKS"},
+}
+
+function SPA_CarFX:ResetBudget(now)
+	if now>=(SPA_FX_BUDGET.resetAt or 0) then
+		SPA_FX_BUDGET.resetAt=now+SPA_FX_BUDGET.window; SPA_FX_BUDGET.rateLeft=SPA_FX_BUDGET.continuousRateBudget; SPA_FX_BUDGET.burstLeft=SPA_FX_BUDGET.burstBudget
+	end
+end
+function SPA_CarFX:Priority(uid,vc)
+	if SPA_Onboard and SPA_Onboard.active and SPA_Onboard.current and SPA_Onboard.current.UserId==uid then return 1 end
+	if uid==player.UserId then return 0.9 end
+	local distance=vc.fxDistance or 0; return distance<=125 and 0.8 or (distance<=250 and 0.55 or 0.3)
+end
+function SPA_CarFX:Build(uid,vc)
+	if not vc or vc.carFX or SPA_EFFECT_MODE=="OFF" or not vc.seat or not vc.seat.Parent then return vc and vc.carFX end
+	vc.carFX={uid=uid,channels={}}
+	if not vc.cameraScale then local ok,size=pcall(function() return vc.vehicleRoot and vc.vehicleRoot:GetExtentsSize() end); vc.cameraScale=ok and size and math.clamp(math.max(size.X,size.Z)/12,0.7,2.0) or 1 end
+	for _,name in ipairs(self.channelNames) do
+		local attachment=Instance.new("Attachment"); attachment.Name="SPA_FX_"..name.."_ATTACHMENT"; attachment.Position=(name=="REAR" and Vector3.new(0,-0.5,2.4) or Vector3.new(0,-0.8,0))*(vc.cameraScale or 1); attachment:SetAttribute("SPAManagedVehicleFX",true); attachment.Parent=vc.seat
+		local emitter=Instance.new("ParticleEmitter"); emitter.Name="SPA_FX_"..name; emitter:SetAttribute("SPAManagedVehicleFX",true); emitter.Enabled=false; emitter.Rate=0; emitter.Parent=attachment
+		vc.carFX.channels[name]={attachment=attachment,emitter=emitter,style=nil}
+	end
+	return vc.carFX
+end
+function SPA_CarFX:Configure(channel,style)
+	if not channel or channel.style==style then return end
+	channel.style=style; local emitter=channel.emitter
+	emitter.Enabled=false; emitter.Rate=0; emitter.LightInfluence=0.25; emitter.Drag=1; emitter.Acceleration=Vector3.new(0,2,0); emitter.Orientation=Enum.ParticleOrientation.FacingCamera; emitter.EmissionDirection=Enum.NormalId.Back
+	if style=="SPARK" or style=="BACKFIRE" then
+		emitter.Texture="rbxasset://textures/particles/sparkles_main.dds"; emitter.Color=ColorSequence.new(Color3.fromRGB(255,238,120),Color3.fromRGB(255,80,20)); emitter.Lifetime=NumberRange.new(0.08,0.28); emitter.Speed=NumberRange.new(12,30); emitter.SpreadAngle=Vector2.new(38,38); emitter.Acceleration=Vector3.new(0,-24,0); emitter.Size=NumberSequence.new({NumberSequenceKeypoint.new(0,0.16),NumberSequenceKeypoint.new(1,0)}); emitter.Transparency=NumberSequence.new(0.05,1)
+	elseif style=="WATER" or style=="WATER_FAN" or style=="WATER_SHEET" or style=="MIST" then
+		emitter.Texture="rbxasset://textures/particles/smoke_main.dds"; emitter.Color=ColorSequence.new(Color3.fromRGB(235,245,250),Color3.fromRGB(165,190,205)); emitter.Lifetime=NumberRange.new(style=="MIST" and 0.7 or 0.35,style=="MIST" and 1.35 or 0.8); emitter.Speed=NumberRange.new(8,style=="WATER_FAN" and 24 or 17); emitter.SpreadAngle=Vector2.new(style=="WATER_FAN" and 75 or 38,style=="WATER_SHEET" and 60 or 34); emitter.Drag=0.8; emitter.Acceleration=Vector3.new(0,9,0); emitter.Orientation=Enum.ParticleOrientation.VelocityParallel; emitter.Size=NumberSequence.new({NumberSequenceKeypoint.new(0,0.35),NumberSequenceKeypoint.new(1,style=="MIST" and 3.8 or 2.1)}); emitter.Transparency=NumberSequence.new({NumberSequenceKeypoint.new(0,0.25),NumberSequenceKeypoint.new(0.65,0.55),NumberSequenceKeypoint.new(1,1)})
+	elseif style=="GRASS" or style=="GRAVEL" or style=="RUBBER" or style=="DEBRIS" then
+		emitter.Texture="rbxasset://textures/particles/sparkles_main.dds"; emitter.Color=style=="GRASS" and ColorSequence.new(Color3.fromRGB(70,105,45),Color3.fromRGB(35,45,25)) or (style=="GRAVEL" and ColorSequence.new(Color3.fromRGB(130,120,105),Color3.fromRGB(65,60,55)) or ColorSequence.new(Color3.fromRGB(50,50,50),Color3.fromRGB(12,12,12))); emitter.Lifetime=NumberRange.new(0.25,0.65); emitter.Speed=NumberRange.new(4,13); emitter.SpreadAngle=Vector2.new(60,60); emitter.Acceleration=Vector3.new(0,-20,0); emitter.Size=NumberSequence.new({NumberSequenceKeypoint.new(0,style=="DEBRIS" and 0.22 or 0.12),NumberSequenceKeypoint.new(1,0)}); emitter.Transparency=NumberSequence.new(0.05,1)
+	else
+		emitter.Texture="rbxasset://textures/particles/smoke_main.dds"; emitter.Color=style=="DIRT" and ColorSequence.new(Color3.fromRGB(130,105,75),Color3.fromRGB(70,55,40)) or (style=="NITRO" and ColorSequence.new(Color3.fromRGB(90,180,255),Color3.fromRGB(205,235,255)) or ColorSequence.new(Color3.fromRGB(210,210,210),Color3.fromRGB(90,90,90))); emitter.Lifetime=NumberRange.new(0.35,0.9); emitter.Speed=NumberRange.new(2,9); emitter.SpreadAngle=Vector2.new(48,48); emitter.Drag=1.4; emitter.Acceleration=Vector3.new(0,4,0); emitter.Size=NumberSequence.new({NumberSequenceKeypoint.new(0,0.45),NumberSequenceKeypoint.new(1,2.5)}); emitter.Transparency=NumberSequence.new(0.25,1)
+	end
+end
+function SPA_CarFX:Emit(uid,vc,channelName,style,amount,importance)
+	if SPA_EFFECT_MODE=="OFF" then return end
+	local lod=SPA_Effects:LOD(uid,vc,tick()); if lod<=0 then return end
+	local fx=self:Build(uid,vc); local channel=fx and fx.channels[channelName]; if not channel then return end
+	vc.carFXDisabled=false
+	self:ResetBudget(tick()); local priority=self:Priority(uid,vc); local quality=SPA_FX_BUDGET.quality=="LOW" and 0.45 or (SPA_FX_BUDGET.quality=="MEDIUM" and 0.72 or 1); local requested=math.clamp(math.floor((amount or 0)*lod*priority*quality+0.5),0,SPA_FX_BUDGET.maxBurst)
+	local reserve=importance=="CRITICAL" and 0 or (importance=="MEDIUM" and 20 or 60); local allowed=math.max(0,(SPA_FX_BUDGET.burstLeft or 0)-reserve); local granted=math.min(requested,allowed)
+	if granted<=0 then return end; SPA_FX_BUDGET.burstLeft-=granted; self:Configure(channel,style); channel.emitter:Emit(math.clamp(granted,0,SPA_FX_BUDGET.maxBurst))
+end
+function SPA_CarFX:SetContinuous(uid,vc,channelName,style,rate,importance)
+	if SPA_EFFECT_MODE=="OFF" or rate<=0 then local fx=vc.carFX; local channel=fx and fx.channels[channelName]; if channel then channel.emitter.Enabled=false; channel.emitter.Rate=0 end; return end
+	local lod=SPA_Effects:LOD(uid,vc,tick()); if lod<=0 then return self:SetContinuous(uid,vc,channelName,style,0,importance) end
+	local fx=self:Build(uid,vc); local channel=fx and fx.channels[channelName]; if not channel then return end
+	vc.carFXDisabled=false
+	self:ResetBudget(tick()); local priority=self:Priority(uid,vc); local quality=SPA_FX_BUDGET.quality=="LOW" and 0.45 or (SPA_FX_BUDGET.quality=="MEDIUM" and 0.72 or 1); local requested=math.clamp(rate*lod*priority*quality,0,180); local reserve=importance=="CRITICAL" and 0 or (importance=="MEDIUM" and 120 or 300); local granted=math.min(requested,math.max(0,(SPA_FX_BUDGET.rateLeft or 0)-reserve))
+	SPA_FX_BUDGET.rateLeft-=granted; self:Configure(channel,style); channel.emitter.Rate=granted; channel.emitter.Enabled=granted>0
+end
+function SPA_CarFX:Step(uid,st,vc,now,dt,context)
+	if SPA_EFFECT_MODE=="OFF" then self:Disable(vc); return end
+	if not context or context.lod<=0 then self:Disable(vc); return end
+	local material=tostring(vc.groundMaterial or Enum.Material.Air); local dry=not context.wet; local intensity=context.intensity or 0; local speed=context.speed or 0
+	local rearStyle,rearRate=nil,0
+	if context.wet and speed>18 then rearStyle=speed>85 and "MIST" or "WATER"; rearRate=(8+speed*0.48+intensity*35)*math.max(1,context.densityMultiplier or 1)
+	elseif vc.nitrousWasActive then rearStyle="NITRO"; rearRate=34+speed*0.12 end
+	self:SetContinuous(uid,vc,"REAR",rearStyle or "MIST",rearRate,rearStyle=="WATER" and "CRITICAL" or "MEDIUM")
+	if context.launchBurst then self:Emit(uid,vc,"DUST",dry and "SMOKE" or "WATER",dry and 12 or 18,"MEDIUM") end
+	if dry and context.deceleration>5 and intensity>0.3 and now-(vc.fxLockupAt or 0)>0.6 then vc.fxLockupAt=now; self:Emit(uid,vc,"DUST","SMOKE",9,"MEDIUM") end
+	if dry and speed<24 and intensity>0.62 and now-(vc.fxBurnoutAt or 0)>0.28 then vc.fxBurnoutAt=now; self:Emit(uid,vc,"DUST","SMOKE",8,"MEDIUM") end
+	if dry and intensity>0.82 and math.abs(st.seat.AssemblyAngularVelocity.Y)>1.5 and now-(vc.fxSpinAt or 0)>0.45 then vc.fxSpinAt=now; self:Emit(uid,vc,"DUST","SMOKE",14,"MEDIUM") end
+	if dry and context.grounded and speed>55 and now-(vc.fxSurfaceAt or 0)>0.55 then
+		if material:find("Grass",1,true) then vc.fxSurfaceAt=now; self:Emit(uid,vc,"DEBRIS","GRASS",8,"LOW")
+		elseif material:find("Ground",1,true) or material:find("Sand",1,true) or material:find("Mud",1,true) then vc.fxSurfaceAt=now; self:Emit(uid,vc,"DUST","DIRT",12,"MEDIUM")
+		elseif material:find("Pebble",1,true) or material:find("Rock",1,true) then vc.fxSurfaceAt=now; self:Emit(uid,vc,"DEBRIS","GRAVEL",10,"LOW")
+		elseif speed>95 and now-(vc.fxRoadDustAt or 0)>1.1 then vc.fxRoadDustAt=now; self:Emit(uid,vc,"DUST","DUST",3,"LOW") end
+	end
+	if dry and intensity>0.78 and now-(vc.fxRubberAt or 0)>0.65 then vc.fxRubberAt=now; self:Emit(uid,vc,"DEBRIS","RUBBER",4,"LOW") end
+	if context.wet and context.deceleration>6 and now-(vc.fxWaterBrakeAt or 0)>0.75 then vc.fxWaterBrakeAt=now; self:Emit(uid,vc,"REAR","WATER_SHEET",18*(context.densityMultiplier or 1),"CRITICAL") end
+	if context.wet and math.abs(context.lateralVelocity or 0)>22 and now-(vc.fxWaterFanAt or 0)>0.45 then vc.fxWaterFanAt=now; self:Emit(uid,vc,"REAR","WATER_FAN",12*(context.densityMultiplier or 1),"MEDIUM") end
+	if context.wet and context.wetness>0.75 and speed>70 and now-(vc.fxPuddleAt or 0)>1.35 then vc.fxPuddleAt=now; self:Emit(uid,vc,"REAR","WATER_FAN",24*(context.densityMultiplier or 1),"CRITICAL") end
+	if (vc.groundDistance or math.huge)<0.75 and speed>65 and math.abs(st.seat.AssemblyLinearVelocity.Y)>8 and now-(vc.fxUnderbodyAt or 0)>0.5 then vc.fxUnderbodyAt=now; self:Emit(uid,vc,"SPARK","SPARK",8,"MEDIUM") end
+end
+function SPA_CarFX:OnShift(vc)
+	if not vc or SPA_EFFECT_MODE=="OFF" then return end; local uid=vc.carFX and vc.carFX.uid
+	if not uid then for candidate,cached in pairs(VehicleCache or {}) do if cached==vc then uid=candidate; break end end end
+	if uid then self:Emit(uid,vc,"REAR","SMOKE",5,"LOW"); if (vc.currentGear or 1)>=5 then self:Emit(uid,vc,"SPARK","BACKFIRE",3,"LOW") end end
+end
+function SPA_CarFX:OnRaceEvent(event)
+	if not event or event.type~="CRASH" or SPA_EFFECT_MODE=="OFF" then return end
+	local seen={}
+	for _,uid in pairs({event.uid,event.uidA,event.uidB}) do
+		local vc=uid and VehicleCache and VehicleCache[uid]
+		if vc and not seen[uid] then seen[uid]=true; local severity=event.severityName or event.severity; local strong=severity=="FUERTE" or severity=="STRONG" or severity=="HEAVY"; self:Emit(uid,vc,"SPARK","SPARK",strong and 28 or 15,"CRITICAL"); self:Emit(uid,vc,"DEBRIS","DEBRIS",strong and 16 or 7,"LOW") end
+	end
+end
+function SPA_CarFX:Disable(vc)
+	if not vc or vc.carFXDisabled then return end; vc.carFXDisabled=true
+	for _,channel in pairs(vc and vc.carFX and vc.carFX.channels or {}) do if channel.emitter and channel.emitter.Parent then channel.emitter.Enabled=false; channel.emitter.Rate=0; channel.emitter:Clear() end end
+end
+function SPA_CarFX:Cleanup(vc)
+	for _,channel in pairs(vc and vc.carFX and vc.carFX.channels or {}) do if channel.attachment and channel.attachment.Parent and channel.attachment:GetAttribute("SPAManagedVehicleFX")==true then channel.attachment:Destroy() end end
+	if vc then vc.carFX=nil end
+end
+function SPA_CarFX:CleanupAll() for _,vc in pairs(VehicleCache or {}) do self:Cleanup(vc) end end
 
 if SPA_EFFECT_MODE=="RAIN" then SPA_WeatherFX:SetMode("RAIN") end
 
@@ -4683,10 +5180,15 @@ end
 
 function SPA_VehicleAudio:Grounded(vc,now)
 	if now-(vc.lastSkidGroundCheck or 0)<self.GROUND_INTERVAL then return vc.skidGrounded==true end
-	vc.lastSkidGroundCheck=now; vc.skidGrounded=false
+	vc.lastSkidGroundCheck=now; vc.skidGrounded=false; vc.groundMaterial=Enum.Material.Air; vc.groundDistance=math.huge; vc.lastGroundResult=nil
 	for _,wheel in ipairs(vc.skidWheels or {}) do
-		if wheel.Parent and Workspace:Raycast(wheel.Position,Vector3.new(0,-math.max(2,wheel.Size.Y+1),0),vc.skidRayParams) then
-			vc.skidGrounded=true; break
+		if wheel.Parent then
+			local result=Workspace:Raycast(wheel.Position,Vector3.new(0,-math.max(2,wheel.Size.Y+1),0),vc.skidRayParams)
+			if result then
+				vc.skidGrounded=true; local distance=(wheel.Position-result.Position).Magnitude
+				if distance<vc.groundDistance then vc.groundDistance=distance; vc.groundMaterial=result.Material; vc.lastGroundResult=result end
+				break
+			end
 		end
 	end
 	return vc.skidGrounded
@@ -4715,6 +5217,7 @@ function SPA_VehicleAudio:PlayShift(vc)
 		vc.shiftSound.PlaybackSpeed=1.0
 		vc.shiftSound.TimePosition=0; vc.shiftSound:Play()
 	end
+	if SPA_CarFX then SPA_CarFX:OnShift(vc) end
 end
 
 function SPA_VehicleAudio:ObserveConfigured(uid,st,vc,value,now)
@@ -4808,25 +5311,28 @@ function SPA_VehicleAudio:StepSkid(uid,st,vc,now,dt,speed)
 	if smokeActive and intensity>=0.65 and not vc.skidStrongActive then
 		vc.skidStrongActive=true
 		local amount=wet and math.min(SPA_Effects.RAIN_MAX_BURST,math.floor((14+intensity*22)*densityMultiplier*lod)) or math.floor((14+intensity*22)*lod)
-		for _,emitter in ipairs(vc.skidEmitters or {}) do if emitter.Parent and amount>0 then emitter:Emit(amount) end end
+		for _,emitter in ipairs(vc.skidEmitters or {}) do if emitter.Parent and amount>0 then emitter:Emit(math.clamp(amount,0,SPA_Effects.RAIN_MAX_BURST)) end end
 	elseif intensity<0.35 then
 		vc.skidStrongActive=false
 	end
 	if launchBurst then
 		vc.lastLaunchBurst=now; vc.fxLaunchArmed=false; vc.fxLaunchStartedAt=nil
 		local amount=wet and math.min(SPA_Effects.RAIN_MAX_BURST,math.floor((18+speedWake*24)*densityMultiplier*lod)) or math.floor(10*lod)
-		for _,emitter in ipairs(vc.skidEmitters or {}) do if emitter.Parent and amount>0 then emitter:Emit(amount) end end
+		for _,emitter in ipairs(vc.skidEmitters or {}) do if emitter.Parent and amount>0 then emitter:Emit(math.clamp(amount,0,SPA_Effects.RAIN_MAX_BURST)) end end
 	elseif vc.fxLaunchStartedAt and now-vc.fxLaunchStartedAt>2 then vc.fxLaunchArmed=false; vc.fxLaunchStartedAt=nil end
 	if brakeBurst then
 		vc.lastBrakeBurst=now
 		local amount=math.min(SPA_Effects.RAIN_MAX_BURST,math.floor((16+math.min(deceleration,20)*2)*densityMultiplier*lod))
-		for _,emitter in ipairs(vc.skidEmitters or {}) do if emitter.Parent and amount>0 then emitter:Emit(amount) end end
+		for _,emitter in ipairs(vc.skidEmitters or {}) do if emitter.Parent and amount>0 then emitter:Emit(math.clamp(amount,0,SPA_Effects.RAIN_MAX_BURST)) end end
 	end
 	if wet and smokeActive and vc.rainCrashBurst then
 		local amount=math.min(SPA_Effects.RAIN_MAX_BURST,math.floor((24+visualIntensity*28)*vc.rainCrashBurst*densityMultiplier*lod))
-		for _,emitter in ipairs(vc.skidEmitters or {}) do if emitter.Parent and amount>0 then emitter:Emit(amount) end end
+		for _,emitter in ipairs(vc.skidEmitters or {}) do if emitter.Parent and amount>0 then emitter:Emit(math.clamp(amount,0,SPA_Effects.RAIN_MAX_BURST)) end end
 		vc.rainCrashBurst=nil
 	elseif not wet then vc.rainCrashBurst=nil end
+	if SPA_CarFX then
+		SPA_CarFX:Step(uid,st,vc,now,dt,{speed=speed,intensity=intensity,wet=wet,wetness=wetness,densityMultiplier=densityMultiplier,lod=lod,grounded=grounded,deceleration=deceleration,lateralVelocity=st.seat.AssemblyLinearVelocity:Dot(st.seat.CFrame.RightVector),launchBurst=launchBurst})
+	end
 	SPA_PerfMark("SkidFX",perfStart)
 	SPA_PerfMark("VehicleFX",perfStart,SPA_EFFECT_MODE)
 end
@@ -4894,6 +5400,7 @@ end
 
 function SPA_VehicleAudio:Cleanup(vc)
 	if not vc then return end
+	if SPA_CarFX then SPA_CarFX:Cleanup(vc) end
 	for _,entry in ipairs({{vc.idleSound,vc.audioOwnsIdle},{vc.driveSound,vc.audioOwnsDrive},{vc.shiftSound,vc.audioOwnsShift},{vc.skidSound,vc.audioOwnsSkid}}) do
 		if entry[1] and entry[1].Parent and entry[2] then pcall(function() entry[1]:Destroy() end) end
 	end
@@ -10531,7 +11038,7 @@ end
 function SPA_ConnectUI:Updates()
 	self:Label("SPA GLOBAL · CURRENT VERSION V2.22.4",50,1)
 	local info=self:Label("LATEST VERSION: sin verificar\nSTATUS: OFFLINE / sin sincronización",75,2)
-	local localChanges="V2.23 · SESSION STABILITY HOTFIX\nNEW · Session lifecycle, frozen results and reusable race reset.\nIMPROVED · Drift sensor, confirmed crashes and adaptive replay.\nFIXED · Stale data, periodic UI rebuilds and cache cleanup."
+	local localChanges="V"..SPA_VERSION.." · ONBOARD ULTRA CAMERA & VEHICLE FX\nNEW · 160 data-only camera shots with true rigid mounts.\nNEW · Virtualized Camera Library and shared-budget vehicle FX.\nUNCHANGED · Physics, timing, crash, replay, drift, audio, weather, FIA, Discord and Track Codes."
 	local details=self:Label(localChanges,180,3)
 	local view=self.view
 	if SPA_Connect.flags.updatesEnabled then SPA_Connect:Fetch("updates",false,function(ok,d)
@@ -11323,3 +11830,22 @@ function SPA_Mobile:Init()
 end
 SPA_V220:Stage("RESPONSIVE MOBILE UI",function() SPA_Mobile:Init() end)
 -- END V2.22.1 RESPONSIVE GUI
+
+SPA_V220:Stage("ONBOARD EVENTS",function()
+	if SPA_Onboard.raceSubscription then SPA_Onboard.raceSubscription:Disconnect() end
+	SPA_Onboard.raceSubscription=SPA_RaceControl:Subscribe(function(event)
+		SPA_Onboard:OnRaceEvent(event)
+		if SPA_CarFX and SPA_CarFX.OnRaceEvent then SPA_CarFX:OnRaceEvent(event) end
+	end)
+	mainGui.Destroying:Connect(function()
+		if SPA_Onboard.stop then SPA_Onboard.stop() end
+		for _,connection in pairs({SPA_Onboard.raceSubscription,SPA_Onboard.touchConnection,SPA_Onboard.inputConnection,SPA_Onboard.cameraScrollConnection,SPA_Onboard.cameraSearchConnection,SPA_Onboard.playerAddedConnection,SPA_Onboard.playerRemovingConnection}) do if connection then connection:Disconnect() end end
+		SPA_Onboard.raceSubscription=nil; SPA_Onboard.touchConnection=nil; SPA_Onboard.inputConnection=nil; SPA_Onboard.cameraScrollConnection=nil; SPA_Onboard.cameraSearchConnection=nil; SPA_Onboard.playerAddedConnection=nil; SPA_Onboard.playerRemovingConnection=nil
+		if SPA_CarFX and SPA_CarFX.CleanupAll then SPA_CarFX:CleanupAll() end
+	end)
+end)
+
+-- =====================================================================
+-- SPA-GLOBAL V2.23.3 · ONBOARD ULTRA CAMERA & VEHICLE FX UPDATE
+-- End SPA-GLOBAL V2.23.3.
+-- =====================================================================
