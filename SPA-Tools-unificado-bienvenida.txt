@@ -1,0 +1,1826 @@
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local UserInputService = game:GetService("UserInputService")
+local HttpService = game:GetService("HttpService")
+local TweenService = game:GetService("TweenService")
+
+local localPlayer = Players.LocalPlayer
+if not localPlayer then
+	return
+end
+
+local CONFIG = {
+	MAX_LOG = 800,
+	MAX_DEPTH = 3,
+	MAX_ITEMS = 30,
+	MAX_STRING = 300,
+	CORRELATION_WINDOW = 0.50,
+	BURST_WINDOW = 0.08,
+	TELEMETRY_INTERVAL = 0.20,
+	RAW_VALUES = true,
+	RAW_PRECISION = "6 DECIMALS",
+	DEEP_INSPECT = false,
+	TEXT_SIZE = "MEDIUM",
+}
+
+local COLORS = {
+	INPUT = Color3.fromRGB(115, 185, 255),
+	REMOTE = Color3.fromRGB(203, 150, 255),
+	VALUE = Color3.fromRGB(125, 224, 166),
+	ATTRIBUTE = Color3.fromRGB(115, 214, 205),
+	PROPERTY = Color3.fromRGB(230, 205, 118),
+	PHYSICS = Color3.fromRGB(255, 171, 105),
+	["OBJECT+"] = Color3.fromRGB(101, 220, 146),
+	["OBJECT-"] = Color3.fromRGB(255, 123, 123),
+	EFFECT = Color3.fromRGB(242, 141, 213),
+	SOUND = Color3.fromRGB(143, 200, 255),
+	ANIMATION = Color3.fromRGB(186, 160, 255),
+	VEHICLE = Color3.fromRGB(102, 210, 255),
+	INFO = Color3.fromRGB(185, 190, 200),
+	WARNING = Color3.fromRGB(255, 194, 92),
+}
+
+local FILTER_GROUP = {
+	INPUT = "INPUT",
+	REMOTE = "REMOTES",
+	VALUE = "VALUES",
+	ATTRIBUTE = "ATTRIBUTES",
+	PROPERTY = "VALUES",
+	PHYSICS = "PHYSICS",
+	["OBJECT+"] = "OBJECTS",
+	["OBJECT-"] = "OBJECTS",
+	EFFECT = "EFFECTS",
+	SOUND = "SOUNDS",
+	ANIMATION = "EFFECTS",
+	VEHICLE = "OBJECTS",
+	INFO = "OBJECTS",
+	WARNING = "OBJECTS",
+}
+
+local PHYSICS_CLASSES = {
+	LinearVelocity = true, AngularVelocity = true, VectorForce = true, Torque = true,
+	AlignPosition = true, AlignOrientation = true, BodyVelocity = true,
+	BodyAngularVelocity = true, BodyForce = true, BodyGyro = true,
+	BodyPosition = true, BodyThrust = true, SpringConstraint = true,
+	HingeConstraint = true, PrismaticConstraint = true, CylindricalConstraint = true,
+	RodConstraint = true, RopeConstraint = true,
+}
+
+local EFFECT_CLASSES = {
+	ParticleEmitter = true, Trail = true, Beam = true, Fire = true,
+	Smoke = true, Sparkles = true, PointLight = true, SpotLight = true,
+	SurfaceLight = true,
+}
+
+local VALUE_CLASSES = {
+	BoolValue = true, NumberValue = true, IntValue = true, StringValue = true,
+	ObjectValue = true, Vector3Value = true, CFrameValue = true, Color3Value = true,
+}
+
+local REMOTE_CLASSES = {
+	RemoteEvent = true, RemoteFunction = true, UnreliableRemoteEvent = true,
+}
+
+local IMPORTANT_CLASSES = {
+	RemoteEvent = true, RemoteFunction = true, UnreliableRemoteEvent = true,
+	LinearVelocity = true, AngularVelocity = true, VectorForce = true, Torque = true,
+	BodyVelocity = true, BodyGyro = true, ParticleEmitter = true, Beam = true,
+	Trail = true, Sound = true, NumberValue = true, BoolValue = true, StringValue = true,
+}
+
+local PROPERTY_MAP = {
+	BasePart = {"Transparency", "CanCollide", "CanTouch", "CanQuery", "Massless", "Anchored", "Material", "Color", "Size", "CollisionGroup", "CustomPhysicalProperties"},
+	VehicleSeat = {"Throttle", "ThrottleFloat", "Steer", "SteerFloat", "MaxSpeed", "Torque", "TurnSpeed", "Occupant", "Disabled"},
+	Seat = {"Disabled"},
+	LinearVelocity = {"VectorVelocity", "LineVelocity", "MaxForce", "Enabled", "VelocityConstraintMode"},
+	AngularVelocity = {"AngularVelocity", "MaxTorque", "Enabled"},
+	VectorForce = {"Force", "RelativeTo", "ApplyAtCenterOfMass", "Enabled"},
+	Torque = {"Torque", "RelativeTo", "Enabled"},
+	AlignPosition = {"Position", "MaxForce", "MaxVelocity", "Responsiveness", "RigidityEnabled", "Enabled"},
+	AlignOrientation = {"CFrame", "MaxTorque", "MaxAngularVelocity", "Responsiveness", "RigidityEnabled", "Enabled"},
+	BodyVelocity = {"Velocity", "MaxForce", "P"},
+	BodyAngularVelocity = {"AngularVelocity", "MaxTorque", "P"},
+	BodyForce = {"Force"},
+	BodyGyro = {"CFrame", "MaxTorque", "P", "D"},
+	BodyPosition = {"Position", "MaxForce", "MaxVelocity", "P", "D"},
+	BodyThrust = {"Force", "Location"},
+	SpringConstraint = {"FreeLength", "Stiffness", "Damping", "MaxForce", "MinLength", "MaxLength", "LimitsEnabled", "Visible", "Enabled", "Attachment0", "Attachment1"},
+	HingeConstraint = {"ActuatorType", "AngularVelocity", "MotorMaxAcceleration", "MotorMaxTorque", "TargetAngle", "ServoMaxTorque", "AngularSpeed", "LimitsEnabled", "LowerAngle", "UpperAngle", "Enabled", "Attachment0", "Attachment1"},
+	PrismaticConstraint = {"ActuatorType", "Velocity", "MotorMaxForce", "TargetPosition", "ServoMaxForce", "Enabled", "Attachment0", "Attachment1"},
+	CylindricalConstraint = {"ActuatorType", "Velocity", "AngularVelocity", "MotorMaxForce", "MotorMaxTorque", "Enabled", "Attachment0", "Attachment1"},
+	RodConstraint = {"Length", "Enabled", "Attachment0", "Attachment1"},
+	RopeConstraint = {"Length", "Restitution", "WinchEnabled", "WinchForce", "WinchSpeed", "Enabled", "Attachment0", "Attachment1"},
+	ParticleEmitter = {"Enabled", "Rate", "Speed", "Lifetime", "Color", "Transparency", "LightEmission"},
+	Trail = {"Enabled", "Lifetime", "Color", "Transparency", "WidthScale"},
+	Beam = {"Enabled", "Color", "Transparency", "Width0", "Width1", "Brightness"},
+	Fire = {"Enabled", "Heat", "Size", "Color", "SecondaryColor"},
+	Smoke = {"Enabled", "Opacity", "RiseVelocity", "Size", "Color"},
+	Sparkles = {"Enabled", "SparkleColor"},
+	PointLight = {"Enabled", "Brightness", "Color", "Range", "Shadows"},
+	SpotLight = {"Enabled", "Brightness", "Color", "Range", "Angle", "Face", "Shadows"},
+	SurfaceLight = {"Enabled", "Brightness", "Color", "Range", "Angle", "Face", "Shadows"},
+	Sound = {"Playing", "SoundId", "PlaybackSpeed", "Volume", "Looped"},
+	Animation = {"AnimationId"},
+	Attachment = {"Position", "Orientation", "Axis", "SecondaryAxis", "WorldPosition", "WorldOrientation"},
+	WeldConstraint = {"Enabled", "Part0", "Part1"},
+	Motor6D = {"Enabled", "Part0", "Part1", "C0", "C1", "Transform"},
+}
+
+local DEEP_PROPERTY_MAP = {
+	BasePart = {"CFrame", "PivotOffset", "Reflectance", "CastShadow", "Locked", "RootPriority", "AssemblyCenterOfMass", "AssemblyMass", "AssemblyRootPart", "AssemblyLinearVelocity", "AssemblyAngularVelocity"},
+	VehicleSeat = {"HeadsUpDisplay", "AreHingesDetected"},
+	Attachment = {"CFrame", "WorldCFrame", "Visible"},
+	SpringConstraint = {"Attachment0", "Attachment1", "CurrentLength", "Coils", "Radius", "Thickness"},
+	HingeConstraint = {"Attachment0", "Attachment1", "Radius", "Restitution"},
+	CylindricalConstraint = {"Attachment0", "Attachment1", "AngularActuatorType", "AngularLimitsEnabled", "AngularRestitution", "RotationAxisVisible"},
+	PrismaticConstraint = {"Attachment0", "Attachment1", "LimitsEnabled", "LowerLimit", "UpperLimit", "Restitution"},
+	RodConstraint = {"Attachment0", "Attachment1", "CurrentDistance", "Thickness"},
+	RopeConstraint = {"Attachment0", "Attachment1", "CurrentDistance", "Thickness"},
+	Sound = {"RollOffMaxDistance", "RollOffMinDistance", "RollOffMode", "PlaybackLoudness", "TimeLength"},
+	ParticleEmitter = {"Acceleration", "Drag", "EmissionDirection", "LightInfluence", "LockedToPart", "Orientation", "RotSpeed", "Rotation", "Shape", "ShapeInOut", "ShapePartial", "ShapeStyle", "SpreadAngle", "TimeScale", "VelocityInheritance", "ZOffset"},
+}
+
+local DRIFT_WORDS = {"drift", "traction", "grip", "friction", "slide", "slip", "steer", "handling", "tire", "tyre", "wheel"}
+local ACTION_WORDS = {"boost", "nitro", "turbo", "horn", "siren", "light", "brake", "hazard", "indicator", "lock", "engine", "drift", "suspension", "jump", "hydraulic"}
+
+local function now(): number
+	return os.clock()
+end
+
+local sessionStart = now()
+
+local function safePath(instance: Instance?): string
+	if not instance then return "nil" end
+	local ok, result = pcall(function() return instance:GetFullName() end)
+	return ok and result or (instance.ClassName .. ":" .. instance.Name)
+end
+
+local function containsWord(text: string, words: {string}): boolean
+	text = string.lower(text)
+	for _, word in ipairs(words) do
+		if string.find(text, word, 1, true) then return true end
+	end
+	return false
+end
+
+local function sanitizeString(value: string): string
+	value = string.sub(value, 1, CONFIG.MAX_STRING)
+	local lower = string.lower(value)
+	if string.find(lower, "authorization", 1, true)
+		or string.find(lower, "bearer ", 1, true)
+		or string.find(lower, "cookie", 1, true)
+		or string.find(lower, "token=", 1, true)
+		or string.find(lower, "password", 1, true) then
+		return "<redacted>"
+	end
+	return value
+end
+
+local function numberText(n: number): string
+	if n ~= n then return "nan" end
+	if n == math.huge then return "inf" end
+	if n == -math.huge then return "-inf" end
+	if CONFIG.RAW_PRECISION == "SHORT" then return string.format("%.6g", n) end
+	if CONFIG.RAW_PRECISION == "FULL" then return string.format("%.17g", n) end
+	return string.format("%.6f", n)
+end
+
+local function serialize(value: any, depth: number?, seen: {[table]: boolean}?): string
+	depth = depth or 0
+	seen = seen or {}
+	local kind = typeof(value)
+	if kind == "nil" then return "nil" end
+	if kind == "string" then return string.format("%q", sanitizeString(value)) end
+	if kind == "number" then return numberText(value) end
+	if kind == "boolean" then return tostring(value) end
+	if kind == "Instance" then return string.format("<%s %s @ %s>", value.ClassName, value.Name, safePath(value)) end
+	if kind == "Vector3" then return string.format("Vector3(%s, %s, %s)", numberText(value.X), numberText(value.Y), numberText(value.Z)) end
+	if kind == "Vector2" then return string.format("Vector2(%s, %s)", numberText(value.X), numberText(value.Y)) end
+	if kind == "Color3" then return string.format("Color3(%s, %s, %s)", numberText(value.R), numberText(value.G), numberText(value.B)) end
+	if kind == "CFrame" then
+		local parts = {value:GetComponents()}
+		for i, part in ipairs(parts) do parts[i] = numberText(part) end
+		return "CFrame(" .. table.concat(parts, ", ") .. ")"
+	end
+	if kind == "PhysicalProperties" then
+		return string.format("PhysicalProperties(Density=%s, Friction=%s, Elasticity=%s, FrictionWeight=%s, ElasticityWeight=%s)",
+			numberText(value.Density), numberText(value.Friction), numberText(value.Elasticity), numberText(value.FrictionWeight), numberText(value.ElasticityWeight))
+	end
+	if kind == "EnumItem" then return tostring(value) end
+	if kind == "NumberRange" or kind == "NumberSequence" or kind == "ColorSequence" or kind == "UDim" or kind == "UDim2" or kind == "Rect" then
+		return tostring(value)
+	end
+	if kind == "table" then
+		if seen[value] then return "<recursive>" end
+		if depth >= CONFIG.MAX_DEPTH then return "{...}" end
+		seen[value] = true
+		local chunks = {}
+		local count = 0
+		for key, item in pairs(value) do
+			count += 1
+			if count > CONFIG.MAX_ITEMS then
+				table.insert(chunks, "...")
+				break
+			end
+			table.insert(chunks, "[" .. serialize(key, depth + 1, seen) .. "]=" .. serialize(item, depth + 1, seen))
+		end
+		seen[value] = nil
+		return "{" .. table.concat(chunks, ", ") .. "}"
+	end
+	return "<" .. kind .. ">"
+end
+
+local function readProperty(instance: Instance, property: string): (boolean, any)
+	return pcall(function() return (instance :: any)[property] end)
+end
+
+local function propertiesFor(instance: Instance): {string}
+	local output = {}
+	if instance:IsA("BasePart") then
+		for _, p in ipairs(PROPERTY_MAP.BasePart) do table.insert(output, p) end
+	end
+	local classProps = PROPERTY_MAP[instance.ClassName]
+	if classProps then
+		for _, p in ipairs(classProps) do
+			if not table.find(output, p) then table.insert(output, p) end
+		end
+	end
+	return output
+end
+
+local ConnectionBag = {}
+ConnectionBag.__index = ConnectionBag
+
+function ConnectionBag.new()
+	return setmetatable({items = {}}, ConnectionBag)
+end
+
+function ConnectionBag:add(item: any)
+	table.insert(self.items, item)
+	return item
+end
+
+function ConnectionBag:clear()
+	for i = #self.items, 1, -1 do
+		local item = self.items[i]
+		pcall(function()
+			if typeof(item) == "RBXScriptConnection" then item:Disconnect()
+			elseif type(item) == "function" then item()
+			elseif item.Destroy then item:Destroy() end
+		end)
+		self.items[i] = nil
+	end
+end
+
+local permanentConnections = ConnectionBag.new()
+local vehicleConnections = ConnectionBag.new()
+local instanceConnections: {[Instance]: any} = {}
+
+local State = {
+	paused = false,
+	currentSeat = nil :: Seat?,
+	currentVehicle = nil :: Instance?,
+	vehicleId = "NONE",
+	cache = {} :: {[Instance]: any},
+	wheels = {} :: {[Instance]: boolean},
+	wheelMeta = {} :: {[Instance]: any},
+	connectedParts = {} :: {[BasePart]: boolean},
+	remotes = {} :: {[Instance]: any},
+	events = {} :: {any},
+	nextEventId = 1,
+	lastInput = nil :: any,
+	lastRemote = "None",
+	lastSnapshot = nil :: any,
+	lastDiff = {} :: {string},
+	filters = {INPUT=true, REMOTES=true, VALUES=true, ATTRIBUTES=true, PHYSICS=true, OBJECTS=true, EFFECTS=true, SOUNDS=true, WHEELS=true},
+	search = "",
+	driftTrace = {} :: {string},
+	freezeView = false,
+	treeExpanded = {} :: {[Instance]: boolean},
+	panelSize = Vector2.new(430, 300),
+	running = true,
+}
+
+local UI = {} :: any
+
+local function configuredTextSize(): number
+	return ({SMALL=10, MEDIUM=12, LARGE=14})[CONFIG.TEXT_SIZE] or 12
+end
+
+local function eventSearchText(event: any): string
+	return string.lower(event.category .. " " .. event.title .. " " .. event.detail)
+end
+
+local function isEventVisible(event: any): boolean
+	local group = FILTER_GROUP[event.category] or "OBJECTS"
+	if State.filters[group] == false then return false end
+	if State.filters.WHEELS == false and containsWord(event.title .. " " .. event.detail, {"wheel", "tire", "tyre", "friction"}) then return false end
+	if State.search ~= "" and not string.find(eventSearchText(event), State.search, 1, true) then return false end
+	return true
+end
+
+local function renderEvent(event: any)
+	if not UI.logList or not isEventVisible(event) then return end
+	local row = Instance.new("TextLabel")
+	row.Name = event.id
+	row.BackgroundColor3 = Color3.fromRGB(23, 25, 31)
+	row.BackgroundTransparency = 0.18
+	row.BorderSizePixel = 0
+	row.Size = UDim2.new(1, -8, 0, 0)
+	row.AutomaticSize = Enum.AutomaticSize.Y
+	row.Font = Enum.Font.Code
+	row.TextSize = configuredTextSize()
+	row.TextColor3 = Color3.fromRGB(218, 221, 228)
+	row.TextXAlignment = Enum.TextXAlignment.Left
+	row.TextYAlignment = Enum.TextYAlignment.Top
+	row.TextWrapped = true
+	row.RichText = false
+	row.Text = string.format("[%s] %-9s  %s\n%s", event.stamp, event.category, event.title, event.detail)
+	row.Parent = UI.logList
+	local accent = Instance.new("Frame")
+	accent.Name = "Accent"
+	accent.Size = UDim2.new(0, 3, 1, 0)
+	accent.BackgroundColor3 = COLORS[event.category]
+	accent.BorderSizePixel = 0
+	accent.Parent = row
+	local pad = Instance.new("UIPadding")
+	pad.PaddingTop = UDim.new(0, 7)
+	pad.PaddingBottom = UDim.new(0, 7)
+	pad.PaddingLeft = UDim.new(0, 8)
+	pad.PaddingRight = UDim.new(0, 8)
+	pad.Parent = row
+	local corner = Instance.new("UICorner")
+	corner.CornerRadius = UDim.new(0, 4)
+	corner.Parent = row
+end
+
+local function refreshLog()
+	if not UI.logList then return end
+	for _, child in ipairs(UI.logList:GetChildren()) do
+		if child:IsA("GuiObject") then child:Destroy() end
+	end
+	for _, event in ipairs(State.events) do
+		renderEvent(event)
+	end
+	task.defer(function()
+		if UI.logList then UI.logList.CanvasPosition = Vector2.new(0, math.max(0, UI.logList.AbsoluteCanvasSize.Y)) end
+	end)
+end
+
+local function correlationSuffix(): string
+	local input = State.lastInput
+	if not input then return "" end
+	local delta = now() - input.time
+	if delta < 0 or delta > CONFIG.CORRELATION_WINDOW then return "" end
+	return string.format("\n↳ after %s +%dms", input.name, math.floor(delta * 1000 + 0.5))
+end
+
+local function addDriftTrace(text: string)
+	table.insert(State.driftTrace, text)
+	while #State.driftTrace > 80 do table.remove(State.driftTrace, 1) end
+	if UI.diffText then
+		UI.diffText.Text = (#State.lastDiff > 0 and table.concat(State.lastDiff, "\n") or "No snapshot diff yet.")
+			.. "\n\nDRIFT TRACE\n" .. table.concat(State.driftTrace, "\n")
+	end
+end
+
+local function logEvent(category: string, title: string, detail: string?, source: string?, correlate: boolean?)
+	if State.paused and category ~= "INFO" and category ~= "VEHICLE" then return end
+	detail = detail or ""
+	if correlate then detail ..= correlationSuffix() end
+	local t = now() - sessionStart
+	local id = string.format("EVT-%04d", State.nextEventId)
+	State.nextEventId += 1
+	local event = {
+		id = id,
+		at = t,
+		stamp = string.format("+%08.3fs", t),
+		category = category,
+		title = sanitizeString(title),
+		detail = sanitizeString(detail),
+		source = source or "INTERNAL",
+	}
+	table.insert(State.events, event)
+	while #State.events > CONFIG.MAX_LOG do
+		local removed = table.remove(State.events, 1)
+		if UI.logList then
+			local oldRow = UI.logList:FindFirstChild(removed.id)
+			if oldRow then oldRow:Destroy() end
+		end
+	end
+	local burstEvent = nil
+	if correlate and State.lastInput and (now() - State.lastInput.time) <= CONFIG.CORRELATION_WINDOW then
+		State.lastInput.count += 1
+		if State.lastInput.count == 6 then
+			burstEvent = {
+				id = string.format("EVT-%04d", State.nextEventId), at=t, stamp=string.format("+%08.3fs", t),
+				category="INFO", title="ACTION BURST", detail=State.lastInput.name .. " · 6+ correlated events", source="CORRELATOR"
+			}
+			table.insert(State.events, burstEvent)
+			State.nextEventId += 1
+		end
+	end
+	while #State.events > CONFIG.MAX_LOG do
+		local removed = table.remove(State.events, 1)
+		if UI.logList then
+			local oldRow = UI.logList:FindFirstChild(removed.id)
+			if oldRow then oldRow:Destroy() end
+		end
+	end
+	if containsWord(title .. " " .. detail, DRIFT_WORDS) then
+		addDriftTrace(string.format("%s  %s  %s — %s", event.stamp, category, title, string.gsub(detail, "\n", " | ")))
+	end
+	if UI.logList then
+		renderEvent(event)
+		if burstEvent then renderEvent(burstEvent) end
+		task.defer(function()
+			if UI.logList then UI.logList.CanvasPosition = Vector2.new(0, math.max(0, UI.logList.AbsoluteCanvasSize.Y)) end
+		end)
+	end
+end
+
+local function categoryFor(instance: Instance): string
+	if VALUE_CLASSES[instance.ClassName] then return "VALUE" end
+	if PHYSICS_CLASSES[instance.ClassName] then return "PHYSICS" end
+	if instance:IsA("Sound") then return "SOUND" end
+	if instance:IsA("Animation") or instance:IsA("Animator") then return "ANIMATION" end
+	if EFFECT_CLASSES[instance.ClassName] then return "EFFECT" end
+	if REMOTE_CLASSES[instance.ClassName] then return "REMOTE" end
+	return "PROPERTY"
+end
+
+local function isWheel(instance: Instance): boolean
+	if not instance:IsA("BasePart") then return false end
+	local lower = string.lower(instance.Name)
+	if string.find(lower, "physicalwheel", 1, true) then return true end
+	if not containsWord(lower, {"wheel", "wheels", "tire", "tyre"}) then return false end
+	local score = 1
+	if State.connectedParts[instance] then score += 2 end
+	if instance.Parent and containsWord(instance.Parent.Name, {"wheel", "suspension", "axle", "chassis", "vehicle"}) then score += 1 end
+	for _, child in ipairs(instance:GetChildren()) do
+		if child:IsA("Attachment") or child:IsA("Constraint") then score += 1; break end
+	end
+	return score >= 2
+end
+
+local function physicalSnapshot(value: any): any
+	if typeof(value) ~= "PhysicalProperties" then return nil end
+	return {
+		Density=value.Density, Friction=value.Friction, Elasticity=value.Elasticity,
+		FrictionWeight=value.FrictionWeight, ElasticityWeight=value.ElasticityWeight,
+	}
+end
+
+local function initializeWheelMeta(wheel: BasePart): any
+	local meta = State.wheelMeta[wheel]
+	if meta then return meta end
+	meta = {
+		currentCustom = physicalSnapshot(wheel.CustomPhysicalProperties),
+		currentCurrent = physicalSnapshot(wheel.CurrentPhysicalProperties),
+		previousCustom = nil,
+		baselineCustom = nil,
+		baselineCurrent = nil,
+		history = {},
+		attachments = {},
+		constraints = {},
+		changes = 0,
+	}
+	State.wheelMeta[wheel] = meta
+	return meta
+end
+
+local function refreshWheelRelations()
+	for wheel in pairs(State.wheels) do
+		if wheel.Parent and wheel:IsA("BasePart") then
+			local meta = initializeWheelMeta(wheel)
+			table.clear(meta.attachments)
+			table.clear(meta.constraints)
+			for instance in pairs(State.cache) do
+				if instance:IsA("Attachment") and instance:IsDescendantOf(wheel) then
+					table.insert(meta.attachments, instance)
+				elseif instance:IsA("Constraint") or instance:IsA("WeldConstraint") or instance:IsA("Motor6D") then
+					local related = instance:IsDescendantOf(wheel)
+					for _, property in ipairs({"Attachment0", "Attachment1", "Part0", "Part1"}) do
+						local ok, linked = readProperty(instance, property)
+						if ok and typeof(linked) == "Instance" and (linked == wheel or linked:IsDescendantOf(wheel)) then related = true end
+					end
+					if related then table.insert(meta.constraints, instance) end
+				end
+			end
+		end
+	end
+end
+
+local function onWheelPhysicalChanged(wheel: BasePart, oldValue: any, newValue: any)
+	local meta = initializeWheelMeta(wheel)
+	meta.previousCustom = physicalSnapshot(oldValue)
+	meta.currentCustom = physicalSnapshot(newValue)
+	meta.currentCurrent = physicalSnapshot(wheel.CurrentPhysicalProperties)
+	meta.changes += 1
+	local oldFriction = meta.previousCustom and meta.previousCustom.Friction or nil
+	local newFriction = meta.currentCustom and meta.currentCustom.Friction or nil
+	table.insert(meta.history, {
+		at=now()-sessionStart,
+		old=oldFriction,
+		new=newFriction,
+	})
+	while #meta.history > 20 do table.remove(meta.history, 1) end
+	if not State.freezeView and UI.flashWheel then UI.flashWheel(wheel) end
+	if UI.updateWheel then UI.updateWheel(wheel, false) end
+end
+
+local function formatPhysicalChange(old: any, new: any): string
+	if typeof(old) ~= "PhysicalProperties" or typeof(new) ~= "PhysicalProperties" then
+		return serialize(old) .. " → " .. serialize(new)
+	end
+	local rows = {}
+	local keys = {"Density", "Friction", "Elasticity", "FrictionWeight", "ElasticityWeight"}
+	local oldSnapshot, newSnapshot = physicalSnapshot(old), physicalSnapshot(new)
+	for _, key in ipairs(keys) do
+		local a, b = oldSnapshot[key], newSnapshot[key]
+		if a ~= b then table.insert(rows, string.upper(key) .. "  " .. numberText(a) .. " → " .. numberText(b)) end
+	end
+	return #rows > 0 and table.concat(rows, "\n") or (serialize(old) .. " → " .. serialize(new))
+end
+
+local function disconnectInstance(instance: Instance)
+	local bag = instanceConnections[instance]
+	if bag then bag:clear() end
+	instanceConnections[instance] = nil
+	State.cache[instance] = nil
+	State.wheels[instance] = nil
+	State.wheelMeta[instance] = nil
+	State.remotes[instance] = nil
+end
+
+local function watchInstance(instance: Instance, baseline: boolean)
+	if State.cache[instance] then return end
+	local record = {
+		class = instance.ClassName,
+		name = instance.Name,
+		path = safePath(instance),
+		attributes = instance:GetAttributes(),
+		properties = {},
+		baseline = baseline,
+		changes = 0,
+	}
+	State.cache[instance] = record
+	if isWheel(instance) then
+		State.wheels[instance] = true
+		initializeWheelMeta(instance :: BasePart)
+	end
+	if REMOTE_CLASSES[instance.ClassName] then
+		State.remotes[instance] = {path=record.path, class=instance.ClassName, baseline=baseline, lastCall="None"}
+	end
+	local bag = ConnectionBag.new()
+	instanceConnections[instance] = bag
+
+	if VALUE_CLASSES[instance.ClassName] then
+		local ok, value = readProperty(instance, "Value")
+		if ok then record.properties.Value = value end
+		bag:add(instance:GetPropertyChangedSignal("Value"):Connect(function()
+			local old = record.properties.Value
+			local okNow, new = readProperty(instance, "Value")
+			if okNow and old ~= new then
+				record.properties.Value = new
+				record.changes += 1
+				local label = baseline and "VALUE CHANGED" or "NEW VALUE"
+				logEvent("VALUE", label .. " · " .. instance.Name, serialize(old) .. " → " .. serialize(new) .. "\n" .. safePath(instance), "PROPERTY SIGNAL", true)
+			end
+		end))
+	end
+
+	for _, property in ipairs(propertiesFor(instance)) do
+		local ok, value = readProperty(instance, property)
+		if ok then
+			record.properties[property] = value
+			local signalOk, signal = pcall(function() return instance:GetPropertyChangedSignal(property) end)
+			if signalOk then
+				bag:add(signal:Connect(function()
+					local old = record.properties[property]
+					local nowOk, new = readProperty(instance, property)
+					if not nowOk or old == new then return end
+					record.properties[property] = new
+					record.changes += 1
+					local category = categoryFor(instance)
+					local detail = serialize(old) .. " → " .. serialize(new) .. "\n" .. safePath(instance)
+					if property == "CustomPhysicalProperties" then
+						category = "PHYSICS"
+						detail = formatPhysicalChange(old, new) .. "\n" .. safePath(instance)
+						if State.wheels[instance] and instance:IsA("BasePart") then onWheelPhysicalChanged(instance, old, new) end
+					end
+					local title = instance.Name .. "." .. property
+					if isWheel(instance) and (property == "CustomPhysicalProperties" or containsWord(title, DRIFT_WORDS)) then
+						title = "DRIFT CANDIDATE · " .. title
+					end
+					logEvent(category, title, detail, "PROPERTY SIGNAL", true)
+					if (property == "Attachment0" or property == "Attachment1" or property == "Part0" or property == "Part1") and UI.rebuildWheels then
+						refreshWheelRelations(); UI.rebuildWheels()
+					end
+				end))
+			end
+		end
+	end
+
+	bag:add(instance.AttributeChanged:Connect(function(attributeName)
+		local old = record.attributes[attributeName]
+		local new = instance:GetAttribute(attributeName)
+		if old == new then return end
+		record.attributes[attributeName] = new
+		record.changes += 1
+		local prefix = old == nil and "NEW ATTRIBUTE · " or ""
+		local title = prefix .. instance.Name .. "." .. attributeName
+		if containsWord(title, DRIFT_WORDS) then title = "DRIFT CANDIDATE · " .. title end
+		logEvent("ATTRIBUTE", title, serialize(old) .. " → " .. serialize(new) .. "\n" .. safePath(instance), "ATTRIBUTE SIGNAL", true)
+		if UI.rebuildDataLists and (old == nil or new == nil) then UI.rebuildDataLists()
+		elseif UI.updateDataLists then UI.updateDataLists() end
+	end))
+
+	if instance:IsA("Animator") then
+		bag:add(instance.AnimationPlayed:Connect(function(track)
+			local animationId = "unknown"
+			pcall(function() animationId = track.Animation.AnimationId end)
+			logEvent("ANIMATION", "TRACK PLAYED", instance.Name .. "\nAnimationId: " .. animationId, "ANIMATION SIGNAL", true)
+		end))
+	end
+
+	if instance:IsA("RemoteEvent") or instance:IsA("UnreliableRemoteEvent") then
+		bag:add(instance.OnClientEvent:Connect(function(...)
+			local args = table.pack(...)
+			local printable = {}
+			for i = 1, math.min(args.n, CONFIG.MAX_ITEMS) do
+				table.insert(printable, string.format("[%d] %s", i, serialize(args[i])))
+			end
+			State.lastRemote = instance.Name .. " (IN)"
+			logEvent("REMOTE", "REMOTE IN · " .. instance.Name, table.concat(printable, "\n") .. "\n" .. safePath(instance), "ON CLIENT EVENT", true)
+		end))
+	end
+
+	if not baseline and State.currentVehicle then
+		local detail = instance.ClassName .. "\nPath: " .. record.path
+		if IMPORTANT_CLASSES[instance.ClassName] then detail = "NEW / IMPORTANT\n" .. detail end
+		logEvent("OBJECT+", "NEW DISCOVERY · " .. instance.Name, detail, "DESCENDANT ADDED", true)
+		if UI.rebuildTree then UI.rebuildTree() end
+		if UI.rebuildDataLists and (VALUE_CLASSES[instance.ClassName] or next(instance:GetAttributes()) ~= nil) then UI.rebuildDataLists() end
+		if UI.rebuildWheels and (State.wheels[instance] or instance:IsA("Attachment") or instance:IsA("Constraint") or instance:IsA("WeldConstraint") or instance:IsA("Motor6D")) then
+			refreshWheelRelations()
+			UI.rebuildWheels()
+		end
+	end
+end
+
+local function clearVehicleConnections()
+	vehicleConnections:clear()
+	local instances = {}
+	for instance in pairs(instanceConnections) do table.insert(instances, instance) end
+	for _, instance in ipairs(instances) do disconnectInstance(instance) end
+	table.clear(State.cache)
+	table.clear(State.wheels)
+	table.clear(State.wheelMeta)
+	table.clear(State.connectedParts)
+	table.clear(State.treeExpanded)
+end
+
+local function modelScore(model: Model, seat: BasePart, connected: {[BasePart]: boolean}): number
+	if model == workspace or model == workspace.CurrentCamera then return -math.huge end
+	local lower = string.lower(model.Name)
+	if lower == "workspace" or containsWord(lower, {"map", "building", "garage", "terrain"}) then return -250 end
+	local score = 0
+	if seat:IsDescendantOf(model) then score += 20 end
+	local descendants = model:GetDescendants()
+	if #descendants > 1500 then score -= 100 end
+	local parts, seats, wheels, connectedInside = 0, 0, 0, 0
+	for _, item in ipairs(descendants) do
+		if item:IsA("BasePart") then
+			parts += 1
+			if connected[item] then connectedInside += 1 end
+			if isWheel(item) then wheels += 1 end
+			if item:IsA("VehicleSeat") then seats += 1 end
+		end
+	end
+	score += math.min(parts, 80) * 0.08 + wheels * 7 + seats * 5 + connectedInside * 1.5
+	if containsWord(model.Name, {"vehicle", "car", "truck", "bike", "motor", "suv", "van"}) then score += 12 end
+	if model.PrimaryPart then score += 2 end
+	return score
+end
+
+local function resolveVehicle(seat: Seat): Instance?
+	local connected: {[BasePart]: boolean} = {}
+	local ok, parts = pcall(function() return seat:GetConnectedParts(true) end)
+	if ok then for _, part in ipairs(parts) do connected[part] = true end end
+	connected[seat] = true
+	local assemblyRoot = seat.AssemblyRootPart
+	if assemblyRoot then connected[assemblyRoot] = true end
+	local candidates = {}
+	local ancestor = seat.Parent
+	while ancestor and ancestor ~= workspace do
+		if ancestor:IsA("Model") then table.insert(candidates, ancestor) end
+		ancestor = ancestor.Parent
+	end
+	for part in pairs(connected) do
+		local model = part:FindFirstAncestorOfClass("Model")
+		if model and not table.find(candidates, model) then table.insert(candidates, model) end
+	end
+	local best: Model? = nil
+	local bestScore = -math.huge
+	for _, model in ipairs(candidates) do
+		local score = modelScore(model, seat, connected)
+		if score > bestScore then best, bestScore = model, score end
+	end
+	if best and bestScore > 0 then return best end
+	return seat.Parent
+end
+
+local function inventorySummary(root: Instance): string
+	local counts = {Instances=0, Models=0, Parts=0, Values=0, Attributes=0, Remotes=0, Constraints=0, Effects=0, Sounds=0, Animations=0, Attachments=0, Motors=0, Welds=0}
+	local all = {root}
+	for _, item in ipairs(root:GetDescendants()) do table.insert(all, item) end
+	for _, item in ipairs(all) do
+		counts.Instances += 1
+		for _ in pairs(item:GetAttributes()) do counts.Attributes += 1 end
+		if item:IsA("Model") then counts.Models += 1 end
+		if item:IsA("BasePart") then counts.Parts += 1 end
+		if item:IsA("ValueBase") then counts.Values += 1 end
+		if REMOTE_CLASSES[item.ClassName] then counts.Remotes += 1 end
+		if item:IsA("Constraint") then counts.Constraints += 1 end
+		if EFFECT_CLASSES[item.ClassName] then counts.Effects += 1 end
+		if item:IsA("Sound") then counts.Sounds += 1 end
+		if item:IsA("Animation") or item:IsA("Animator") then counts.Animations += 1 end
+		if item:IsA("Attachment") then counts.Attachments += 1 end
+		if item:IsA("Motor6D") or item:IsA("Motor") then counts.Motors += 1 end
+		if item:IsA("Weld") or item:IsA("WeldConstraint") then counts.Welds += 1 end
+	end
+	return string.format("Instances: %d\nModels: %d  Parts: %d\nValues: %d  Attributes: %d\nRemotes: %d  Constraints: %d\nEffects: %d  Sounds: %d\nAnimations: %d  Attachments: %d\nMotors: %d  Welds: %d",
+		counts.Instances, counts.Models, counts.Parts, counts.Values, counts.Attributes, counts.Remotes, counts.Constraints,
+		counts.Effects, counts.Sounds, counts.Animations, counts.Attachments, counts.Motors, counts.Welds)
+end
+
+local scanRelevantRemotes: () -> ()
+
+local function startVehicle(seat: Seat)
+	local vehicle = resolveVehicle(seat)
+	if not vehicle then
+		logEvent("WARNING", "VEHICLE RESOLVER", "No safe vehicle root found.", "RESOLVER")
+		return
+	end
+	if State.currentVehicle == vehicle and State.currentSeat == seat then return end
+	if State.currentVehicle then logEvent("VEHICLE", "STOP OLD VEHICLE", State.vehicleId, "SEAT CHANGE") end
+	clearVehicleConnections()
+	scanRelevantRemotes()
+	State.currentSeat = seat
+	State.currentVehicle = vehicle
+	local connectedOk, connected = pcall(function() return seat:GetConnectedParts(true) end)
+	if connectedOk then for _, part in ipairs(connected) do State.connectedParts[part] = true end end
+	State.connectedParts[seat] = true
+	if seat.AssemblyRootPart then State.connectedParts[seat.AssemblyRootPart] = true end
+	State.vehicleId = vehicle.Name .. "-" .. HttpService:GenerateGUID(false):sub(1, 8)
+	State.lastSnapshot = nil
+	State.lastDiff = {}
+	State.driftTrace = {}
+	if UI.vehicleLabel then UI.vehicleLabel.Text = "VEHICLE  " .. vehicle.Name end
+	if UI.statusLabel then UI.statusLabel.Text = "● MONITORING"; UI.statusLabel.TextColor3 = Color3.fromRGB(96, 220, 146) end
+	logEvent("VEHICLE", "VEHICLE FOUND", vehicle.Name .. "\nSeat: " .. safePath(seat) .. "\nRoot: " .. safePath(vehicle) .. "\nID: " .. State.vehicleId, "VEHICLE RESOLVER")
+
+	local all = {vehicle}
+	for _, item in ipairs(vehicle:GetDescendants()) do table.insert(all, item) end
+	for _, item in ipairs(all) do watchInstance(item, true) end
+	refreshWheelRelations()
+	logEvent("INFO", "VEHICLE SNAPSHOT", inventorySummary(vehicle), "INITIAL SCAN")
+
+	vehicleConnections:add(vehicle.DescendantAdded:Connect(function(item)
+		watchInstance(item, false)
+	end))
+	vehicleConnections:add(vehicle.DescendantRemoving:Connect(function(item)
+		local record = State.cache[item]
+		if record then
+			logEvent("OBJECT-", item.Name, item.ClassName .. "\nPath: " .. record.path, "DESCENDANT REMOVING", true)
+			disconnectInstance(item)
+			if UI.rebuildTree then UI.rebuildTree() end
+			if UI.rebuildDataLists then UI.rebuildDataLists() end
+			if UI.rebuildWheels then refreshWheelRelations(); UI.rebuildWheels() end
+		end
+	end))
+	if UI.rebuildTree then UI.rebuildTree() end
+	if UI.rebuildDataLists then UI.rebuildDataLists() end
+	if UI.rebuildWheels then UI.rebuildWheels() end
+	if UI.refreshRemotes then UI.refreshRemotes() end
+end
+
+local function stopVehicle()
+	if not State.currentVehicle then return end
+	local old = State.currentVehicle
+	clearVehicleConnections()
+	State.currentSeat = nil
+	State.currentVehicle = nil
+	State.vehicleId = "NONE"
+	if UI.vehicleLabel then UI.vehicleLabel.Text = "VEHICLE  NONE" end
+	if UI.statusLabel then UI.statusLabel.Text = "● WAITING"; UI.statusLabel.TextColor3 = Color3.fromRGB(255, 194, 92) end
+	logEvent("VEHICLE", "VEHICLE MONITOR PAUSED", old.Name, "SEAT CHANGE")
+	if UI.rebuildTree then UI.rebuildTree() end
+	if UI.rebuildDataLists then UI.rebuildDataLists() end
+	if UI.rebuildWheels then UI.rebuildWheels() end
+	if UI.refreshRemotes then UI.refreshRemotes() end
+end
+
+local function captureSnapshot(): any
+	local snapshot = {at=now(), vehicle=State.currentVehicle, items={}}
+	for instance, record in pairs(State.cache) do
+		if not State.currentVehicle or (instance ~= State.currentVehicle and not instance:IsDescendantOf(State.currentVehicle)) then continue end
+		local item = {name=instance.Name, class=instance.ClassName, path=safePath(instance), attributes={}, properties={}}
+		for key, value in pairs(instance:GetAttributes()) do item.attributes[key] = serialize(value) end
+		if VALUE_CLASSES[instance.ClassName] then
+			local ok, value = readProperty(instance, "Value")
+			if ok then item.properties.Value = serialize(value) end
+		end
+		for _, property in ipairs(propertiesFor(instance)) do
+			local ok, value = readProperty(instance, property)
+			if ok then item.properties[property] = serialize(value) end
+		end
+		snapshot.items[instance] = item
+	end
+	return snapshot
+end
+
+local function compareSnapshots(before: any, after: any): {string}
+	local lines = {}
+	local changed = 0
+	for instance, old in pairs(before.items) do
+		local new = after.items[instance]
+		if not new then
+			changed += 1
+			table.insert(lines, "REMOVED  " .. old.path .. " [" .. old.class .. "]")
+		else
+			for key, oldValue in pairs(old.attributes) do
+				local newValue = new.attributes[key]
+				if oldValue ~= newValue then changed += 1; table.insert(lines, new.path .. ".@" .. key .. "\n  " .. oldValue .. " → " .. tostring(newValue)) end
+			end
+			for key, newValue in pairs(new.attributes) do
+				if old.attributes[key] == nil then changed += 1; table.insert(lines, "NEW ATTRIBUTE  " .. new.path .. ".@" .. key .. " = " .. newValue) end
+			end
+			for key, oldValue in pairs(old.properties) do
+				local newValue = new.properties[key]
+				if oldValue ~= newValue then changed += 1; table.insert(lines, new.path .. "." .. key .. "\n  " .. oldValue .. " → " .. tostring(newValue)) end
+			end
+		end
+	end
+	for instance, new in pairs(after.items) do
+		if not before.items[instance] then changed += 1; table.insert(lines, "ADDED  " .. new.path .. " [" .. new.class .. "]") end
+	end
+	table.insert(lines, 1, "SNAPSHOT DIFF\nCHANGED  " .. changed .. "\n")
+	return lines
+end
+
+local function snapshotAction()
+	if not State.currentVehicle then logEvent("WARNING", "SNAPSHOT", "Enter a vehicle first.", "UI"); return end
+	local current = captureSnapshot()
+	if not State.lastSnapshot or State.lastSnapshot.vehicle ~= State.currentVehicle then
+		State.lastSnapshot = current
+		State.lastDiff = {"SNAPSHOT A SAVED", string.format("+%.3fs", current.at - sessionStart), tostring(#(State.currentVehicle:GetDescendants()) + 1) .. " instances"}
+		logEvent("INFO", "SNAPSHOT A SAVED", "Press SNAPSHOT again to compare.", "SNAPSHOT MANAGER")
+	else
+		State.lastDiff = compareSnapshots(State.lastSnapshot, current)
+		State.lastSnapshot = current
+		logEvent("INFO", "SNAPSHOT COMPARED", State.lastDiff[1] .. "\nBaseline advanced to current state.", "SNAPSHOT MANAGER")
+	end
+	if UI.diffText then UI.diffText.Text = table.concat(State.lastDiff, "\n") .. "\n\nDRIFT TRACE\n" .. table.concat(State.driftTrace, "\n") end
+end
+
+local function create(className: string, props: {[string]: any}, parent: Instance?): Instance
+	local object = Instance.new(className)
+	for key, value in pairs(props) do (object :: any)[key] = value end
+	object.Parent = parent
+	return object
+end
+
+local PHYSICAL_KEYS = {"Density", "Friction", "Elasticity", "FrictionWeight", "ElasticityWeight"}
+local WHEEL_LIVE_PROPERTIES = {"Position", "Orientation", "Size", "Material", "Color", "Transparency", "CanCollide", "CanTouch", "CanQuery", "Massless", "Anchored", "Mass", "AssemblyMass", "AssemblyRootPart", "AssemblyLinearVelocity", "AssemblyAngularVelocity", "CollisionGroup"}
+local CONSTRAINT_DETAILS = {
+	SpringConstraint = {"FreeLength", "CurrentLength", "Stiffness", "Damping", "MaxForce", "MinLength", "MaxLength", "LimitsEnabled", "Enabled", "Visible", "Attachment0", "Attachment1"},
+	HingeConstraint = {"ActuatorType", "AngularVelocity", "MotorMaxAcceleration", "MotorMaxTorque", "TargetAngle", "ServoMaxTorque", "AngularSpeed", "LimitsEnabled", "LowerAngle", "UpperAngle", "Enabled", "Attachment0", "Attachment1"},
+	CylindricalConstraint = {"ActuatorType", "AngularActuatorType", "Velocity", "AngularVelocity", "MotorMaxForce", "MotorMaxTorque", "LimitsEnabled", "LowerLimit", "UpperLimit", "Enabled", "Attachment0", "Attachment1"},
+	PrismaticConstraint = {"ActuatorType", "Velocity", "MotorMaxForce", "TargetPosition", "ServoMaxForce", "LimitsEnabled", "LowerLimit", "UpperLimit", "Enabled", "Attachment0", "Attachment1"},
+	RodConstraint = {"Length", "CurrentDistance", "Enabled", "Attachment0", "Attachment1"},
+	RopeConstraint = {"Length", "CurrentDistance", "Restitution", "WinchEnabled", "WinchForce", "WinchSpeed", "Enabled", "Attachment0", "Attachment1"},
+	WeldConstraint = {"Enabled", "Part0", "Part1"},
+	Motor6D = {"Enabled", "Part0", "Part1", "C0", "C1", "Transform"},
+}
+
+local function appendReadableProperties(lines: {string}, instance: Instance, properties: {string}, indent: string?)
+	indent = indent or ""
+	for _, property in ipairs(properties) do
+		local ok, value = readProperty(instance, property)
+		if ok then table.insert(lines, indent .. property .. "  " .. serialize(value)) end
+	end
+end
+
+local function wheelRole(wheel: BasePart): string
+	local seat = State.currentSeat
+	if not seat or not seat.Parent then return wheel.Name end
+	local relative = seat.CFrame:PointToObjectSpace(wheel.Position)
+	local longitudinal = relative.Z <= 0 and "F" or "R"
+	local lateral = relative.X <= 0 and "L" or "R"
+	return longitudinal .. lateral
+end
+
+local function physicalLines(title: string, physical: any): {string}
+	local lines = {title}
+	if not physical then
+		table.insert(lines, "  NONE / MATERIAL DEFAULT")
+		return lines
+	end
+	for _, key in ipairs(PHYSICAL_KEYS) do
+		table.insert(lines, string.format("  %-17s %s", key, numberText(physical[key])))
+	end
+	return lines
+end
+
+local function wheelCardText(wheel: BasePart): string
+	local meta = initializeWheelMeta(wheel)
+	meta.currentCustom = physicalSnapshot(wheel.CustomPhysicalProperties)
+	meta.currentCurrent = physicalSnapshot(wheel.CurrentPhysicalProperties)
+	local lines = {
+		string.format("[%s] %s", wheelRole(wheel), wheel.Name),
+		"ClassName  " .. wheel.ClassName,
+		"Path       " .. safePath(wheel),
+		"",
+	}
+	for _, line in ipairs(physicalLines("CUSTOM PHYSICAL PROPERTIES", meta.currentCustom)) do table.insert(lines, line) end
+	table.insert(lines, "")
+	for _, line in ipairs(physicalLines("CURRENT PHYSICAL PROPERTIES", meta.currentCurrent)) do table.insert(lines, line) end
+	local currentFriction = meta.currentCustom and meta.currentCustom.Friction or meta.currentCurrent.Friction
+	local previousFriction = meta.previousCustom and meta.previousCustom.Friction or nil
+	local baselinePhysical = meta.baselineCustom or meta.baselineCurrent
+	local baselineFriction = baselinePhysical and baselinePhysical.Friction or nil
+	table.insert(lines, "")
+	table.insert(lines, "COMPARISON")
+	table.insert(lines, "  CURRENT   " .. numberText(currentFriction))
+	table.insert(lines, "  PREVIOUS  " .. (previousFriction and numberText(previousFriction) or "—"))
+	table.insert(lines, "  DELTA     " .. (previousFriction and numberText(currentFriction - previousFriction) or "—"))
+	table.insert(lines, "  BASELINE  " .. (baselineFriction and numberText(baselineFriction) or "—"))
+	table.insert(lines, "  BASE Δ    " .. (baselineFriction and numberText(currentFriction - baselineFriction) or "—"))
+	table.insert(lines, "")
+	appendReadableProperties(lines, wheel, WHEEL_LIVE_PROPERTIES, "  ")
+	table.insert(lines, "")
+	table.insert(lines, "ATTACHMENTS  [" .. #meta.attachments .. "]")
+	for _, attachment in ipairs(meta.attachments) do
+		table.insert(lines, "  " .. attachment.Name)
+		appendReadableProperties(lines, attachment, {"Position", "Orientation", "Axis", "SecondaryAxis"}, "    ")
+	end
+	table.insert(lines, "")
+	table.insert(lines, "CONSTRAINTS  [" .. #meta.constraints .. "]")
+	for _, constraint in ipairs(meta.constraints) do
+		table.insert(lines, "  " .. constraint.ClassName .. "  " .. constraint.Name)
+		appendReadableProperties(lines, constraint, CONSTRAINT_DETAILS[constraint.ClassName] or propertiesFor(constraint), "    ")
+	end
+	table.insert(lines, "")
+	table.insert(lines, "PHYSICAL PROPERTY HISTORY  [last 20]")
+	for _, entry in ipairs(meta.history) do
+		table.insert(lines, string.format("  +%08.3fs  %s → %s", entry.at, entry.old and numberText(entry.old) or "nil", entry.new and numberText(entry.new) or "nil"))
+	end
+	return table.concat(lines, "\n")
+end
+
+local function objectReport(instance: Instance): string
+	local record = State.cache[instance]
+	local lines = {
+		"[" .. instance.Name .. "]",
+		"ClassName: " .. instance.ClassName,
+		"Path: " .. safePath(instance),
+		"Parent: " .. (instance.Parent and safePath(instance.Parent) or "nil"),
+		"Inventory: " .. ((record and record.baseline) and "BASELINE" or "NEW"),
+		"Changes: " .. tostring(record and record.changes or 0),
+		"",
+		"PROPERTIES",
+	}
+	local properties = propertiesFor(instance)
+	if instance:IsA("BasePart") then
+		for _, property in ipairs(WHEEL_LIVE_PROPERTIES) do if not table.find(properties, property) then table.insert(properties, property) end end
+	end
+	if CONFIG.DEEP_INSPECT then
+		local deepSets = {}
+		if instance:IsA("BasePart") then table.insert(deepSets, DEEP_PROPERTY_MAP.BasePart) end
+		if DEEP_PROPERTY_MAP[instance.ClassName] then table.insert(deepSets, DEEP_PROPERTY_MAP[instance.ClassName]) end
+		for _, deep in ipairs(deepSets) do for _, property in ipairs(deep) do if not table.find(properties, property) then table.insert(properties, property) end end end
+	end
+	if VALUE_CLASSES[instance.ClassName] and not table.find(properties, "Value") then table.insert(properties, "Value") end
+	appendReadableProperties(lines, instance, properties, "  ")
+	if State.wheels[instance] and instance:IsA("BasePart") then
+		table.insert(lines, "")
+		table.insert(lines, wheelCardText(instance))
+	end
+	table.insert(lines, "")
+	table.insert(lines, "ATTRIBUTES")
+	local attributes = instance:GetAttributes()
+	if next(attributes) == nil then table.insert(lines, "  NONE") end
+	for name, value in pairs(attributes) do table.insert(lines, "  " .. name .. "  " .. serialize(value)) end
+	table.insert(lines, "")
+	table.insert(lines, "CHILDREN")
+	local children = instance:GetChildren()
+	if #children == 0 then table.insert(lines, "  NONE") end
+	for _, child in ipairs(children) do table.insert(lines, "  " .. child.ClassName .. "  " .. child.Name) end
+	return table.concat(lines, "\n")
+end
+
+local function vehicleSeatReport(seat: Seat): string
+	local lines = {"VEHICLE SEAT", "Name  " .. seat.Name, "Path  " .. safePath(seat)}
+	appendReadableProperties(lines, seat, {"Throttle", "ThrottleFloat", "Steer", "SteerFloat", "MaxSpeed", "Torque", "TurnSpeed", "Occupant", "Disabled"}, "  ")
+	local attributes = seat:GetAttributes()
+	if next(attributes) ~= nil then
+		table.insert(lines, "ATTRIBUTES")
+		for name, value in pairs(attributes) do table.insert(lines, "  " .. name .. "  " .. serialize(value)) end
+	end
+	for _, child in ipairs(seat:GetChildren()) do
+		if VALUE_CLASSES[child.ClassName] then
+			local ok, value = readProperty(child, "Value")
+			if ok then table.insert(lines, "VALUE  " .. child.Name .. "  " .. serialize(value)) end
+		end
+	end
+	return table.concat(lines, "\n")
+end
+
+local function comparisonReport(): string
+	local wheels = {}
+	for wheel in pairs(State.wheels) do if wheel.Parent and wheel:IsA("BasePart") then table.insert(wheels, wheel) end end
+	table.sort(wheels, function(a, b) return wheelRole(a) .. a.Name < wheelRole(b) .. b.Name end)
+	local lines = {"COMPARE ALL WHEELS", "RAW PRECISION  " .. CONFIG.RAW_PRECISION, ""}
+	local header = string.format("%-18s", "PROPERTY")
+	for _, wheel in ipairs(wheels) do header ..= string.format("%-15s", wheelRole(wheel)) end
+	table.insert(lines, header)
+	local difference = false
+	for _, key in ipairs(PHYSICAL_KEYS) do
+		local row = string.format("%-18s", key)
+		local first = nil
+		for _, wheel in ipairs(wheels) do
+			local current = physicalSnapshot(wheel.CustomPhysicalProperties) or physicalSnapshot(wheel.CurrentPhysicalProperties)
+			local value = current and current[key] or nil
+			if first == nil then first = value elseif first ~= value then difference = true end
+			row ..= string.format("%-15s", value and numberText(value) or "nil")
+		end
+		table.insert(lines, row)
+	end
+	if difference then
+		table.insert(lines, 2, "DIFFERENCE DETECTED")
+		local front,rear={},{}
+		for _, wheel in ipairs(wheels) do
+			local current=physicalSnapshot(wheel.CustomPhysicalProperties) or physicalSnapshot(wheel.CurrentPhysicalProperties)
+			local target=string.sub(wheelRole(wheel),1,1)=="F" and front or rear
+			if current then table.insert(target,wheelRole(wheel).."="..numberText(current.Friction)) end
+		end
+		table.insert(lines,3,"Front: "..(#front>0 and table.concat(front,"  ") or "—").."\nRear:  "..(#rear>0 and table.concat(rear,"  ") or "—"))
+	end
+	table.insert(lines, "\nDRIFT TRACE")
+	for i = math.max(1, #State.driftTrace - 19), #State.driftTrace do table.insert(lines, State.driftTrace[i]) end
+	return table.concat(lines, "\n")
+end
+
+local function createSPAToolsIntro()
+	local playerGui = localPlayer:WaitForChild("PlayerGui")
+	local previous = playerGui:FindFirstChild("SPAToolsIntro")
+	if previous then previous:Destroy() end
+
+	local startedAt = os.clock()
+	local viewport = workspace.CurrentCamera and workspace.CurrentCamera.ViewportSize or Vector2.new(1280, 720)
+	local displayName = localPlayer.DisplayName ~= "" and localPlayer.DisplayName or localPlayer.Name
+	local username = localPlayer.Name
+
+	local screen = Instance.new("ScreenGui")
+	screen.Name = "SPAToolsIntro"
+	screen.ResetOnSpawn = false
+	screen.IgnoreGuiInset = true
+	screen.DisplayOrder = 10000
+	screen.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+	screen.Parent = playerGui
+
+	local background = Instance.new("Frame")
+	background.Name = "Background"
+	background.Size = UDim2.fromScale(1, 1)
+	background.BackgroundColor3 = Color3.fromRGB(5, 8, 14)
+	background.BackgroundTransparency = 1
+	background.BorderSizePixel = 0
+	background.Active = true
+	background.ZIndex = 1
+	background.Parent = screen
+
+	local gradient = Instance.new("UIGradient")
+	gradient.Rotation = 24
+	gradient.Color = ColorSequence.new({
+		ColorSequenceKeypoint.new(0, Color3.fromRGB(4, 7, 13)),
+		ColorSequenceKeypoint.new(0.52, Color3.fromRGB(10, 17, 28)),
+		ColorSequenceKeypoint.new(1, Color3.fromRGB(4, 8, 15)),
+	})
+	gradient.Parent = background
+
+	-- The background itself fades in, so the screen never appears as a hard cut.
+	TweenService:Create(
+		background,
+		TweenInfo.new(0.38, Enum.EasingStyle.Quint, Enum.EasingDirection.Out),
+		{BackgroundTransparency = 0}
+	):Play()
+
+	local glowLine = Instance.new("Frame")
+	glowLine.Name = "GlowLine"
+	glowLine.AnchorPoint = Vector2.new(0.5, 0.5)
+	glowLine.Position = UDim2.new(0.5, 0, 0.43, 54)
+	glowLine.Size = UDim2.fromOffset(0, 8)
+	glowLine.BackgroundColor3 = Color3.fromRGB(65, 202, 255)
+	glowLine.BackgroundTransparency = 0.78
+	glowLine.BorderSizePixel = 0
+	glowLine.ZIndex = 2
+	glowLine.Parent = background
+	local glowCorner = Instance.new("UICorner")
+	glowCorner.CornerRadius = UDim.new(1, 0)
+	glowCorner.Parent = glowLine
+
+	local accentLine = Instance.new("Frame")
+	accentLine.Name = "AccentLine"
+	accentLine.AnchorPoint = Vector2.new(0.5, 0.5)
+	accentLine.Position = UDim2.new(0.5, 0, 0.43, 54)
+	accentLine.Size = UDim2.fromOffset(0, 2)
+	accentLine.BackgroundColor3 = Color3.fromRGB(91, 214, 255)
+	accentLine.BackgroundTransparency = 0.04
+	accentLine.BorderSizePixel = 0
+	accentLine.ZIndex = 3
+	accentLine.Parent = background
+	local accentCorner = Instance.new("UICorner")
+	accentCorner.CornerRadius = UDim.new(1, 0)
+	accentCorner.Parent = accentLine
+
+	local title = Instance.new("TextLabel")
+	title.Name = "Title"
+	title.AnchorPoint = Vector2.new(0.5, 0.5)
+	title.Position = UDim2.new(0.5, 0, 0.43, 15)
+	title.Size = UDim2.new(0.88, 0, 0, 88)
+	title.BackgroundTransparency = 1
+	title.BorderSizePixel = 0
+	title.RichText = true
+	title.Text = '<font color="#F2F7FD">SPA</font><font color="#5BD6FF"> Tools</font>'
+	title.TextColor3 = Color3.fromRGB(242, 247, 253)
+	title.TextSize = math.clamp(viewport.X * 0.052, 34, 58)
+	title.Font = Enum.Font.GothamBlack
+	title.TextXAlignment = Enum.TextXAlignment.Center
+	title.TextYAlignment = Enum.TextYAlignment.Center
+	title.TextTransparency = 1
+	title.TextStrokeColor3 = Color3.fromRGB(64, 178, 220)
+	title.TextStrokeTransparency = 1
+	title.ZIndex = 4
+	title.Parent = background
+
+	TweenService:Create(
+		title,
+		TweenInfo.new(0.72, Enum.EasingStyle.Quint, Enum.EasingDirection.Out),
+		{
+			Position = UDim2.new(0.5, 0, 0.43, 0),
+			TextTransparency = 0,
+			TextStrokeTransparency = 0.88,
+		}
+	):Play()
+
+	TweenService:Create(
+		glowLine,
+		TweenInfo.new(0.64, Enum.EasingStyle.Quint, Enum.EasingDirection.Out),
+		{Size = UDim2.fromOffset(206, 8)}
+	):Play()
+	TweenService:Create(
+		accentLine,
+		TweenInfo.new(0.58, Enum.EasingStyle.Quint, Enum.EasingDirection.Out),
+		{Size = UDim2.fromOffset(174, 2)}
+	):Play()
+
+	-- Personal welcome: a circular Roblox headshot with a fallback initial.
+	local welcomeRow = Instance.new("Frame")
+	welcomeRow.Name = "WelcomeRow"
+	welcomeRow.AnchorPoint = Vector2.new(0.5, 0.5)
+	welcomeRow.Position = UDim2.new(0.5, 0, 0.43, 145)
+	welcomeRow.Size = UDim2.fromOffset(math.clamp(viewport.X * 0.82, 280, 360), 72)
+	welcomeRow.BackgroundTransparency = 1
+	welcomeRow.ZIndex = 4
+	welcomeRow.Parent = background
+
+	local avatarRing = Instance.new("Frame")
+	avatarRing.Name = "AvatarRing"
+	avatarRing.Size = UDim2.fromOffset(68, 68)
+	avatarRing.Position = UDim2.new(0, 0, 0.5, -34)
+	avatarRing.BackgroundColor3 = Color3.fromRGB(91, 214, 255)
+	avatarRing.BackgroundTransparency = 1
+	avatarRing.BorderSizePixel = 0
+	avatarRing.ZIndex = 4
+	avatarRing.Parent = welcomeRow
+	local avatarRingCorner = Instance.new("UICorner")
+	avatarRingCorner.CornerRadius = UDim.new(1, 0)
+	avatarRingCorner.Parent = avatarRing
+
+	local avatarImage = Instance.new("ImageLabel")
+	avatarImage.Name = "AvatarImage"
+	avatarImage.Size = UDim2.new(1, -6, 1, -6)
+	avatarImage.Position = UDim2.fromOffset(3, 3)
+	avatarImage.BackgroundColor3 = Color3.fromRGB(10, 16, 24)
+	avatarImage.BackgroundTransparency = 0
+	avatarImage.Image = ""
+	avatarImage.ImageTransparency = 1
+	avatarImage.ScaleType = Enum.ScaleType.Crop
+	avatarImage.BorderSizePixel = 0
+	avatarImage.ZIndex = 5
+	avatarImage.Parent = avatarRing
+	local avatarCorner = Instance.new("UICorner")
+	avatarCorner.CornerRadius = UDim.new(1, 0)
+	avatarCorner.Parent = avatarImage
+
+	local avatarFallback = Instance.new("TextLabel")
+	avatarFallback.Name = "AvatarFallback"
+	avatarFallback.Size = avatarImage.Size
+	avatarFallback.Position = avatarImage.Position
+	avatarFallback.BackgroundTransparency = 1
+	avatarFallback.Text = string.upper(string.sub(displayName, 1, 1))
+	avatarFallback.TextColor3 = Color3.fromRGB(91, 214, 255)
+	avatarFallback.TextTransparency = 1
+	avatarFallback.TextSize = 24
+	avatarFallback.Font = Enum.Font.GothamBold
+	avatarFallback.TextXAlignment = Enum.TextXAlignment.Center
+	avatarFallback.TextYAlignment = Enum.TextYAlignment.Center
+	avatarFallback.ZIndex = 6
+	avatarFallback.Parent = avatarRing
+	local fallbackCorner = Instance.new("UICorner")
+	fallbackCorner.CornerRadius = UDim.new(1, 0)
+	fallbackCorner.Parent = avatarFallback
+
+	local greeting = Instance.new("TextLabel")
+	greeting.Name = "Greeting"
+	greeting.Position = UDim2.new(0, 82, 0, 8)
+	greeting.Size = UDim2.new(1, -84, 0, 32)
+	greeting.BackgroundTransparency = 1
+	greeting.Text = "Hi, " .. displayName
+	greeting.TextColor3 = Color3.fromRGB(242, 247, 253)
+	greeting.TextSize = math.clamp(viewport.X * 0.027, 16, 22)
+	greeting.Font = Enum.Font.GothamSemibold
+	greeting.TextTransparency = 1
+	greeting.TextXAlignment = Enum.TextXAlignment.Left
+	greeting.TextTruncate = Enum.TextTruncate.AtEnd
+	greeting.ZIndex = 5
+	greeting.Parent = welcomeRow
+
+	local usernameLabel = Instance.new("TextLabel")
+	usernameLabel.Name = "Username"
+	usernameLabel.Position = UDim2.new(0, 83, 0, 39)
+	usernameLabel.Size = UDim2.new(1, -85, 0, 21)
+	usernameLabel.BackgroundTransparency = 1
+	usernameLabel.Text = "@" .. username
+	usernameLabel.TextColor3 = Color3.fromRGB(126, 157, 180)
+	usernameLabel.TextSize = 12
+	usernameLabel.Font = Enum.Font.GothamMedium
+	usernameLabel.TextTransparency = 1
+	usernameLabel.TextXAlignment = Enum.TextXAlignment.Left
+	usernameLabel.TextTruncate = Enum.TextTruncate.AtEnd
+	usernameLabel.ZIndex = 5
+	usernameLabel.Parent = welcomeRow
+
+	TweenService:Create(
+		welcomeRow,
+		TweenInfo.new(0.62, Enum.EasingStyle.Quint, Enum.EasingDirection.Out),
+		{Position = UDim2.new(0.5, 0, 0.43, 128)}
+	):Play()
+	TweenService:Create(
+		avatarRing,
+		TweenInfo.new(0.52, Enum.EasingStyle.Quint, Enum.EasingDirection.Out),
+		{BackgroundTransparency = 0}
+	):Play()
+	TweenService:Create(
+		avatarFallback,
+		TweenInfo.new(0.48, Enum.EasingStyle.Quint, Enum.EasingDirection.Out),
+		{TextTransparency = 0}
+	):Play()
+	TweenService:Create(
+		greeting,
+		TweenInfo.new(0.56, Enum.EasingStyle.Quint, Enum.EasingDirection.Out),
+		{TextTransparency = 0}
+	):Play()
+	TweenService:Create(
+		usernameLabel,
+		TweenInfo.new(0.66, Enum.EasingStyle.Quint, Enum.EasingDirection.Out),
+		{TextTransparency = 0}
+	):Play()
+
+	-- Thumbnail loading runs asynchronously so it never blocks startup.
+	task.spawn(function()
+		local imageContent = nil
+		for attempt = 1, 4 do
+			if not screen.Parent or not avatarImage.Parent then return end
+			local ok, content, isReady = pcall(function()
+				return Players:GetUserThumbnailAsync(
+					localPlayer.UserId,
+					Enum.ThumbnailType.HeadShot,
+					Enum.ThumbnailSize.Size150x150
+				)
+			end)
+			if ok and content then
+				imageContent = content
+				avatarImage.Image = content
+				if isReady then break end
+			end
+			if attempt < 4 then task.wait(0.22) end
+		end
+		if not imageContent or not screen.Parent or not avatarImage.Parent then return end
+
+		TweenService:Create(
+			avatarImage,
+			TweenInfo.new(0.28, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
+			{ImageTransparency = 0}
+		):Play()
+		if avatarFallback.Parent then
+			TweenService:Create(
+				avatarFallback,
+				TweenInfo.new(0.20, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
+				{TextTransparency = 1}
+			):Play()
+		end
+	end)
+
+	return screen, startedAt
+end
+
+local function finishSPAToolsIntro(screen, startedAt)
+	if not screen or not screen.Parent then return end
+
+	-- Show the complete greeting briefly, without imposing a long loading delay.
+	local elapsed = os.clock() - startedAt
+	if elapsed < 1.22 then task.wait(1.22 - elapsed) end
+	if not screen.Parent then return end
+
+	local background = screen:FindFirstChild("Background")
+	if not background then screen:Destroy(); return end
+
+	local fadeInfo = TweenInfo.new(0.42, Enum.EasingStyle.Quint, Enum.EasingDirection.In)
+	local title = background:FindFirstChild("Title")
+	local accentLine = background:FindFirstChild("AccentLine")
+	local glowLine = background:FindFirstChild("GlowLine")
+	local welcomeRow = background:FindFirstChild("WelcomeRow")
+
+	TweenService:Create(background, fadeInfo, {BackgroundTransparency = 1}):Play()
+	if title then
+		TweenService:Create(title, fadeInfo, {
+			Position = UDim2.new(0.5, 0, 0.43, -9),
+			TextTransparency = 1,
+			TextStrokeTransparency = 1,
+		}):Play()
+	end
+	if accentLine then
+		TweenService:Create(accentLine, fadeInfo, {
+			Size = UDim2.fromOffset(0, 2),
+			BackgroundTransparency = 1,
+		}):Play()
+	end
+	if glowLine then
+		TweenService:Create(glowLine, fadeInfo, {
+			Size = UDim2.fromOffset(0, 8),
+			BackgroundTransparency = 1,
+		}):Play()
+	end
+	if welcomeRow then
+		TweenService:Create(welcomeRow, fadeInfo, {
+			Position = UDim2.new(0.5, 0, 0.43, 112),
+		}):Play()
+		local avatarRing = welcomeRow:FindFirstChild("AvatarRing")
+		local greeting = welcomeRow:FindFirstChild("Greeting")
+		local usernameLabel = welcomeRow:FindFirstChild("Username")
+		if avatarRing then
+			TweenService:Create(avatarRing, fadeInfo, {BackgroundTransparency = 1}):Play()
+			local avatarImage = avatarRing:FindFirstChild("AvatarImage")
+			local avatarFallback = avatarRing:FindFirstChild("AvatarFallback")
+			if avatarImage then
+				TweenService:Create(avatarImage, fadeInfo, {
+					ImageTransparency = 1,
+					BackgroundTransparency = 1,
+				}):Play()
+			end
+			if avatarFallback then
+				TweenService:Create(avatarFallback, fadeInfo, {TextTransparency = 1}):Play()
+			end
+		end
+		if greeting then TweenService:Create(greeting, fadeInfo, {TextTransparency = 1}):Play() end
+		if usernameLabel then TweenService:Create(usernameLabel, fadeInfo, {TextTransparency = 1}):Play() end
+	end
+
+	task.wait(0.45)
+	if screen.Parent then screen:Destroy() end
+end
+
+local function buildUI()
+	local playerGui = localPlayer:WaitForChild("PlayerGui")
+	local old = playerGui:FindFirstChild("AdminDebugUI")
+	if old then old:Destroy() end
+	local screen = create("ScreenGui", {Name="AdminDebugUI", ResetOnSpawn=false, IgnoreGuiInset=false, ZIndexBehavior=Enum.ZIndexBehavior.Sibling}, playerGui) :: ScreenGui
+	UI.screen = screen
+	local main = create("Frame", {Name="Panel", Size=UDim2.fromOffset(430,300), Position=UDim2.new(0,24,0.5,-150), BackgroundColor3=Color3.fromRGB(17,19,24), BorderSizePixel=0, ClipsDescendants=true}, screen) :: Frame
+	UI.main = main
+	create("UICorner", {CornerRadius=UDim.new(0,8)}, main)
+	create("UIStroke", {Color=Color3.fromRGB(58,63,76), Thickness=1, Transparency=0.15}, main)
+	local viewport = workspace.CurrentCamera and workspace.CurrentCamera.ViewportSize or Vector2.new(1280,720)
+	local sizeConstraint = create("UISizeConstraint", {MinSize=Vector2.new(400,260), MaxSize=Vector2.new(math.max(400,viewport.X*0.9),math.max(260,viewport.Y*0.9))}, main) :: UISizeConstraint
+
+	local function corner(object: Instance, radius: number?) create("UICorner", {CornerRadius=UDim.new(0,radius or 5)}, object) end
+	local function button(parent: Instance, textValue: string, width: number?): TextButton
+		local result = create("TextButton", {Size=UDim2.fromOffset(width or 62,25), BackgroundColor3=Color3.fromRGB(38,42,51), BorderSizePixel=0, Text=textValue, TextColor3=Color3.fromRGB(210,214,223), TextSize=9, Font=Enum.Font.GothamBold, AutoButtonColor=true}, parent) :: TextButton
+		corner(result,4)
+		return result
+	end
+	local function searchBox(parent: Instance, placeholder: string): TextBox
+		local box = create("TextBox", {Size=UDim2.new(1,-12,0,25), Position=UDim2.fromOffset(6,5), BackgroundColor3=Color3.fromRGB(30,33,41), BorderSizePixel=0, PlaceholderText=placeholder, Text="", ClearTextOnFocus=false, TextColor3=Color3.fromRGB(225,228,235), PlaceholderColor3=Color3.fromRGB(112,118,132), Font=Enum.Font.Code, TextSize=11}, parent) :: TextBox
+		corner(box,4)
+		return box
+	end
+	local function listScroll(parent: Instance, top: number?): ScrollingFrame
+		top = top or 5
+		local scroll = create("ScrollingFrame", {Size=UDim2.new(1,-12,1,-(top+5)), Position=UDim2.fromOffset(6,top), BackgroundTransparency=1, BorderSizePixel=0, ScrollBarThickness=4, ScrollBarImageColor3=Color3.fromRGB(83,91,108), AutomaticCanvasSize=Enum.AutomaticSize.Y, CanvasSize=UDim2.new()}, parent) :: ScrollingFrame
+		create("UIListLayout", {Padding=UDim.new(0,4), SortOrder=Enum.SortOrder.LayoutOrder}, scroll)
+		return scroll
+	end
+	local function clearRows(container: Instance)
+		for _, child in ipairs(container:GetChildren()) do if child:IsA("GuiObject") then child:Destroy() end end
+	end
+	local function rowButton(parent: Instance, textValue: string, target: Instance?): TextButton
+		local row = create("TextButton", {Size=UDim2.new(1,-5,0,0), AutomaticSize=Enum.AutomaticSize.Y, BackgroundColor3=Color3.fromRGB(24,27,34), BackgroundTransparency=0.1, BorderSizePixel=0, Text=textValue, TextColor3=Color3.fromRGB(215,219,228), TextSize=configuredTextSize(), Font=Enum.Font.Code, TextWrapped=true, TextXAlignment=Enum.TextXAlignment.Left, TextYAlignment=Enum.TextYAlignment.Top, AutoButtonColor=true}, parent) :: TextButton
+		corner(row,4)
+		create("UIPadding", {PaddingTop=UDim.new(0,6),PaddingBottom=UDim.new(0,6),PaddingLeft=UDim.new(0,8),PaddingRight=UDim.new(0,8)}, row)
+		if target then row.Activated:Connect(function() if UI.inspectObject then UI.inspectObject(target) end end) end
+		return row
+	end
+
+	local header = create("Frame", {Name="Header", Size=UDim2.new(1,0,0,44), BackgroundColor3=Color3.fromRGB(25,28,35), BorderSizePixel=0}, main) :: Frame
+	create("TextLabel", {Size=UDim2.fromOffset(130,21), Position=UDim2.fromOffset(10,2), BackgroundTransparency=1, RichText=true, Text='<font color="#F2F7FD">SPA</font><font color="#5BD6FF"> Tools</font>', TextColor3=Color3.fromRGB(235,238,245), TextSize=13, Font=Enum.Font.GothamBlack, TextXAlignment=Enum.TextXAlignment.Left, TextYAlignment=Enum.TextYAlignment.Center}, header)
+	create("TextLabel", {Size=UDim2.fromOffset(130,12), Position=UDim2.fromOffset(10,24), BackgroundTransparency=1, Text="VEHICLE FORENSICS", TextColor3=Color3.fromRGB(126,157,180), TextSize=7, Font=Enum.Font.GothamBold, TextXAlignment=Enum.TextXAlignment.Left, TextYAlignment=Enum.TextYAlignment.Center}, header)
+	local controls = create("Frame", {Size=UDim2.fromOffset(278,26), Position=UDim2.new(1,-284,0,9), BackgroundTransparency=1}, header)
+	create("UIListLayout", {FillDirection=Enum.FillDirection.Horizontal, HorizontalAlignment=Enum.HorizontalAlignment.Right, Padding=UDim.new(0,3), SortOrder=Enum.SortOrder.LayoutOrder}, controls)
+	UI.headerButtons = {}
+	for _, spec in ipairs({{"PAUSE",48},{"CLEAR",40},{"SNAP",38},{"FILTER",44},{"SIZE",35},{"—",23},{"X",23}}) do UI.headerButtons[spec[1]] = button(controls,spec[1],spec[2]) end
+
+	local summary = create("Frame", {Size=UDim2.new(1,0,0,31), Position=UDim2.fromOffset(0,44), BackgroundColor3=Color3.fromRGB(20,22,28), BorderSizePixel=0}, main)
+	UI.vehicleLabel = create("TextLabel", {Size=UDim2.new(0.7,-12,1,0), Position=UDim2.fromOffset(10,0), BackgroundTransparency=1, Text="VEHICLE  NONE", TextColor3=Color3.fromRGB(205,210,220), TextSize=11, Font=Enum.Font.GothamMedium, TextXAlignment=Enum.TextXAlignment.Left, TextTruncate=Enum.TextTruncate.AtEnd}, summary)
+	UI.statusLabel = create("TextLabel", {Size=UDim2.new(0.3,-10,1,0), Position=UDim2.new(0.7,0,0,0), BackgroundTransparency=1, Text="● WAITING", TextColor3=Color3.fromRGB(255,194,92), TextSize=10, Font=Enum.Font.GothamBold, TextXAlignment=Enum.TextXAlignment.Right}, summary)
+
+	local tabs = create("ScrollingFrame", {Size=UDim2.new(1,0,0,27), Position=UDim2.fromOffset(0,75), BackgroundColor3=Color3.fromRGB(22,24,30), BorderSizePixel=0, ScrollBarThickness=2, ScrollingDirection=Enum.ScrollingDirection.X, AutomaticCanvasSize=Enum.AutomaticSize.X, CanvasSize=UDim2.new()}, main) :: ScrollingFrame
+	create("UIListLayout", {FillDirection=Enum.FillDirection.Horizontal, Padding=UDim.new(0,2), SortOrder=Enum.SortOrder.LayoutOrder}, tabs)
+	local tabNames = {"LIVE","LOG","TREE","VALUES","ATTRIBUTES","REMOTES","WHEELS","DIFF"}
+	UI.pages, UI.tabButtons = {}, {}
+	for _, tabName in ipairs(tabNames) do
+		local tab = create("TextButton", {Size=UDim2.fromOffset(tabName == "ATTRIBUTES" and 82 or 66,25), BackgroundTransparency=1, Text=tabName, TextColor3=Color3.fromRGB(145,151,164), TextSize=9, Font=Enum.Font.GothamBold, BorderSizePixel=0}, tabs) :: TextButton
+		UI.tabButtons[tabName] = tab
+		UI.pages[tabName] = create("Frame", {Name=tabName, Size=UDim2.new(1,0,1,-102), Position=UDim2.fromOffset(0,102), BackgroundTransparency=1, Visible=false}, main)
+	end
+
+	local liveScroll = listScroll(UI.pages.LIVE,5)
+	UI.rootButton = rowButton(liveScroll,"RESOLVED VEHICLE ROOT\nNONE",nil)
+	UI.liveText = create("TextLabel", {Size=UDim2.new(1,-5,0,0), AutomaticSize=Enum.AutomaticSize.Y, BackgroundColor3=Color3.fromRGB(22,24,30), BorderSizePixel=0, Text="Waiting for vehicle...", TextColor3=Color3.fromRGB(210,214,223), Font=Enum.Font.Code, TextSize=12, TextWrapped=true, TextXAlignment=Enum.TextXAlignment.Left, TextYAlignment=Enum.TextYAlignment.Top}, liveScroll)
+	corner(UI.liveText,4); create("UIPadding", {PaddingTop=UDim.new(0,8),PaddingBottom=UDim.new(0,8),PaddingLeft=UDim.new(0,8),PaddingRight=UDim.new(0,8)}, UI.liveText)
+	permanentConnections:add(UI.rootButton.Activated:Connect(function() if State.currentVehicle and UI.inspectObject then UI.inspectObject(State.currentVehicle) end end))
+
+	local logSearch = searchBox(UI.pages.LOG,"SEARCH LOG")
+	UI.logList = listScroll(UI.pages.LOG,34)
+	permanentConnections:add(logSearch:GetPropertyChangedSignal("Text"):Connect(function() State.search=string.lower(logSearch.Text); refreshLog() end))
+
+	local treeSearch = searchBox(UI.pages.TREE,"SEARCH TREE")
+	local treeList = listScroll(UI.pages.TREE,34)
+	UI.rebuildTree = function()
+		clearRows(treeList)
+		local root = State.currentVehicle
+		if not root then rowButton(treeList,"No resolved vehicle root.",nil); return end
+		local query = string.lower(treeSearch.Text)
+		local childrenByParent = {}
+		for instance in pairs(State.cache) do
+			if instance == root or instance:IsDescendantOf(root) then
+				local parent = instance.Parent
+				childrenByParent[parent] = childrenByParent[parent] or {}
+				table.insert(childrenByParent[parent],instance)
+			end
+		end
+		for _, children in pairs(childrenByParent) do table.sort(children,function(a,b) return a.Name < b.Name end) end
+		local function addTree(instance: Instance, depth: number)
+			local record = State.cache[instance]
+			local children = childrenByParent[instance] or {}
+			local matches = query == "" or string.find(string.lower(instance.Name .. " " .. safePath(instance)),query,1,true)
+			if matches then
+				local marker = #children > 0 and (State.treeExpanded[instance] and "▼ " or "▶ ") or "• "
+				local badge = record and not record.baseline and "  [NEW]" or ""
+				local changes = record and ("  CHANGES " .. record.changes) or ""
+				local row = rowButton(treeList,string.rep("  ",depth)..marker..instance.Name.."  ["..instance.ClassName.."]"..badge..changes,nil)
+				row.Activated:Connect(function()
+					if State.wheels[instance] or VALUE_CLASSES[instance.ClassName] or REMOTE_CLASSES[instance.ClassName] or PHYSICS_CLASSES[instance.ClassName] or EFFECT_CLASSES[instance.ClassName] or instance:IsA("Sound") then UI.inspectObject(instance)
+					else State.treeExpanded[instance]=not State.treeExpanded[instance]; UI.rebuildTree() end
+				end)
+			end
+			if query ~= "" or State.treeExpanded[instance] then for _, child in ipairs(children) do addTree(child,depth+1) end end
+		end
+		State.treeExpanded[root] = State.treeExpanded[root] ~= false
+		addTree(root,0)
+	end
+	permanentConnections:add(treeSearch:GetPropertyChangedSignal("Text"):Connect(function() UI.rebuildTree() end))
+
+	local valueSearch = searchBox(UI.pages.VALUES,"SEARCH VALUES")
+	local valueList = listScroll(UI.pages.VALUES,34)
+	local attributeSearch = searchBox(UI.pages.ATTRIBUTES,"SEARCH ATTRIBUTES")
+	local attributeList = listScroll(UI.pages.ATTRIBUTES,34)
+	UI.valueRows, UI.attributeRows = {}, {}
+	local function expandedSearch(query: string): {string}
+		query=string.lower(query)
+		if query=="drift" then return DRIFT_WORDS end
+		if query=="turbo" then return {"turbo","boost","nitro"} end
+		return {query}
+	end
+	UI.rebuildDataLists = function()
+		clearRows(valueList); clearRows(attributeList); table.clear(UI.valueRows); table.clear(UI.attributeRows)
+		rowButton(valueList,"NAME | CLASS | VALUE | PATH",nil)
+		rowButton(attributeList,"INSTANCE | ATTRIBUTE | VALUE",nil)
+		local instances = {}
+		for instance in pairs(State.cache) do if State.currentVehicle and (instance==State.currentVehicle or instance:IsDescendantOf(State.currentVehicle)) then table.insert(instances,instance) end end
+		table.sort(instances,function(a,b) return safePath(a)<safePath(b) end)
+		for _, instance in ipairs(instances) do
+			if VALUE_CLASSES[instance.ClassName] then
+				local row=rowButton(valueList,"",instance); table.insert(UI.valueRows,{instance=instance,row=row})
+			end
+			for attributeName in pairs(instance:GetAttributes()) do
+				local row=rowButton(attributeList,"",instance); table.insert(UI.attributeRows,{instance=instance,name=attributeName,row=row})
+			end
+		end
+		if UI.updateDataLists then UI.updateDataLists() end
+	end
+	UI.updateDataLists = function()
+		local valueTerms=expandedSearch(valueSearch.Text); local attributeTerms=expandedSearch(attributeSearch.Text)
+		for _, data in ipairs(UI.valueRows) do
+			local ok,value=readProperty(data.instance,"Value")
+			local searchable=string.lower(data.instance.Name.." "..safePath(data.instance).." "..serialize(ok and value or nil))
+			local visible=valueSearch.Text==""; for _,term in ipairs(valueTerms) do if term~="" and string.find(searchable,term,1,true) then visible=true end end
+			data.row.Visible=visible; data.row.Text=string.format("%s | %s | %s\n%s",data.instance.Name,data.instance.ClassName,ok and serialize(value) or "unavailable",safePath(data.instance))
+		end
+		for _, data in ipairs(UI.attributeRows) do
+			local value=data.instance:GetAttribute(data.name); local searchable=string.lower(data.instance.Name.." "..data.name.." "..serialize(value).." "..safePath(data.instance))
+			local visible=attributeSearch.Text==""; for _,term in ipairs(attributeTerms) do if term~="" and string.find(searchable,term,1,true) then visible=true end end
+			data.row.Visible=visible; data.row.Text=string.format("%s | %s | %s\n%s",data.instance.Name,data.name,serialize(value),safePath(data.instance))
+		end
+	end
+	permanentConnections:add(valueSearch:GetPropertyChangedSignal("Text"):Connect(function() UI.updateDataLists() end))
+	permanentConnections:add(attributeSearch:GetPropertyChangedSignal("Text"):Connect(function() UI.updateDataLists() end))
+
+	local remoteList = listScroll(UI.pages.REMOTES,5)
+	UI.refreshRemotes = function()
+		clearRows(remoteList)
+		rowButton(remoteList,"REMOTE INVENTORY\nOUTGOING OBSERVER: UNAVAILABLE IN STANDARD ROBLOX CLIENT\nIncoming RemoteEvents are observed without interference.",nil)
+		local remotes={}; for remote in pairs(State.remotes) do if remote.Parent then table.insert(remotes,remote) end end
+		table.sort(remotes,function(a,b) return safePath(a)<safePath(b) end)
+		for _, remote in ipairs(remotes) do local info=State.remotes[remote]; rowButton(remoteList,remote.Name.."  ["..info.class.."]\n"..info.path.."\n"..(info.baseline and "BASELINE" or "NEW"),remote) end
+	end
+
+	local wheelToolbar = create("Frame", {Size=UDim2.new(1,-12,0,29), Position=UDim2.fromOffset(6,4), BackgroundTransparency=1}, UI.pages.WHEELS)
+	create("UIListLayout", {FillDirection=Enum.FillDirection.Horizontal, Padding=UDim.new(0,4), SortOrder=Enum.SortOrder.LayoutOrder}, wheelToolbar)
+	local precisionButton=button(wheelToolbar,"6 DECIMALS",82)
+	local freezeButton=button(wheelToolbar,"FREEZE",58)
+	local baselineButton=button(wheelToolbar,"SET BASELINE",82)
+	local compareButton=button(wheelToolbar,"COMPARE",64)
+	local wheelScroll=listScroll(UI.pages.WHEELS,36)
+	UI.wheelCards={}
+	UI.wheelCompareText=create("TextLabel",{Size=UDim2.new(1,-5,0,0),AutomaticSize=Enum.AutomaticSize.Y,BackgroundColor3=Color3.fromRGB(27,30,38),BorderSizePixel=0,Text="COMPARE ALL WHEELS",TextColor3=Color3.fromRGB(211,215,224),TextSize=11,Font=Enum.Font.Code,TextWrapped=true,TextXAlignment=Enum.TextXAlignment.Left,TextYAlignment=Enum.TextYAlignment.Top},wheelScroll)
+	corner(UI.wheelCompareText,5); create("UIPadding",{PaddingTop=UDim.new(0,8),PaddingBottom=UDim.new(0,8),PaddingLeft=UDim.new(0,8),PaddingRight=UDim.new(0,8)},UI.wheelCompareText)
+	UI.updateWheel=function(wheel: BasePart, force: boolean?)
+		if State.freezeView and not force then return end
+		local card=UI.wheelCards[wheel]; if not card or not wheel.Parent then return end
+		card.body.Text=wheelCardText(wheel)
+	end
+	UI.updateWheels=function(force: boolean?)
+		if State.freezeView and not force then return end
+		UI.wheelCompareText.Text=comparisonReport()
+		for wheel in pairs(UI.wheelCards) do if wheel:IsA("BasePart") then UI.updateWheel(wheel,force) end end
+	end
+	UI.rebuildWheels=function()
+		for wheel,card in pairs(UI.wheelCards) do if card.frame then card.frame:Destroy() end; UI.wheelCards[wheel]=nil end
+		refreshWheelRelations()
+		local wheels={}; for wheel in pairs(State.wheels) do if wheel.Parent and wheel:IsA("BasePart") then table.insert(wheels,wheel) end end
+		table.sort(wheels,function(a,b) return wheelRole(a)..a.Name < wheelRole(b)..b.Name end)
+		for _, wheel in ipairs(wheels) do
+			local cardFrame=create("Frame",{Size=UDim2.new(1,-5,0,0),AutomaticSize=Enum.AutomaticSize.Y,BackgroundColor3=Color3.fromRGB(23,26,33),BorderSizePixel=0},wheelScroll) :: Frame
+			corner(cardFrame,6); create("UIStroke",{Color=Color3.fromRGB(52,59,72),Thickness=1},cardFrame); create("UIListLayout",{Padding=UDim.new(0,4),SortOrder=Enum.SortOrder.LayoutOrder},cardFrame); create("UIPadding",{PaddingTop=UDim.new(0,8),PaddingBottom=UDim.new(0,8),PaddingLeft=UDim.new(0,8),PaddingRight=UDim.new(0,8)},cardFrame)
+			local body=create("TextLabel",{Size=UDim2.new(1,0,0,0),AutomaticSize=Enum.AutomaticSize.Y,BackgroundTransparency=1,Text="",TextColor3=Color3.fromRGB(214,218,226),TextSize=configuredTextSize(),Font=Enum.Font.Code,TextWrapped=true,TextXAlignment=Enum.TextXAlignment.Left,TextYAlignment=Enum.TextYAlignment.Top},cardFrame) :: TextLabel
+			local details=button(cardFrame,"OBJECT DETAILS",108); details.Size=UDim2.fromOffset(108,24)
+			details.Activated:Connect(function() UI.inspectObject(wheel) end)
+			UI.wheelCards[wheel]={frame=cardFrame,body=body}
+		end
+		UI.updateWheels(true)
+	end
+	UI.flashWheel=function(wheel: BasePart)
+		local card=UI.wheelCards[wheel]; if not card then return end
+		card.frame.BackgroundColor3=Color3.fromRGB(92,79,31)
+		TweenService:Create(card.frame,TweenInfo.new(0.75,Enum.EasingStyle.Quad,Enum.EasingDirection.Out),{BackgroundColor3=Color3.fromRGB(23,26,33)}):Play()
+	end
+	permanentConnections:add(precisionButton.Activated:Connect(function()
+		local modes={"SHORT","6 DECIMALS","FULL"}; local index=table.find(modes,CONFIG.RAW_PRECISION) or 2; CONFIG.RAW_PRECISION=modes[index%#modes+1]; precisionButton.Text=CONFIG.RAW_PRECISION; UI.updateWheels(false); UI.updateDataLists(); refreshLog()
+	end))
+	permanentConnections:add(freezeButton.Activated:Connect(function() State.freezeView=not State.freezeView; freezeButton.Text=State.freezeView and "UNFREEZE" or "FREEZE"; freezeButton.BackgroundColor3=State.freezeView and Color3.fromRGB(90,70,28) or Color3.fromRGB(38,42,51); if not State.freezeView then UI.updateWheels(true) end end))
+	permanentConnections:add(baselineButton.Activated:Connect(function()
+		for wheel in pairs(State.wheels) do if wheel:IsA("BasePart") then local meta=initializeWheelMeta(wheel); meta.baselineCustom=physicalSnapshot(wheel.CustomPhysicalProperties); meta.baselineCurrent=physicalSnapshot(wheel.CurrentPhysicalProperties) end end
+		local count=0; for _ in pairs(UI.wheelCards) do count+=1 end
+		UI.updateWheels(false); logEvent("INFO","WHEEL BASELINE SET",tostring(count).." wheels","WHEEL INSPECTOR")
+	end))
+	permanentConnections:add(compareButton.Activated:Connect(function() UI.updateWheels(false) end))
+
+	local diffScroll=listScroll(UI.pages.DIFF,5)
+	UI.diffText=create("TextLabel",{Size=UDim2.new(1,-5,0,0),AutomaticSize=Enum.AutomaticSize.Y,BackgroundTransparency=1,Text="No snapshot diff yet.",TextColor3=Color3.fromRGB(210,214,223),Font=Enum.Font.Code,TextSize=11,TextWrapped=true,TextXAlignment=Enum.TextXAlignment.Left,TextYAlignment=Enum.TextYAlignment.Top},diffScroll)
+
+	local inspector=create("Frame",{Size=UDim2.new(1,-16,1,-16),Position=UDim2.fromOffset(8,8),BackgroundColor3=Color3.fromRGB(18,21,27),BorderSizePixel=0,Visible=false,ZIndex=50},main) :: Frame
+	corner(inspector,7); create("UIStroke",{Color=Color3.fromRGB(86,95,112),Thickness=1},inspector)
+	local inspectorTitle=create("TextLabel",{Size=UDim2.new(1,-40,0,34),Position=UDim2.fromOffset(10,0),BackgroundTransparency=1,Text="OBJECT INSPECTOR",TextColor3=Color3.fromRGB(112,208,255),TextSize=12,Font=Enum.Font.GothamBold,TextXAlignment=Enum.TextXAlignment.Left,ZIndex=51},inspector)
+	local inspectorClose=button(inspector,"X",28); inspectorClose.Position=UDim2.new(1,-34,0,4); inspectorClose.ZIndex=52
+	local inspectorBox=create("TextBox",{Size=UDim2.new(1,-20,1,-76),Position=UDim2.fromOffset(10,36),BackgroundColor3=Color3.fromRGB(23,26,33),BorderSizePixel=0,Text="",TextColor3=Color3.fromRGB(218,222,230),TextSize=11,Font=Enum.Font.Code,TextWrapped=false,TextXAlignment=Enum.TextXAlignment.Left,TextYAlignment=Enum.TextYAlignment.Top,MultiLine=true,ClearTextOnFocus=false,TextEditable=false,ZIndex=51},inspector) :: TextBox
+	corner(inspectorBox,4)
+	local pathButton=button(inspector,"COPY PATH",78); pathButton.Position=UDim2.new(0,10,1,-34); pathButton.ZIndex=52
+	local detailsButton=button(inspector,"COPY DETAILS",92); detailsButton.Position=UDim2.new(0,94,1,-34); detailsButton.ZIndex=52
+	local copyHint=create("TextLabel",{Size=UDim2.new(1,-200,0,25),Position=UDim2.new(0,194,1,-34),BackgroundTransparency=1,Text="Select text and use Ctrl+C / Copy",TextColor3=Color3.fromRGB(142,148,160),TextSize=9,Font=Enum.Font.Gotham,TextXAlignment=Enum.TextXAlignment.Left,ZIndex=51},inspector)
+	UI.inspectedObject=nil
+	UI.inspectObject=function(instance: Instance)
+		UI.inspectedObject=instance; inspectorTitle.Text="OBJECT INSPECTOR  ·  "..instance.Name; inspectorBox.Text=objectReport(instance); inspector.Visible=true
+	end
+	local function selectInspectorText(textValue: string) inspectorBox.Text=textValue; inspectorBox.TextEditable=true; inspectorBox:CaptureFocus(); inspectorBox.SelectionStart=1; inspectorBox.CursorPosition=#textValue+1 end
+	permanentConnections:add(inspectorClose.Activated:Connect(function() inspector.Visible=false; inspectorBox.TextEditable=false end))
+	permanentConnections:add(pathButton.Activated:Connect(function() if UI.inspectedObject then selectInspectorText(safePath(UI.inspectedObject)) end end))
+	permanentConnections:add(detailsButton.Activated:Connect(function() if UI.inspectedObject then selectInspectorText(objectReport(UI.inspectedObject)) end end))
+
+	local filterPanel=create("Frame",{Size=UDim2.fromOffset(165,250),Position=UDim2.new(1,-171,0,40),BackgroundColor3=Color3.fromRGB(27,30,38),BorderSizePixel=0,Visible=false,ZIndex=20},main) :: Frame
+	corner(filterPanel,6); create("UIStroke",{Color=Color3.fromRGB(65,71,84),Thickness=1},filterPanel); create("UIListLayout",{Padding=UDim.new(0,2),HorizontalAlignment=Enum.HorizontalAlignment.Center,SortOrder=Enum.SortOrder.LayoutOrder},filterPanel)
+	for _, name in ipairs({"INPUT","REMOTES","VALUES","ATTRIBUTES","PHYSICS","OBJECTS","EFFECTS","SOUNDS","WHEELS"}) do
+		local toggle=button(filterPanel,"✓  "..name,155); toggle.BackgroundTransparency=1; toggle.TextXAlignment=Enum.TextXAlignment.Left; toggle.ZIndex=21
+		permanentConnections:add(toggle.Activated:Connect(function() State.filters[name]=not State.filters[name]; toggle.Text=(State.filters[name] and "✓  " or "□  ")..name; refreshLog() end))
+	end
+	local deepButton=button(filterPanel,"□  DEEP INSPECT",155); deepButton.BackgroundTransparency=1; deepButton.TextXAlignment=Enum.TextXAlignment.Left; deepButton.ZIndex=21
+	local textButton=button(filterPanel,"TEXT SIZE  MEDIUM",155); textButton.BackgroundTransparency=1; textButton.TextXAlignment=Enum.TextXAlignment.Left; textButton.ZIndex=21
+	UI.applyTextSize=function()
+		local sizes={SMALL=10,MEDIUM=12,LARGE=14}; local size=sizes[CONFIG.TEXT_SIZE] or 12
+		for _, object in ipairs(screen:GetDescendants()) do if object:IsA("TextLabel") or object:IsA("TextButton") or object:IsA("TextBox") then object.TextSize=size end end
+	end
+	permanentConnections:add(deepButton.Activated:Connect(function() CONFIG.DEEP_INSPECT=not CONFIG.DEEP_INSPECT; deepButton.Text=(CONFIG.DEEP_INSPECT and "✓  " or "□  ").."DEEP INSPECT"; if inspector.Visible and UI.inspectedObject then inspectorBox.Text=objectReport(UI.inspectedObject) end end))
+	permanentConnections:add(textButton.Activated:Connect(function() local modes={"SMALL","MEDIUM","LARGE"}; local index=table.find(modes,CONFIG.TEXT_SIZE) or 2; CONFIG.TEXT_SIZE=modes[index%#modes+1]; textButton.Text="TEXT SIZE  "..CONFIG.TEXT_SIZE; UI.applyTextSize() end))
+
+	local sizePanel=create("Frame",{Size=UDim2.fromOffset(130,116),Position=UDim2.new(1,-136,0,40),BackgroundColor3=Color3.fromRGB(27,30,38),BorderSizePixel=0,Visible=false,ZIndex=25},main) :: Frame
+	corner(sizePanel,6); create("UIListLayout",{Padding=UDim.new(0,3),HorizontalAlignment=Enum.HorizontalAlignment.Center,SortOrder=Enum.SortOrder.LayoutOrder},sizePanel)
+	local function setPanelSize(width: number?,height: number?)
+		local vp=workspace.CurrentCamera and workspace.CurrentCamera.ViewportSize or Vector2.new(1280,720); local w=width or vp.X*0.9; local h=height or vp.Y*0.9; w=math.clamp(w,400,vp.X*0.9); h=math.clamp(h,260,vp.Y*0.9); State.panelSize=Vector2.new(w,h); main.Size=UDim2.fromOffset(w,h)
+	end
+	local camera=workspace.CurrentCamera
+	if camera then
+		permanentConnections:add(camera:GetPropertyChangedSignal("ViewportSize"):Connect(function()
+			local vp=camera.ViewportSize
+			sizeConstraint.MaxSize=Vector2.new(math.max(400,vp.X*0.9),math.max(260,vp.Y*0.9))
+			if main.AbsoluteSize.X>sizeConstraint.MaxSize.X or main.AbsoluteSize.Y>sizeConstraint.MaxSize.Y then setPanelSize(math.min(main.AbsoluteSize.X,sizeConstraint.MaxSize.X),math.min(main.AbsoluteSize.Y,sizeConstraint.MaxSize.Y)) end
+		end))
+	end
+	for _, preset in ipairs({{"COMPACT",430,300},{"MEDIUM",650,450},{"LARGE",850,600},{"FULL",nil,nil}}) do local presetButton=button(sizePanel,preset[1],120); presetButton.ZIndex=26; permanentConnections:add(presetButton.Activated:Connect(function() setPanelSize(preset[2],preset[3]); sizePanel.Visible=false end)) end
+
+	local resizeHandle=create("TextButton",{Size=UDim2.fromOffset(28,28),Position=UDim2.new(1,-28,1,-28),BackgroundTransparency=1,Text="◢",TextColor3=Color3.fromRGB(112,208,255),TextSize=16,Font=Enum.Font.GothamBold,BorderSizePixel=0,ZIndex=40},main) :: TextButton
+	local reopen=create("TextButton",{Name="Reopen",Size=UDim2.fromOffset(42,42),Position=UDim2.new(0,14,0.6,0),BackgroundColor3=Color3.fromRGB(30,39,50),BorderSizePixel=0,Text="AD",TextColor3=Color3.fromRGB(102,210,255),TextSize=14,Font=Enum.Font.GothamBold,Visible=false},screen) :: TextButton
+	corner(reopen,21)
+	permanentConnections:add(reopen.Activated:Connect(function() reopen.Visible=false; main.Visible=true end))
+
+	local function showTab(name: string)
+		for tabName,page in pairs(UI.pages) do page.Visible=tabName==name; UI.tabButtons[tabName].TextColor3=tabName==name and Color3.fromRGB(103,201,255) or Color3.fromRGB(145,151,164) end
+		if name=="TREE" then UI.rebuildTree() elseif name=="VALUES" or name=="ATTRIBUTES" then UI.updateDataLists() elseif name=="REMOTES" then UI.refreshRemotes() elseif name=="WHEELS" then UI.updateWheels(false) end
+	end
+	for name,tab in pairs(UI.tabButtons) do permanentConnections:add(tab.Activated:Connect(function() showTab(name) end)) end
+	permanentConnections:add(UI.headerButtons.PAUSE.Activated:Connect(function() State.paused=not State.paused; UI.headerButtons.PAUSE.Text=State.paused and "RESUME" or "PAUSE"; UI.statusLabel.Text=State.paused and "● PAUSED" or (State.currentVehicle and "● MONITORING" or "● WAITING"); UI.statusLabel.TextColor3=State.paused and Color3.fromRGB(255,194,92) or (State.currentVehicle and Color3.fromRGB(96,220,146) or Color3.fromRGB(255,194,92)) end))
+	permanentConnections:add(UI.headerButtons.CLEAR.Activated:Connect(function() table.clear(State.events); State.nextEventId=1; refreshLog() end))
+	permanentConnections:add(UI.headerButtons.SNAP.Activated:Connect(snapshotAction))
+	permanentConnections:add(UI.headerButtons.FILTER.Activated:Connect(function() filterPanel.Visible=not filterPanel.Visible; sizePanel.Visible=false end))
+	permanentConnections:add(UI.headerButtons.SIZE.Activated:Connect(function() sizePanel.Visible=not sizePanel.Visible; filterPanel.Visible=false end))
+	permanentConnections:add(UI.headerButtons.X.Activated:Connect(function() main.Visible=false; reopen.Visible=true end))
+	local minimized=false
+	permanentConnections:add(UI.headerButtons["—"].Activated:Connect(function() minimized=not minimized; if minimized then State.panelSize=Vector2.new(main.AbsoluteSize.X,math.max(260,main.AbsoluteSize.Y)); sizeConstraint.MinSize=Vector2.new(400,44); main.Size=UDim2.fromOffset(main.AbsoluteSize.X,44) else sizeConstraint.MinSize=Vector2.new(400,260); main.Size=UDim2.fromOffset(State.panelSize.X,State.panelSize.Y) end end))
+
+	local dragging,resizing=false,false; local dragStart=Vector2.zero; local startPos=main.Position; local startSize=Vector2.zero
+	permanentConnections:add(header.InputBegan:Connect(function(input) if input.UserInputType==Enum.UserInputType.MouseButton1 or input.UserInputType==Enum.UserInputType.Touch then dragging=true; dragStart=input.Position; startPos=main.Position end end))
+	permanentConnections:add(resizeHandle.InputBegan:Connect(function(input) if input.UserInputType==Enum.UserInputType.MouseButton1 or input.UserInputType==Enum.UserInputType.Touch then resizing=true; dragging=false; dragStart=input.Position; startSize=main.AbsoluteSize end end))
+	permanentConnections:add(UserInputService.InputChanged:Connect(function(input)
+		if input.UserInputType~=Enum.UserInputType.MouseMovement and input.UserInputType~=Enum.UserInputType.Touch then return end
+		local delta=input.Position-dragStart
+		if resizing then local vp=workspace.CurrentCamera and workspace.CurrentCamera.ViewportSize or Vector2.new(1280,720); local w=math.clamp(startSize.X+delta.X,400,vp.X*0.9); local h=math.clamp(startSize.Y+delta.Y,260,vp.Y*0.9); main.Size=UDim2.fromOffset(w,h); State.panelSize=Vector2.new(w,h)
+		elseif dragging then main.Position=UDim2.new(startPos.X.Scale,startPos.X.Offset+delta.X,startPos.Y.Scale,startPos.Y.Offset+delta.Y) end
+	end))
+	permanentConnections:add(UserInputService.InputEnded:Connect(function(input) if input.UserInputType==Enum.UserInputType.MouseButton1 or input.UserInputType==Enum.UserInputType.Touch then dragging=false; resizing=false end end))
+
+	UI.rebuildTree(); UI.rebuildDataLists(); UI.refreshRemotes(); UI.rebuildWheels(); showTab("LIVE")
+end
+
+local function inputName(input: InputObject): string
+	if input.KeyCode ~= Enum.KeyCode.Unknown then return input.KeyCode.Name end
+	return input.UserInputType.Name
+end
+
+local function shouldLogInput(input: InputObject): boolean
+	if UserInputService:GetFocusedTextBox() then return false end
+	if input.UserInputType == Enum.UserInputType.Keyboard then return true end
+	return input.UserInputType == Enum.UserInputType.MouseButton1
+		or input.UserInputType == Enum.UserInputType.MouseButton2
+		or input.UserInputType == Enum.UserInputType.Gamepad1
+		or input.UserInputType == Enum.UserInputType.Touch
+end
+
+local function bindCharacter(character: Model)
+	local humanoid = character:WaitForChild("Humanoid", 10)
+	if not humanoid or not humanoid:IsA("Humanoid") then return end
+	local function updateSeat()
+		local seat = humanoid.SeatPart
+		if seat and (seat:IsA("VehicleSeat") or seat:IsA("Seat")) then startVehicle(seat) else stopVehicle() end
+	end
+	permanentConnections:add(humanoid:GetPropertyChangedSignal("SeatPart"):Connect(updateSeat))
+	updateSeat()
+end
+
+local remoteKeywords = {"vehicle", "car", "drive", "wheel", "drift", "boost", "nitro", "garage"}
+scanRelevantRemotes = function()
+	for _, item in ipairs(ReplicatedStorage:GetDescendants()) do
+		if REMOTE_CLASSES[item.ClassName] and containsWord(safePath(item), remoteKeywords) then watchInstance(item, true) end
+	end
+end
+
+local spaIntroGui, spaIntroStartedAt = createSPAToolsIntro()
+-- Last-resort cleanup: never leave a full-screen overlay stuck after an initialization error.
+task.delay(12, function()
+	if spaIntroGui and spaIntroGui.Parent then spaIntroGui:Destroy() end
+end)
+task.wait(0.78) -- Let the title entrance render before UI initialization.
+buildUI()
+
+-- Baseline visible, vehicle-related remotes in ReplicatedStorage. This scan runs
+-- at startup and after vehicle cache swaps, never per frame.
+scanRelevantRemotes()
+permanentConnections:add(ReplicatedStorage.DescendantAdded:Connect(function(item)
+	if REMOTE_CLASSES[item.ClassName] and containsWord(safePath(item), remoteKeywords) then
+		watchInstance(item, false)
+		logEvent("REMOTE", "NEW REMOTE DETECTED · " .. item.Name, item.ClassName .. "\n" .. safePath(item), "REPLICATEDSTORAGE DESCENDANT ADDED", true)
+		if UI.refreshRemotes then UI.refreshRemotes() end
+	end
+end))
+
+permanentConnections:add(UserInputService.InputBegan:Connect(function(input, gameProcessed)
+	if gameProcessed or not State.currentVehicle or not shouldLogInput(input) then return end
+	local name = inputName(input)
+	State.lastInput = {name=name, time=now(), count=0}
+	logEvent("INPUT", name .. " DOWN", "Device: " .. input.UserInputType.Name, "INPUT", false)
+	if containsWord(name, DRIFT_WORDS) then addDriftTrace(string.format("+%08.3fs  INPUT  %s DOWN", now()-sessionStart, name)) end
+end))
+permanentConnections:add(UserInputService.InputEnded:Connect(function(input, gameProcessed)
+	if gameProcessed or not State.currentVehicle or not shouldLogInput(input) then return end
+	logEvent("INPUT", inputName(input) .. " UP", "Device: " .. input.UserInputType.Name, "INPUT", false)
+end))
+
+permanentConnections:add(localPlayer.CharacterAdded:Connect(bindCharacter))
+if localPlayer.Character then task.defer(bindCharacter, localPlayer.Character) end
+
+logEvent("INFO", "SPA TOOLS CAPABILITIES", "Vehicle Tree      ✓\nProperties        ✓\nAttributes        ✓\nPhysics           ✓\nInputs            ✓\nRemote Incoming   ✓\nRemote Outgoing   ✗ (standard client API unavailable)\nClipboard         ✗ (manual selection only)", "SPA TOOLS")
+
+task.spawn(function()
+	while State.running and UI.screen and UI.screen.Parent do
+		task.wait(CONFIG.TELEMETRY_INTERVAL)
+		local vehicle = State.currentVehicle
+		local seat = State.currentSeat
+		if vehicle and seat and seat.Parent then
+			local velocity = seat.AssemblyLinearVelocity
+			local angular = seat.AssemblyAngularVelocity
+			local wheelRows = {}
+			local activeForces, activeEffects = 0, 0
+			for instance in pairs(State.cache) do
+				if instance.Parent then
+					if PHYSICS_CLASSES[instance.ClassName] then activeForces += 1 end
+					if EFFECT_CLASSES[instance.ClassName] then
+						local ok, enabled = readProperty(instance, "Enabled")
+						if ok and enabled then activeEffects += 1 end
+					end
+				end
+			end
+			for wheel in pairs(State.wheels) do
+				if wheel.Parent and wheel:IsA("BasePart") then
+					local custom = wheel.CustomPhysicalProperties
+					local current = wheel.CurrentPhysicalProperties
+					local friction = custom and custom.Friction or current.Friction
+					table.insert(wheelRows, wheel.Name .. "=" .. numberText(friction))
+				end
+			end
+			local active = {}
+			for instance, record in pairs(State.cache) do
+				if record.changes and record.changes > 0 and (instance == vehicle or instance:IsDescendantOf(vehicle)) then table.insert(active,{instance=instance,count=record.changes}) end
+			end
+			table.sort(active,function(a,b) return a.count>b.count end)
+			local activityRows = {}
+			for i=1,math.min(5,#active) do table.insert(activityRows,string.format("  %d. %s  %d",i,active[i].instance.Name,active[i].count)) end
+			if #activityRows==0 then table.insert(activityRows,"  No changes yet") end
+			if UI.liveText then
+				UI.liveText.Text = string.format("VEHICLE       %s\nSEAT          %s\nSPEED RAW     %s studs/s\nLIN VEL       %s\nANG VEL       %s\nWHEEL FRICTION\n  %s\nACTIVE FORCES %d\nACTIVE EFFECTS %d\nLAST INPUT    %s\nLAST REMOTE   %s\nRAW PRECISION %s\n\n%s\n\nACTIVITY · TOP CHANGING OBJECTS\n%s",
+					vehicle.Name, seat.Name, numberText(velocity.Magnitude), serialize(velocity), serialize(angular),
+					table.concat(wheelRows, "  "), activeForces, activeEffects,
+					State.lastInput and State.lastInput.name or "None", State.lastRemote, CONFIG.RAW_PRECISION,
+					vehicleSeatReport(seat), table.concat(activityRows,"\n"))
+			end
+			if UI.rootButton then UI.rootButton.Text="RESOLVED VEHICLE ROOT\n"..vehicle.Name.."\n"..safePath(vehicle).."\n[ SHOW ROOT DETAILS ]" end
+			if UI.pages.WHEELS.Visible and UI.updateWheels then UI.updateWheels(false) end
+			if (UI.pages.VALUES.Visible or UI.pages.ATTRIBUTES.Visible) and UI.updateDataLists then UI.updateDataLists() end
+		else
+			if UI.liveText then UI.liveText.Text = "Waiting for vehicle...\n\nSit in a Seat or VehicleSeat to begin automatic inspection." end
+			if UI.rootButton then UI.rootButton.Text="RESOLVED VEHICLE ROOT\nNONE" end
+		end
+	end
+end)
+
+-- Reveal the finished SPA Tools panel after startup hooks are ready.
+finishSPAToolsIntro(spaIntroGui, spaIntroStartedAt)
