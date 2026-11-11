@@ -387,9 +387,9 @@ pcall(function()
 end)
 
 local radarPanel = Instance.new("Frame")
-radarPanel.AnchorPoint = Vector2.new(0.5, 0)
+radarPanel.AnchorPoint = Vector2.new(1, 0)
 radarPanel.Size = isTouchDevice and UDim2.fromOffset(150, 164) or UDim2.fromOffset(190, 210)
-radarPanel.Position = isTouchDevice and UDim2.new(0.5, 0, 0, 8) or UDim2.new(0.5, 0, 1, -225)
+radarPanel.Position = UDim2.new(1, -8, 0, 8)
 radarPanel.BackgroundColor3 = Color3.fromRGB(7, 9, 13)
 radarPanel.BackgroundTransparency = 0.18
 radarPanel.BorderSizePixel = 0
@@ -477,7 +477,7 @@ local mobileRadarButton = Instance.new("TextButton")
 mobileRadarButton.Name = "MobileRadarToggle"
 mobileRadarButton.AnchorPoint = Vector2.new(1, 0)
 mobileRadarButton.Size = UDim2.fromOffset(76, 34)
-mobileRadarButton.Position = UDim2.new(1, -8, 0, 8)
+mobileRadarButton.Position = UDim2.new(1, -8, 0, 180)
 mobileRadarButton.BackgroundColor3 = Color3.fromRGB(22, 28, 36)
 mobileRadarButton.BackgroundTransparency = 0.08
 mobileRadarButton.BorderSizePixel = 0
