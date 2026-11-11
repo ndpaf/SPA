@@ -367,7 +367,9 @@ end
 -- RADAR DE PROXIMIDAD ESTILO ASSETTO CORSA
 -- =====================================================
 local RADAR_RANGE = 120
-local RADAR_RADIUS = 76
+local isTouchDevice = UserInputService.TouchEnabled
+local RADAR_RADIUS = isTouchDevice and 58 or 76
+local mobileRadarEnabled = true
 local radarBlips = {}
 local radarAccumulator = 0
 
@@ -377,13 +379,17 @@ if previousRadar then previousRadar:Destroy() end
 local radarGui = Instance.new("ScreenGui")
 radarGui.Name = "SPA_PROXIMITY_RADAR"
 radarGui.ResetOnSpawn = false
-radarGui.IgnoreGuiInset = true
-radarGui.DisplayOrder = 120
+radarGui.IgnoreGuiInset = false
+radarGui.DisplayOrder = 500
 radarGui.Parent = playerGui
+pcall(function()
+	radarGui.ScreenInsets = Enum.ScreenInsets.CoreUISafeInsets
+end)
 
 local radarPanel = Instance.new("Frame")
-radarPanel.Size = UDim2.new(0, 190, 0, 210)
-radarPanel.Position = UDim2.new(0.5, -95, 1, -225)
+radarPanel.AnchorPoint = Vector2.new(0.5, 0)
+radarPanel.Size = isTouchDevice and UDim2.fromOffset(150, 164) or UDim2.fromOffset(190, 210)
+radarPanel.Position = isTouchDevice and UDim2.new(0.5, 0, 0, 8) or UDim2.new(0.5, 0, 1, -225)
 radarPanel.BackgroundColor3 = Color3.fromRGB(7, 9, 13)
 radarPanel.BackgroundTransparency = 0.18
 radarPanel.BorderSizePixel = 0
@@ -408,7 +414,7 @@ radarTitle.TextSize = 11
 radarTitle.Parent = radarPanel
 
 local radarArea = Instance.new("Frame")
-radarArea.Size = UDim2.new(0, 170, 0, 170)
+radarArea.Size = isTouchDevice and UDim2.fromOffset(130, 130) or UDim2.fromOffset(170, 170)
 radarArea.Position = UDim2.new(0, 10, 0, 27)
 radarArea.BackgroundColor3 = Color3.fromRGB(14, 17, 22)
 radarArea.BackgroundTransparency = 0.12
@@ -448,7 +454,7 @@ end
 
 local ownCar = Instance.new("Frame")
 ownCar.AnchorPoint = Vector2.new(0.5, 0.5)
-ownCar.Size = UDim2.new(0, 12, 0, 24)
+ownCar.Size = isTouchDevice and UDim2.fromOffset(10, 19) or UDim2.fromOffset(12, 24)
 ownCar.Position = UDim2.new(0.5, 0, 0.5, 0)
 ownCar.BackgroundColor3 = Color3.fromRGB(45, 220, 115)
 ownCar.BorderSizePixel = 0
@@ -464,7 +470,44 @@ radarLegend.Text = "VERDE: TÚ   •   AMARILLO: CERCA   •   ROJO: PELIGRO"
 radarLegend.Font = Enum.Font.GothamBold
 radarLegend.TextColor3 = Color3.fromRGB(135, 145, 160)
 radarLegend.TextSize = 8
+radarLegend.Visible = not isTouchDevice
 radarLegend.Parent = radarPanel
+
+local mobileRadarButton = Instance.new("TextButton")
+mobileRadarButton.Name = "MobileRadarToggle"
+mobileRadarButton.AnchorPoint = Vector2.new(1, 0)
+mobileRadarButton.Size = UDim2.fromOffset(76, 34)
+mobileRadarButton.Position = UDim2.new(1, -8, 0, 8)
+mobileRadarButton.BackgroundColor3 = Color3.fromRGB(22, 28, 36)
+mobileRadarButton.BackgroundTransparency = 0.08
+mobileRadarButton.BorderSizePixel = 0
+mobileRadarButton.Text = "RADAR ON"
+mobileRadarButton.TextColor3 = Color3.fromRGB(80, 235, 145)
+mobileRadarButton.Font = Enum.Font.GothamBold
+mobileRadarButton.TextSize = 10
+mobileRadarButton.ZIndex = 20
+mobileRadarButton.Visible = isTouchDevice
+mobileRadarButton.Parent = radarGui
+corner(mobileRadarButton, 8)
+
+local mobileRadarStroke = Instance.new("UIStroke")
+mobileRadarStroke.Color = Color3.fromRGB(80, 235, 145)
+mobileRadarStroke.Transparency = 0.2
+mobileRadarStroke.Thickness = 1.5
+mobileRadarStroke.Parent = mobileRadarButton
+
+mobileRadarButton.Activated:Connect(function()
+	mobileRadarEnabled = not mobileRadarEnabled
+	mobileRadarButton.Text = mobileRadarEnabled and "RADAR ON" or "RADAR OFF"
+	mobileRadarButton.TextColor3 = mobileRadarEnabled
+		and Color3.fromRGB(80, 235, 145) or Color3.fromRGB(155, 160, 170)
+	mobileRadarStroke.Color = mobileRadarEnabled
+		and Color3.fromRGB(80, 235, 145) or Color3.fromRGB(105, 110, 120)
+	if not mobileRadarEnabled then
+		radarPanel.Visible = false
+		for _, blip in pairs(radarBlips) do blip.Visible = false end
+	end
+end)
 
 local function getRadarBlip(otherPlayer)
 	local existing = radarBlips[otherPlayer]
@@ -473,7 +516,7 @@ local function getRadarBlip(otherPlayer)
 	local blip = Instance.new("Frame")
 	blip.Name = "Radar_" .. otherPlayer.Name
 	blip.AnchorPoint = Vector2.new(0.5, 0.5)
-	blip.Size = UDim2.new(0, 11, 0, 21)
+	blip.Size = isTouchDevice and UDim2.fromOffset(9, 17) or UDim2.fromOffset(11, 21)
 	blip.BackgroundColor3 = Color3.fromRGB(235, 235, 240)
 	blip.BorderSizePixel = 0
 	blip.ZIndex = 4
@@ -492,6 +535,7 @@ local function getRadarBlip(otherPlayer)
 	nameLabel.Font = Enum.Font.GothamBold
 	nameLabel.TextSize = 8
 	nameLabel.ZIndex = 5
+	nameLabel.Visible = not isTouchDevice
 	nameLabel.Parent = blip
 
 	radarBlips[otherPlayer] = blip
@@ -503,6 +547,11 @@ local function hideRadarBlips()
 end
 
 local function updateProximityRadar(seat, deltaTime)
+	if isTouchDevice and not mobileRadarEnabled then
+		radarPanel.Visible = false
+		hideRadarBlips()
+		return
+	end
 	if not seat or not seat.Parent then
 		radarPanel.Visible = false
 		hideRadarBlips()
@@ -724,6 +773,7 @@ end)
 RunService.Heartbeat:Connect(function(deltaTime)
 	local character = player.Character
 	local humanoid = character and character:FindFirstChildOfClass("Humanoid")
+	local root = character and character:FindFirstChild("HumanoidRootPart")
 	local seat = humanoid and humanoid.SeatPart or nil
 	local validSeat = seat and (seat:IsA("Seat") or seat:IsA("VehicleSeat"))
 	if validSeat and seat ~= activeEffectsSeat then
@@ -732,7 +782,10 @@ RunService.Heartbeat:Connect(function(deltaTime)
 		clearVehicleEffects()
 	end
 	if activeEffectsSeat then updateVehicleEffects(deltaTime) end
-	updateProximityRadar(validSeat and seat or nil, deltaTime)
+	-- En móvil algunos vehículos usan asientos personalizados y SeatPart queda nil.
+	-- En ese caso el HumanoidRootPart mantiene el radar disponible mediante el botón táctil.
+	local radarReference = validSeat and seat or (isTouchDevice and mobileRadarEnabled and root or nil)
+	updateProximityRadar(radarReference, deltaTime)
 end)
 
 -- =====================================================
